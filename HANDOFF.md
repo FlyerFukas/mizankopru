@@ -3,7 +3,7 @@
 > Bu dosya oturumlar arası hafızadır. **Her anlamlı çıktıdan sonra güncellenir.**
 > Yeni bir oturum açan (insan ya da model) önce burayı okur, sonra koda bakar.
 
-**Son güncelleme:** 2026-09-18 · Oturum 1 TAMAMLANDI
+**Son güncelleme:** 2026-09-18 · Oturum 1 TAMAMLANDI · lisans modeli değişti
 **Konum:** `C:\Users\furka\Music\MizanKopru`
 **Sahip:** Furkan Akduman
 
@@ -74,6 +74,9 @@ Orkestratör: `py src/boru.py` (tüm adımlar) veya adım adım `py src/topla.py
 
 - [x] **Güvenlik olayı kapatıldı** (§14) — anahtar iptal edildi, geçmiş temizlendi
 - [x] Depo **PUBLIC**: github.com/FlyerFukas/mizankopru
+
+- [x] Panel (`src/panel.py`) — tarayıcıdan çalıştırma + sürükle-bırak yükleme
+- [x] **Lisans modeli: PolyForm Noncommercial + ticari lisans** (§18)
 
 ### AÇIK — kullanıcı aksiyonu
 - [ ] `~/.claude/CLAUDE.md` içindeki GitHub adı güncel değil
@@ -343,7 +346,43 @@ user.email = 250136320+mrFurkan33333@users.noreply.github.com
 çıktı ve günlükler depoda yok — hepsi `py araclar/veri_uret.py` ile
 yeniden üretilebilir. Cevap anahtarı (`veri/ornek/`) depoda.
 
-## 17. Oturum günlüğü
+## 18. Lisans modeli — MIT değil, çift lisans
+
+**Karar:** Proje 18 Eylül'de kısa süre MIT olarak yayımlandı, sonra
+**PolyForm Noncommercial 1.0.0 + ticari lisans** modeline geçirildi.
+
+**Neden MIT yanlıştı:** MIT ticari kullanıma sınırsız izin verir. İstenen ise
+kişisel/eğitim/araştırma kullanımının serbest, işletme kullanımının ayrı bir
+anlaşmaya bağlı olmasıydı — MIT tam tersini yapıyordu.
+
+**Neden PolyForm:** Avukat tarafından hazırlanmış, kısa ve okunabilir standart
+bir lisans. "Ticari olmayan amaç" ve "ticari olmayan kuruluş" tanımlarını açıkça
+yapıyor. Aynı model EPPlus gibi ticari Excel kütüphanelerinde kullanılıyor.
+
+**Elenen alternatifler:**
+| Lisans | Neden elendi |
+|---|---|
+| BUSL 1.1 | Belirli bir tarihte otomatik açık kaynağa dönüşüyor; istenmiyordu |
+| Elastic License 2.0 | İç ticari kullanıma izin veriyor — istenen bu değildi |
+| Commons Clause | MIT'e eklenen kısıt; tanımları PolyForm kadar net değil |
+| CC BY-NC | Creative Commons yazılım için kullanılmasını kendisi önermiyor |
+
+**Uygulanan dosyalar:** `LICENSE` (tam metin + Required Notice + Türkçe özet),
+`COMMERCIAL.md` (kapsam, lisans biçimleri, iletişim, uyum), 15 kaynak dosyada
+SPDX başlığı, README uyarısı, pano/panel/PDF altbilgileri,
+`.github/ISSUE_TEMPLATE/ticari-lisans.yml`.
+
+**Bilinmesi gerekenler:**
+- GitHub lisansı **"Other / NOASSERTION"** olarak gösteriyor — PolyForm,
+  GitHub'ın `licensee` listesinde yok. LICENSE dosyası yine tıklanabilir;
+  README'nin en üstündeki uyarı bunu telafi ediyor.
+- **MIT geri alınamaz.** O kısa süre içinde kopya alan varsa hakları devam eder.
+  Bu tarihten sonraki sürümler yeni koşullara tabi. Kayıt: COMMERCIAL.md §7.
+- Katkı kabul edilirse telif devri ya da sınırsız lisans gerekir — yoksa çift
+  lisans modeli çalışmaz (COMMERCIAL.md §6).
+- **Bu hukuki tavsiye değildir.** Ciddi bir ticari anlaşma öncesi avukata danışın.
+
+## 19. Oturum günlüğü
 
 ### Oturum 1 — 2026-09-18
 - Proje kararları alındı (§2 tablosu).
@@ -376,3 +415,5 @@ yeniden üretilebilir. Cevap anahtarı (`veri/ornek/`) depoda.
 - **Güvenlik olayı:** API anahtarı `.env.ornek` içinde git geçmişine girdi.
   Depo public YAPILMADI, anahtar iptali bekleniyor (§14).
 - Hesap adı tespiti: `mrFurkan33333` ve `FlyerFukas` aynı hesap (id 250136320).
+- Panel yazıldı: yerel web arayüzü, canlı SSE log akışı, sürükle-bırak yükleme.
+- **Lisans MIT'ten PolyForm Noncommercial + ticari lisansa geçirildi** (§18).

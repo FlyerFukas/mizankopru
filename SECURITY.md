@@ -65,6 +65,13 @@ sürümleri sabitlenmemiştir — üretim ortamında kullanacaksanız kendi
 bu dosyalar dış kaynaklardan geliyorsa açmadan önce taranmalıdır. `openpyxl`
 formül çalıştırmaz, ancak kötü biçimlendirilmiş bir dosya bellek tüketebilir.
 
+## Lisans ve bu belge
+
+Bu güvenlik politikası, yazılımı **lisansına uygun** kullananlar içindir.
+Ticari olmayan kullanım [PolyForm Noncommercial 1.0.0](LICENSE) kapsamındadır;
+işletme kullanımı ayrı bir ticari lisans gerektirir ([COMMERCIAL.md](COMMERCIAL.md)).
+Lisanssız ticari kullanım sırasında karşılaşılan sorunlar için destek verilmez.
+
 ## Kapsam dışı
 
 Aşağıdakiler bu projenin tehdit modelinde değildir:

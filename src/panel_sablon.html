@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="tr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MizanKöprü — Panel</title>
+<style>
+:root {
+  --arka:#0d1117; --kart:#161b22; --kart2:#1c2230; --kenar:#30363d;
+  --metin:#e6edf3; --sonuk:#8b949e; --vurgu:#58a6ff; --iyi:#3fb950;
+  --uyari:#d29922; --kotu:#f85149; --mor:#bc8cff; --konsol:#0a0e14;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-tema="dark"]) {
+    --arka:#fff; --kart:#f6f8fa; --kart2:#eef2f6; --kenar:#d0d7de;
+    --metin:#1f2328; --sonuk:#59636e; --vurgu:#0969da; --iyi:#1a7f37;
+    --uyari:#9a6700; --kotu:#cf222e; --mor:#8250df; --konsol:#f6f8fa;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--arka);color:var(--metin);
+  font:14.5px/1.55 -apple-system,"Segoe UI",Roboto,sans-serif}
+.sarmal{max-width:1340px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:22px;margin:0;letter-spacing:-.4px}
+h2{font-size:14px;margin:0 0 10px;color:var(--sonuk);text-transform:uppercase;
+  letter-spacing:.7px;font-weight:600}
+.ust{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+.ust .alt{color:var(--sonuk);font-size:12.5px}
+.rozetler{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0 20px}
+.rozet{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;
+  border-radius:20px;font-size:12px;font-weight:600;border:1px solid var(--kenar);
+  background:var(--kart)}
+.rozet.iyi{color:var(--iyi);border-color:rgba(63,185,80,.4)}
+.rozet.uyari{color:var(--uyari);border-color:rgba(210,153,34,.4)}
+.rozet.kotu{color:var(--kotu);border-color:rgba(248,81,73,.4)}
+.rozet.mor{color:var(--mor);border-color:rgba(188,140,255,.4)}
+.nokta{width:7px;height:7px;border-radius:50%;background:currentColor;
+  display:inline-block;flex:none}
+.izgara{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;align-items:start}
+@media (max-width:1020px){.izgara{grid-template-columns:1fr}}
+.blok{background:var(--kart);border:1px solid var(--kenar);border-radius:10px;
+  padding:16px;margin-bottom:18px}
+.adimlar{display:flex;flex-direction:column;gap:8px}
+.adim{display:flex;align-items:center;gap:12px;padding:10px 12px;
+  background:var(--kart2);border:1px solid var(--kenar);border-radius:8px;
+  transition:border-color .15s}
+.adim:hover{border-color:var(--vurgu)}
+.adim.calisiyor{border-color:var(--vurgu);
+  box-shadow:0 0 0 1px var(--vurgu) inset}
+.adim.tamam{border-left:3px solid var(--iyi)}
+.adim.hata{border-left:3px solid var(--kotu)}
+.adim.demo{border-left:3px solid var(--mor)}
+.adim .govde{flex:1;min-width:0}
+.adim .ad{font-weight:600;font-size:14px}
+.adim .aciklama{font-size:12px;color:var(--sonuk);margin-top:2px;
+  overflow:hidden;text-overflow:ellipsis;display:-webkit-box;
+  -webkit-line-clamp:2;-webkit-box-orient:vertical}
+.adim .olcum{font-size:11.5px;color:var(--sonuk);white-space:nowrap;
+  font-variant-numeric:tabular-nums;text-align:right;min-width:74px}
+button{font:inherit;font-size:13px;font-weight:600;padding:7px 14px;
+  border-radius:7px;border:1px solid var(--kenar);background:var(--kart);
+  color:var(--metin);cursor:pointer;transition:.15s;white-space:nowrap}
+button:hover:not(:disabled){border-color:var(--vurgu);color:var(--vurgu)}
+button:disabled{opacity:.42;cursor:not-allowed}
+button.ana{background:var(--vurgu);border-color:var(--vurgu);color:#fff}
+button.ana:hover:not(:disabled){filter:brightness(1.12);color:#fff}
+button.kucuk{padding:5px 10px;font-size:12px}
+button.tehlike:hover:not(:disabled){border-color:var(--kotu);color:var(--kotu)}
+.satirbuton{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.birak{border:2px dashed var(--kenar);border-radius:10px;padding:26px 16px;
+  text-align:center;cursor:pointer;transition:.18s;background:var(--kart2)}
+.birak:hover,.birak.uzerinde{border-color:var(--vurgu);
+  background:rgba(88,166,255,.07)}
+.birak .ikon{font-size:26px;opacity:.65}
+.birak .baslik{font-weight:600;margin:6px 0 3px}
+.birak .ipucu{font-size:12px;color:var(--sonuk)}
+.liste{max-height:210px;overflow-y:auto;margin-top:12px;
+  border:1px solid var(--kenar);border-radius:8px}
+.liste .oge{display:flex;align-items:center;gap:10px;padding:6px 10px;
+  font-size:12.5px;border-bottom:1px solid var(--kenar)}
+.liste .oge:last-child{border-bottom:none}
+.liste .oge .ad{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-family:ui-monospace,Consolas,monospace;font-size:12px}
+.liste .oge .kb{color:var(--sonuk);font-variant-numeric:tabular-nums}
+.liste .oge .sil{opacity:0;cursor:pointer;color:var(--kotu);font-weight:700;
+  padding:0 4px;background:none;border:none}
+.liste .oge:hover .sil{opacity:1}
+.cikti{display:flex;align-items:center;gap:11px;padding:9px 11px;
+  border:1px solid var(--kenar);border-radius:8px;margin-bottom:7px;
+  background:var(--kart2)}
+.cikti.yok{opacity:.42}
+.cikti .govde{flex:1;min-width:0}
+.cikti .baslik{font-weight:600;font-size:13.5px}
+.cikti .meta{font-size:11.5px;color:var(--sonuk)}
+.cikti a{color:var(--vurgu);text-decoration:none;font-size:12.5px;font-weight:600}
+.cikti a:hover{text-decoration:underline}
+#konsol{background:var(--konsol);border:1px solid var(--kenar);border-radius:10px;
+  padding:12px 14px;height:330px;overflow-y:auto;
+  font:12.4px/1.55 ui-monospace,"Cascadia Mono",Consolas,monospace;
+  white-space:pre-wrap;word-break:break-word}
+#konsol .s-bilgi{color:var(--metin)}
+#konsol .s-iyi{color:var(--iyi)}
+#konsol .s-uyari{color:var(--uyari)}
+#konsol .s-hata{color:var(--kotu);font-weight:600}
+#konsol .s-baslik{color:var(--vurgu);font-weight:600}
+#konsol .bos{color:var(--sonuk);font-style:italic}
+.konsol-ust{display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:10px;gap:10px;flex-wrap:wrap}
+.ilerleme{height:3px;background:var(--kenar);border-radius:2px;overflow:hidden;
+  margin-bottom:12px}
+.ilerleme .dolu{height:100%;background:var(--vurgu);width:0;transition:width .3s}
+.bilgi-satir{display:flex;justify-content:space-between;gap:10px;
+  padding:5px 0;border-bottom:1px solid var(--kenar);font-size:13px}
+.bilgi-satir:last-child{border-bottom:none}
+.bilgi-satir .k{color:var(--sonuk)}
+.bilgi-satir .d{font-weight:600;font-variant-numeric:tabular-nums}
+.uyari-kutu{background:rgba(210,153,34,.1);border:1px solid rgba(210,153,34,.35);
+  border-radius:8px;padding:10px 12px;font-size:12.5px;margin-top:12px;
+  color:var(--uyari)}
+.hata-kutu{background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.4);
+  border-radius:8px;padding:10px 12px;font-size:12.5px;margin-bottom:14px;
+  color:var(--kotu)}
+.donuyor{display:inline-block;width:12px;height:12px;border:2px solid var(--kenar);
+  border-top-color:var(--vurgu);border-radius:50%;animation:don .7s linear infinite}
+@keyframes don{to{transform:rotate(360deg)}}
+footer{margin-top:26px;padding-top:14px;border-top:1px solid var(--kenar);
+  color:var(--sonuk);font-size:12px}
+code{font-family:ui-monospace,Consolas,monospace;font-size:12px;
+  background:var(--kart2);padding:1px 5px;border-radius:4px}
+</style></head>
+<body><div class="sarmal">
+
+<div class="ust">
+  <h1>MizanKöprü</h1>
+  <span class="alt">konsolidasyon ve iç kontrol motoru · yerel panel</span>
+</div>
+<div class="rozetler" id="rozetler"></div>
+<div id="yapilandirmaHatasi"></div>
+
+<div class="izgara">
+  <!-- SOL -->
+  <div>
+    <div class="blok">
+      <h2>Boru hattı</h2>
+      <div class="satirbuton">
+        <button class="ana" id="btnTumu">Tüm boru hattını çalıştır</button>
+        <button id="btnDemoTumu">Demo veri üret + çalıştır</button>
+        <button class="tehlike" id="btnDurdur" disabled>Durdur</button>
+      </div>
+      <div class="ilerleme"><div class="dolu" id="ilerleme"></div></div>
+      <div class="adimlar" id="adimlar"></div>
+    </div>
+
+    <div class="blok">
+      <div class="konsol-ust">
+        <h2 style="margin:0">Canlı çıktı</h2>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span id="baglantiDurum" class="rozet"><span class="nokta"></span>bağlanıyor</span>
+          <button class="kucuk" id="btnTemizleKonsol">Konsolu temizle</button>
+        </div>
+      </div>
+      <div id="konsol"><span class="bos">Bir adım çalıştırıldığında çıktı burada akar.</span></div>
+    </div>
+  </div>
+
+  <!-- SAĞ -->
+  <div>
+    <div class="blok">
+      <h2>Veri</h2>
+      <div class="birak" id="birak">
+        <div class="ikon">⇪</div>
+        <div class="baslik">Dosyaları buraya sürükleyin</div>
+        <div class="ipucu">veya tıklayıp seçin · .xlsx, .xls, .csv · en fazla 40 MB</div>
+        <input type="file" id="dosyaSec" multiple accept=".xlsx,.xls,.csv" hidden>
+      </div>
+      <div id="girdiOzet" style="margin-top:12px"></div>
+      <div class="liste" id="girdiListe" style="display:none"></div>
+      <div class="satirbuton" style="margin:12px 0 0">
+        <button class="kucuk tehlike" id="btnGirdiTemizle">Girdi dizinini boşalt</button>
+      </div>
+      <div id="girdiUyari"></div>
+    </div>
+
+    <div class="blok">
+      <h2>Çıktılar</h2>
+      <div id="ciktilar"></div>
+    </div>
+
+    <div class="blok">
+      <h2>Durum</h2>
+      <div id="ozetBilgi"></div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Panel yalnızca <code>127.0.0.1</code> üzerinde çalışır — ağdan erişilemez.
+  Yüklenen dosyalar <code>veri/girdi/</code> dizinine yazılır.
+  Kapatmak için panelin açıldığı terminalde <code>Ctrl+C</code>.
+</footer>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+let DURUM = null, CALISIYOR = false, ZINCIR = {toplam:0, biten:0};
+
+// ---------- yardımcılar ----------
+const kacis = s => String(s).replace(/[&<>"]/g, c =>
+  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function rozet(metin, sinif='') {
+  return `<span class="rozet ${sinif}"><span class="nokta"></span>${kacis(metin)}</span>`;
+}
+
+// ---------- konsol ----------
+const konsol = $('#konsol');
+let konsolBos = true;
+function yaz(metin, seviye='bilgi') {
+  if (konsolBos) { konsol.innerHTML = ''; konsolBos = false; }
+  const d = document.createElement('div');
+  d.className = 's-' + seviye;
+  d.textContent = metin;
+  konsol.appendChild(d);
+  while (konsol.childElementCount > 1400) konsol.removeChild(konsol.firstChild);
+  konsol.scrollTop = konsol.scrollHeight;
+}
+$('#btnTemizleKonsol').onclick = () => {
+  konsol.innerHTML = '<span class="bos">Konsol temizlendi.</span>';
+  konsolBos = true;
+};
+
+// ---------- SSE ----------
+function akisBaslat() {
+  const es = new EventSource('/api/akis');
+  es.onopen = () => {
+    $('#baglantiDurum').className = 'rozet iyi';
+    $('#baglantiDurum').innerHTML = '<span class="nokta"></span>bağlı';
+  };
+  es.onerror = () => {
+    $('#baglantiDurum').className = 'rozet kotu';
+    $('#baglantiDurum').innerHTML = '<span class="nokta"></span>bağlantı koptu';
+  };
+  es.onmessage = e => {
+    const o = JSON.parse(e.data);
+    if (o.tur === 'satir') yaz(o.metin, o.seviye);
+    else if (o.tur === 'zincir_basladi') {
+      CALISIYOR = true; ZINCIR = {toplam:o.adimlar.length, biten:0};
+      butonlariGuncelle(); ilerlemeGuncelle();
+    }
+    else if (o.tur === 'adim_basladi') {
+      DURUM && (DURUM.calisiyor = o.adim); adimlariCiz();
+    }
+    else if (o.tur === 'adim_bitti') {
+      ZINCIR.biten++; ilerlemeGuncelle();
+      if (DURUM) {
+        DURUM.gecmis = DURUM.gecmis.filter(g => g.adim !== o.adim);
+        DURUM.gecmis.push(o);
+        DURUM.calisiyor = null;
+      }
+      adimlariCiz();
+    }
+    else if (o.tur === 'zincir_bitti') {
+      CALISIYOR = false; butonlariGuncelle();
+      yaz(`\n✓ Bitti — toplam ${o.sure} sn`, 'baslik');
+      $('#ilerleme').style.width = '100%';
+      setTimeout(() => { $('#ilerleme').style.width = '0'; }, 1600);
+      durumYenile();
+    }
+  };
+}
+function ilerlemeGuncelle() {
+  const y = ZINCIR.toplam ? (ZINCIR.biten / ZINCIR.toplam) * 100 : 0;
+  $('#ilerleme').style.width = y + '%';
+}
+
+// ---------- durum ----------
+async function durumYenile() {
+  try {
+    DURUM = await (await fetch('/api/durum')).json();
+    CALISIYOR = !!DURUM.calisiyor;
+    ciz();
+  } catch (e) { yaz('Durum alınamadı: ' + e, 'hata'); }
+}
+
+function ciz() {
+  rozetleriCiz(); adimlariCiz(); girdiCiz(); ciktilariCiz();
+  ozetCiz(); butonlariGuncelle();
+}
+
+function rozetleriCiz() {
+  const d = DURUM, r = [];
+  const y = d.yapilandirma;
+  r.push(y.gecerli ? rozet('yapılandırma geçerli', 'iyi')
+                   : rozet('yapılandırma HATALI', 'kotu'));
+  r.push(d.anahtar.var ? rozet('zeka açık · ' + d.anahtar.model, 'mor')
+                       : rozet('zeka kapalı', ''));
+  r.push(d.girdi.dosya
+    ? rozet(`${d.girdi.dosya} girdi dosyası · ${d.girdi.boyut_mb} MB`
+            + (d.girdi.demo_mu ? ' (demo)' : ''), 'iyi')
+    : rozet('girdi yok', 'uyari'));
+  if (d.bulgu) {
+    r.push(d.bulgu.kritik
+      ? rozet(`${d.bulgu.kritik} kritik bulgu — kapanış imzalanamaz`, 'kotu')
+      : rozet(`${d.bulgu.toplam} bulgu · kritik yok`, 'iyi'));
+  }
+  $('#rozetler').innerHTML = r.join('');
+
+  $('#yapilandirmaHatasi').innerHTML = y.gecerli ? '' :
+    `<div class="hata-kutu"><b>Yapılandırma okunamadı.</b><br>
+     ${kacis(y.hata || '')}<br>
+     <code>yapilandirma/</code> altındaki dosyaları düzeltmeden boru hattı çalışmaz.</div>`;
+}
+
+function adimlariCiz() {
+  const d = DURUM;
+  const gec = Object.fromEntries((d.gecmis || []).map(g => [g.adim, g]));
+  $('#adimlar').innerHTML = d.adimlar.map(a => {
+    const g = gec[a.ad];
+    const aktif = d.calisiyor === a.ad;
+    let sinif = a.ad === 'veri_uret' ? 'demo' : '';
+    if (aktif) sinif = 'calisiyor';
+    else if (g) sinif = g.basarili ? 'tamam' : 'hata';
+    const olcum = aktif ? '<span class="donuyor"></span>'
+      : g ? `${g.sure} sn<br><span style="opacity:.75">${g.zaman}`
+            + (g.uyari ? ` · ${g.uyari} uyarı` : '') + '</span>'
+      : '—';
+    return `<div class="adim ${sinif}">
+      <div class="govde">
+        <div class="ad">${kacis(a.baslik)}</div>
+        <div class="aciklama">${kacis(a.aciklama)}</div>
+      </div>
+      <div class="olcum">${olcum}</div>
+      <button class="kucuk" data-adim="${a.ad}" ${CALISIYOR ? 'disabled' : ''}>
+        Çalıştır</button>
+    </div>`;
+  }).join('');
+  $('#adimlar').querySelectorAll('button[data-adim]').forEach(b => {
+    b.onclick = () => calistir([b.dataset.adim]);
+  });
+}
+
+function girdiCiz() {
+  const g = DURUM.girdi;
+  $('#girdiOzet').innerHTML = g.dosya
+    ? `<div class="bilgi-satir"><span class="k">Dosya</span>
+         <span class="d">${g.dosya}</span></div>
+       <div class="bilgi-satir"><span class="k">Boyut</span>
+         <span class="d">${g.boyut_mb} MB</span></div>
+       <div class="bilgi-satir"><span class="k">Kaynak</span>
+         <span class="d">${g.demo_mu ? 'demo verisi' : 'kendi verileriniz'}</span></div>`
+    : `<div style="color:var(--sonuk);font-size:13px">Girdi dizini boş.
+       Kendi dosyalarınızı yükleyin ya da demo veri üretin.</div>`;
+
+  const liste = $('#girdiListe');
+  if (g.liste.length) {
+    liste.style.display = '';
+    liste.innerHTML = g.liste.map(d => `<div class="oge">
+      <span class="ad">${kacis(d.ad)}</span>
+      <span class="kb">${d.kb} KB</span>
+      <button class="sil" data-sil="${kacis(d.ad)}" title="sil">×</button>
+    </div>`).join('');
+    liste.querySelectorAll('button[data-sil]').forEach(b => {
+      b.onclick = async () => {
+        await fetch('/api/girdi-sil', {method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ad: b.dataset.sil})});
+        durumYenile();
+      };
+    });
+  } else liste.style.display = 'none';
+
+  $('#girdiUyari').innerHTML = (g.dosya && !g.demo_mu)
+    ? `<div class="uyari-kutu"><b>Kendi verileriniz yüklü.</b>
+       "Demo veri üret" düğmesi girdi dizinini <b>temizler</b> — bu dosyalar silinir.
+       Kolon adlarınız tanınmıyorsa <code>yapilandirma/kolon_eslesme.yaml</code>
+       dosyasına ekleyin.</div>`
+    : '';
+}
+
+function ciktilariCiz() {
+  $('#ciktilar').innerHTML = DURUM.ciktilar.map(c => c.var
+    ? `<div class="cikti">
+        <div class="govde">
+          <div class="baslik">${kacis(c.baslik)}</div>
+          <div class="meta">${kacis(c.tur)} · ${c.kb} KB · ${kacis(c.zaman)}</div>
+        </div>
+        <a href="/cikti/${encodeURIComponent(c.ad)}" target="_blank">Aç</a>
+        <a href="/cikti/${encodeURIComponent(c.ad)}?indir=1">İndir</a>
+      </div>`
+    : `<div class="cikti yok">
+        <div class="govde">
+          <div class="baslik">${kacis(c.baslik)}</div>
+          <div class="meta">${kacis(c.tur)} · henüz üretilmedi</div>
+        </div>
+      </div>`).join('');
+}
+
+function ozetCiz() {
+  const d = DURUM, y = d.yapilandirma, s = [];
+  if (y.gecerli) {
+    s.push(`<div class="bilgi-satir"><span class="k">Sunum para birimi</span>
+      <span class="d">${kacis(y.sunum_pb)}</span></div>`);
+    s.push(`<div class="bilgi-satir"><span class="k">Dönem</span>
+      <span class="d">${kacis(y.donem[0])} → ${kacis(y.donem[1])}</span></div>`);
+    y.sirket.forEach(c => s.push(`<div class="bilgi-satir">
+      <span class="k">${kacis(c.kod)} · ${kacis(c.ad)}</span>
+      <span class="d">${kacis(c.pb)}</span></div>`));
+  }
+  if (d.bulgu) {
+    s.push(`<div class="bilgi-satir" style="margin-top:8px">
+      <span class="k">Bulgu (kritik/yüksek/orta/düşük)</span>
+      <span class="d">${d.bulgu.kritik} / ${d.bulgu.yuksek} /
+        ${d.bulgu.orta} / ${d.bulgu.dusuk}</span></div>`);
+  }
+  $('#ozetBilgi').innerHTML = s.join('') ||
+    '<div style="color:var(--sonuk);font-size:13px">Henüz veri yok.</div>';
+}
+
+function butonlariGuncelle() {
+  ['#btnTumu','#btnDemoTumu','#btnGirdiTemizle'].forEach(s => {
+    const b = $(s); if (b) b.disabled = CALISIYOR;
+  });
+  $('#btnDurdur').disabled = !CALISIYOR;
+  document.querySelectorAll('button[data-adim]').forEach(b => b.disabled = CALISIYOR);
+}
+
+// ---------- çalıştırma ----------
+const TUM_ADIMLAR = ['topla','esle','cevir','kontrol','sapma','pano','excel'];
+
+async function calistir(adimlar) {
+  if (CALISIYOR) return;
+  const c = await (await fetch('/api/calistir', {method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({adimlar})})).json();
+  if (!c.tamam) yaz('⨯ ' + c.mesaj, 'hata');
+}
+
+$('#btnTumu').onclick = () => {
+  if (!DURUM.girdi.dosya) {
+    yaz('⨯ Girdi dizini boş. Önce dosya yükleyin ya da demo veri üretin.', 'hata');
+    return;
+  }
+  calistir(TUM_ADIMLAR);
+};
+$('#btnDemoTumu').onclick = () => {
+  if (DURUM.girdi.dosya && !DURUM.girdi.demo_mu &&
+      !confirm('Girdi dizininde kendi dosyalarınız var.\n\n' +
+               'Demo veri üretimi bu dosyaları SİLER. Devam edilsin mi?')) return;
+  calistir(['veri_uret', ...TUM_ADIMLAR]);
+};
+$('#btnDurdur').onclick = async () => {
+  await fetch('/api/durdur', {method:'POST'});
+  yaz('⨯ Durdurma isteği gönderildi.', 'uyari');
+};
+$('#btnGirdiTemizle').onclick = async () => {
+  if (!confirm('veri/girdi/ dizinindeki tüm .xlsx/.xls/.csv dosyaları silinecek.\n\n' +
+               'Devam edilsin mi?')) return;
+  await fetch('/api/girdi-temizle', {method:'POST'});
+  durumYenile();
+};
+
+// ---------- yükleme ----------
+const birak = $('#birak'), secici = $('#dosyaSec');
+birak.onclick = () => secici.click();
+secici.onchange = () => { yukle([...secici.files]); secici.value = ''; };
+['dragenter','dragover'].forEach(o => birak.addEventListener(o, e => {
+  e.preventDefault(); birak.classList.add('uzerinde');
+}));
+['dragleave','drop'].forEach(o => birak.addEventListener(o, e => {
+  e.preventDefault(); birak.classList.remove('uzerinde');
+}));
+birak.addEventListener('drop', e => {
+  const d = [...(e.dataTransfer.files || [])];
+  if (d.length) yukle(d);
+});
+// Sayfanın herhangi bir yerine bırakınca tarayıcı dosyayı açmasın
+['dragover','drop'].forEach(o =>
+  window.addEventListener(o, e => { if (e.target !== birak) e.preventDefault(); }));
+
+function oku(dosya) {
+  return new Promise((coz, red) => {
+    const fr = new FileReader();
+    fr.onload = () => coz(fr.result.split(',')[1]);
+    fr.onerror = () => red(fr.error);
+    fr.readAsDataURL(dosya);
+  });
+}
+
+async function yukle(dosyalar) {
+  if (!dosyalar.length) return;
+  yaz(`⇪ ${dosyalar.length} dosya yükleniyor...`, 'baslik');
+  const paket = [];
+  for (const d of dosyalar) {
+    try { paket.push({ad: d.name, veri: await oku(d)}); }
+    catch (e) { yaz(`⨯ ${d.name} okunamadı: ${e}`, 'hata'); }
+  }
+  try {
+    const c = await (await fetch('/api/yukle', {method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({dosyalar: paket})})).json();
+    if (c.yazilan.length) {
+      yaz(`✓ ${c.yazilan.length} dosya veri/girdi/ dizinine yazıldı.`, 'iyi');
+      yaz('  Şimdi "Tüm boru hattını çalıştır" düğmesine basabilirsiniz.', 'bilgi');
+    }
+  } catch (e) { yaz('⨯ Yükleme başarısız: ' + e, 'hata'); }
+  durumYenile();
+}
+
+// ---------- başlat ----------
+akisBaslat();
+durumYenile();
+setInterval(() => { if (!CALISIYOR) durumYenile(); }, 12000);
+</script>
+</body></html>

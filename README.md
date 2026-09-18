@@ -59,6 +59,7 @@ Ayrıştırma yapılmadan bu iki şey birbirinden ayrılamaz.
 
 ```
 veri/girdi/   41 dağınık dosya — farklı biçim, kolon adı, tarih ve sayı formatı
+     │        (panelden sürükle-bırak ile de yüklenebilir)
      │
      ├─[1] topla.py    tek şemaya normalize et           44.000 satır
      ├─[2] esle.py     yerel hesap → grup hesap planı    eşleşmeyen = askıya
@@ -68,6 +69,25 @@ veri/girdi/   41 dağınık dosya — farklı biçim, kolon adı, tarih ve sayı
      └─[6] pano.py + excel.py
              cikti/pano.html · cikti/konsolidasyon_paketi.xlsx
 ```
+
+## Panel (önerilen kullanım)
+
+```bash
+py src/panel.py
+```
+
+Tarayıcıda açılan yerel bir arayüz. Terminale hiç dönmeden:
+
+- Her adımı tek tek ya da tüm boru hattını çalıştırma
+- **Canlı çıktı akışı** — hangi adım nerede, ne kadar sürdü, kaç uyarı çıktı
+- **Kendi Excel dosyalarınızı sürükle-bırak ile yükleme** (`.xlsx`, `.xls`, `.csv`)
+- Üretilen çıktıları açma ve indirme
+- Yapılandırma, anahtar ve bulgu durumunun tek bakışta görünmesi
+
+Panel yalnızca `127.0.0.1` üzerinde çalışır — ağdan erişilemez. Windows'ta
+`PANEL.bat` dosyasına çift tıklamak da yeterlidir.
+
+## Komut satırı
 
 Tek komutla:
 
@@ -230,6 +250,7 @@ eşleme, kur ve çevrim farkı, denetim izi.
 - [ ] TCMB ve TÜİK verilerini canlı API'den çekme (şu an sabit tablo)
 - [ ] Rolling forecast ve senaryo motoru ("kur %10 daha artarsa?")
 - [ ] VUK ↔ IFRS köprüsü ve ertelenmiş vergi
+- [ ] Panelden yapılandırma düzenleme (şu an dosyadan)
 
 ---
 

@@ -3,7 +3,7 @@
 > Bu dosya oturumlar arası hafızadır. **Her anlamlı çıktıdan sonra güncellenir.**
 > Yeni bir oturum açan (insan ya da model) önce burayı okur, sonra koda bakar.
 
-**Son güncelleme:** 2026-09-18 · Oturum 1 (devam 3)
+**Son güncelleme:** 2026-09-18 · Oturum 1 (devam 4)
 **Konum:** `C:\Users\furka\Music\MizanKopru`
 **Sahip:** Furkan Akduman
 
@@ -63,8 +63,14 @@ Orkestratör: `py src/boru.py` (tüm adımlar) veya adım adım `py src/topla.py
 - [x] `src/kontrol.py` — 14 kontrol testi · **14/14 tuzak yakalandı, 130 bulgu**
 - [x] Claude API bağlandı ve doğrulandı (oturum maliyeti $0,51)
 
+- [x] `src/sapma.py` — fiyat/karışım/hacim/kur ayrıştırması · **özdeşlik artığı 0,0000**
+- [x] Git deposu kuruldu, 11 adım adım commit
+
 ### Sırada
-- [ ] `src/sapma.py` — fiyat/miktar/kur/karışım ayrıştırması
+- [ ] `src/pano.py` — tek dosyalık HTML pano
+- [ ] `src/excel.py` — konsolidasyon paketi (.xlsx)
+- [ ] `src/boru.py` — tüm adımları sırayla çalıştıran orkestratör
+- [ ] Proje bitince: LICENSE (MIT), SECURITY.md, README.md → public
 - [ ] `src/sapma.py` — sapma ayrıştırma
 - [ ] `src/pano.py` / `src/excel.py` — çıktılar
 - [ ] `src/boru.py` — orkestratör
@@ -257,7 +263,45 @@ tutarları da motor hesapladı.
 
 Bulgu dağılımı: kritik 20 · yüksek 49 · orta 60 · düşük 1 = **130**
 
-## 14. Oturum günlüğü
+## 14. sapma.py — köprü ve 2025 sonucu
+
+Ayrıştırma matematiksel olarak tamdır (artık terim yok) ve özdeşlik her
+çalıştırmada sayısal olarak sınanır — tutmayan bir köprü yayımlanmamalıdır.
+
+**Grup köprüsü, 2025 (EUR):**
+
+| Kalem | EUR | Bütçeye oran |
+|---|---|---|
+| Bütçe (bütçe kuruyla) | 77.035.451 | |
+| + Fiyat etkisi | +6.808.114 | +%8,8 |
+| + Karışım etkisi | −76.906 | −%0,1 |
+| + Hacim etkisi | −6.923.589 | −%9,0 |
+| **= Sabit kurda fiili** | **76.843.071** | **−%0,2** |
+| + Kur etkisi | −5.812.928 | −%7,5 |
+| **Fiili (gerçekleşen kurla)** | **71.030.142** | **−%7,8** |
+
+Fiyat artışı hacim kaybını neredeyse tam karşıladı. Açığın tamamı kurdan.
+
+**TR01, aynı yıl üç okuma:** miktar −%12,1 · yerel ciro **+%2,1** · EUR ciro **−%11,2**.
+
+**Mutabakat:** köprü satış detayından (brüt fatura), gelir tablosu mizandan
+gelir; aradaki 1.490.444 EUR fark, iadenin 4090 yerine doğrudan hasılat
+hesabına yazılmasından. Bu aynı zamanda bir sınıflandırma bulgusu (K11 de
+işaretledi). Farkı AI yorumu kendi "Dikkat" bölümünde yakaladı, mutabakat
+tablosu onun üzerine eklendi.
+
+## 15. Git
+
+Depo-yerel kimlik (CLAUDE.md kuralı — Vercel `Deployment Blocked` tuzağı):
+```
+user.name  = mrFurkan33333
+user.email = 250136320+mrFurkan33333@users.noreply.github.com
+```
+`.env` gitignore'da ve `git check-ignore` ile doğrulandı. Üretilen veri,
+çıktı ve günlükler depoda yok — hepsi `py araclar/veri_uret.py` ile
+yeniden üretilebilir. Cevap anahtarı (`veri/ornek/`) depoda.
+
+## 16. Oturum günlüğü
 
 ### Oturum 1 — 2026-09-18
 - Proje kararları alındı (§2 tablosu).
@@ -280,4 +324,6 @@ Bulgu dağılımı: kritik 20 · yüksek 49 · orta 60 · düşük 1 = **130**
 - `kontrol.py` yazıldı: 14 test. İlk tur 1.902 bulgu → kapsam düzeltmeleriyle 130.
 - **14/14 tuzak yakalandı.**
 - AI triyajı bir kural iyileştirmesi önerdi, uygulandı (§12).
-- Oturum AI maliyeti: **$0,5141** (5 çağrı, 2 önbellek isabeti).
+- `sapma.py` yazıldı: fiyat/karışım/hacim/kur ayrıştırması, özdeşlik sınaması,
+  mutabakat tablosu, AI sapma yorumu.
+- Git deposu kuruldu; 11 adım adım commit, GitHub'a gönderildi.

@@ -1,0 +1,27 @@
+# ============================================================
+# YAPAY ZEKÂ KATMANI AYARLARI
+#
+# Bu katman KAPATILABİLİR. Kapalıyken boru hattının ürettiği
+# hiçbir rakam değişmez — sadece yorum metinleri üretilmez.
+# Rakam LLM'den gelmez, motordan gelir (bkz. src/zeka.py başlığı).
+# ============================================================
+
+# Kullanılacak model. Maliyet düşürmek için claude-sonnet-5'e çekilebilir.
+model: "claude-opus-5"
+
+# Aynı istem tekrar sorulursa API'ye gitme (gunluk/zeka_onbellek/).
+# Boru hattını tekrar tekrar çalıştırırken maliyeti sıfırlar.
+onbellek: true
+
+# 1M token başına USD. Maliyet takibi denetim izine yazılır.
+fiyat:
+  claude-opus-5:    {girdi: 5.0, cikti: 25.0}
+  claude-sonnet-5:  {girdi: 2.0, cikti: 10.0}
+  claude-haiku-4-5: {girdi: 1.0, cikti: 5.0}
+
+# Hangi görevler açık olsun
+gorevler:
+  esleme_oner: true       # eşleşmeyen hesaplara grup hesabı önerisi (K09)
+  bulgu_triyaj: true      # kontrol bulgularını aciliyete göre sırala
+  sapma_yorumla: true     # sapma köprüsünü finans diline çevir
+  yonetici_ozeti: true    # kapanış notu

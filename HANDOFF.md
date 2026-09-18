@@ -3,7 +3,7 @@
 > Bu dosya oturumlar arası hafızadır. **Her anlamlı çıktıdan sonra güncellenir.**
 > Yeni bir oturum açan (insan ya da model) önce burayı okur, sonra koda bakar.
 
-**Son güncelleme:** 2026-09-18 · Oturum 1 (devam 4)
+**Son güncelleme:** 2026-09-18 · Oturum 1 TAMAMLANDI
 **Konum:** `C:\Users\furka\Music\MizanKopru`
 **Sahip:** Furkan Akduman
 
@@ -66,11 +66,18 @@ Orkestratör: `py src/boru.py` (tüm adımlar) veya adım adım `py src/topla.py
 - [x] `src/sapma.py` — fiyat/karışım/hacim/kur ayrıştırması · **özdeşlik artığı 0,0000**
 - [x] Git deposu kuruldu, 11 adım adım commit
 
-### Sırada
-- [ ] `src/pano.py` — tek dosyalık HTML pano
-- [ ] `src/excel.py` — konsolidasyon paketi (.xlsx)
-- [ ] `src/boru.py` — tüm adımları sırayla çalıştıran orkestratör
-- [ ] Proje bitince: LICENSE (MIT), SECURITY.md, README.md → public
+- [x] `src/pano.py` — tek dosyalık HTML pano (25 KB, saf SVG şelale grafiği)
+- [x] `src/excel.py` — 9 sayfalık konsolidasyon paketi
+- [x] `src/boru.py` — orkestratör · **uçtan uca 42 sn**
+- [x] README.md, LICENSE (MIT), SECURITY.md
+- [x] `araclar/rapor_uret.py` — 12 sayfalık proje raporu (PDF)
+
+### AÇIK — kullanıcı aksiyonu bekliyor
+- [ ] **API anahtarı iptal edilmeli** (bkz. §17) — sonra depo public yapılabilir
+- [ ] `~/.claude/CLAUDE.md` içindeki GitHub adı güncel değil
+      (`mrFurkan33333` → `FlyerFukas`)
+
+### Yol haritası (v2)
 - [ ] `src/sapma.py` — sapma ayrıştırma
 - [ ] `src/pano.py` / `src/excel.py` — çıktılar
 - [ ] `src/boru.py` — orkestratör
@@ -263,7 +270,31 @@ tutarları da motor hesapladı.
 
 Bulgu dağılımı: kritik 20 · yüksek 49 · orta 60 · düşük 1 = **130**
 
-## 14. sapma.py — köprü ve 2025 sonucu
+## 14. GÜVENLİK OLAYI — API anahtarı git geçmişinde
+
+**Ne oldu:** Anahtar `.env` yerine `.env.ornek` şablonuna yazıldı.
+`.env.ornek` şablon olduğu için `.gitignore`'da **değildir** ve ilk commit'te
+(`4e7cd63`) depoya girip GitHub'a push edildi.
+
+**Ne yapıldı:**
+- `.env.ornek` temizlendi, içine açık uyarı kondu (commit `dba5113`).
+- `.env` dosyasına dokunulmadı — anahtarın doğru yeri orası, gitignore'da.
+- **Depo PRIVATE bırakıldı.** Public yapılmadı.
+- Git geçmişini yeniden yazma (`filter-branch`) denendi, izin reddedildi —
+  geri alınamaz bir işlem olduğu için doğru davranış.
+
+**Yapılması gereken (kullanıcı):**
+1. **Anahtarı console.anthropic.com üzerinden iptal et.** Bu ilk ve zorunlu
+   adım. `SECURITY.md`'de kendi yazdığımız kural geçerli: *bir anahtar
+   yayımlandıysa yakılmış sayılır.* Geçmişi temizlemek tek başına yetmez;
+   anahtar GitHub'ın sunucularına, loglarına ve olası önbelleklerine gitti.
+2. Yeni anahtar üret, `.env`'e yaz (`.env.ornek`'e değil).
+3. İstenirse geçmiş temizliği: `git filter-repo --path .env.ornek --invert-paths`
+   ya da depoyu silip temiz geçmişle yeniden oluşturmak. Anahtar iptal
+   edildikten sonra bu **isteğe bağlıdır**.
+4. Sonra depo public yapılabilir.
+
+## 15. sapma.py — köprü ve 2025 sonucu
 
 Ayrıştırma matematiksel olarak tamdır (artık terim yok) ve özdeşlik her
 çalıştırmada sayısal olarak sınanır — tutmayan bir köprü yayımlanmamalıdır.
@@ -290,7 +321,7 @@ hesabına yazılmasından. Bu aynı zamanda bir sınıflandırma bulgusu (K11 de
 işaretledi). Farkı AI yorumu kendi "Dikkat" bölümünde yakaladı, mutabakat
 tablosu onun üzerine eklendi.
 
-## 15. Git
+## 16. Git
 
 Depo-yerel kimlik (CLAUDE.md kuralı — Vercel `Deployment Blocked` tuzağı):
 ```
@@ -301,7 +332,7 @@ user.email = 250136320+mrFurkan33333@users.noreply.github.com
 çıktı ve günlükler depoda yok — hepsi `py araclar/veri_uret.py` ile
 yeniden üretilebilir. Cevap anahtarı (`veri/ornek/`) depoda.
 
-## 16. Oturum günlüğü
+## 17. Oturum günlüğü
 
 ### Oturum 1 — 2026-09-18
 - Proje kararları alındı (§2 tablosu).
@@ -326,4 +357,11 @@ yeniden üretilebilir. Cevap anahtarı (`veri/ornek/`) depoda.
 - AI triyajı bir kural iyileştirmesi önerdi, uygulandı (§12).
 - `sapma.py` yazıldı: fiyat/karışım/hacim/kur ayrıştırması, özdeşlik sınaması,
   mutabakat tablosu, AI sapma yorumu.
-- Git deposu kuruldu; 11 adım adım commit, GitHub'a gönderildi.
+- Git deposu kuruldu; adım adım commit'lerle GitHub'a gönderildi
+  (github.com/FlyerFukas/mizankopru — **private**).
+- `pano.py`, `excel.py`, `boru.py` yazıldı; boru hattı uçtan uca 42 sn.
+- README, MIT lisansı, SECURITY.md eklendi.
+- `rapor_uret.py` ile 12 sayfalık proje raporu (PDF) üretildi.
+- **Güvenlik olayı:** API anahtarı `.env.ornek` içinde git geçmişine girdi.
+  Depo public YAPILMADI, anahtar iptali bekleniyor (§14).
+- Hesap adı tespiti: `mrFurkan33333` ve `FlyerFukas` aynı hesap (id 250136320).

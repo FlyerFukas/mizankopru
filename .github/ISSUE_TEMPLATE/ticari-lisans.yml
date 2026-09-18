@@ -1,0 +1,63 @@
+name: Ticari lisans talebi / Commercial license request
+description: İşletme kullanımı, ürüne gömme, yeniden satış ya da özelleştirme için lisans talebi
+title: "[Ticari lisans] "
+labels: ["ticari-lisans"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Ticari olmayan kullanım için lisans talebine **gerek yoktur** —
+        [PolyForm Noncommercial 1.0.0](../../blob/main/LICENSE) zaten kapsar.
+
+        Bu formu yalnızca **ticari kullanım** için doldurun. Koşullar:
+        [COMMERCIAL.md](../../blob/main/COMMERCIAL.md)
+
+        Gizli tutulmasını istediğiniz bilgileri buraya yazmayın; issue herkese açıktır.
+        Gizli konular için doğrudan e-posta tercih edin.
+
+  - type: input
+    id: kurum
+    attributes:
+      label: Kurum
+      description: Şirket / büro adı ve kısaca ne yaptığınız
+      placeholder: "Örn. Yıldız Bağımsız Denetim A.Ş. — bağımsız denetim ve mali müşavirlik"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: kullanim
+    attributes:
+      label: Kullanım biçimi
+      options:
+        - Kurum içi — kendi kapanışımızı yapacağız
+        - Hizmet sağlayıcı — müşterilerimiz için kullanacağız
+        - Ürüne gömme / OEM — kendi ürünümüze entegre edeceğiz
+        - Yeniden satış / SaaS olarak sunma
+        - Kaynak kodun devri
+        - Emin değilim — önce konuşalım
+    validations:
+      required: true
+
+  - type: input
+    id: olcek
+    attributes:
+      label: Ölçek
+      description: Kaç tüzel kişilik konsolide edilecek, kaç kişi kullanacak
+      placeholder: "Örn. 6 tüzel kişilik, 3 kullanıcı"
+    validations:
+      required: true
+
+  - type: textarea
+    id: beklenti
+    attributes:
+      label: Beklentiler
+      description: Özelleştirme, destek, eğitim, kendi ERP'nize uyarlama gibi ihtiyaçlar
+      placeholder: "Örn. Logo Tiger ERP çıktısı için adaptör, yıllık destek"
+
+  - type: input
+    id: iletisim
+    attributes:
+      label: İletişim
+      description: Size nasıl dönebilirim
+    validations:
+      required: true

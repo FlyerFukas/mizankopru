@@ -1,0 +1,88 @@
+# ============================================================
+# GRUP HESAP PLANI (IFRS sunum bazlı)
+#
+# tur      : B = Bilanço, G = Gelir tablosu
+# yon      : 1 = normalde borç bakiye, -1 = normalde alacak bakiye
+#            (Bakiye hep "borç - alacak" olarak tutulur; yon sadece
+#             sunumda işaretin doğru okunması için.)
+# parasal  : IAS 29 (enflasyon muhasebesi) için parasal/parasal olmayan ayrımı — v2
+# elimine  : Konsolidasyonda grup içi eliminasyona tabi
+# cevrim   : IAS 21 → B kalemleri KAPANIŞ kuru, G kalemleri ORTALAMA kur
+# ============================================================
+
+hesaplar:
+  # --- VARLIKLAR ---
+  - {kod: "1010", ad: "Nakit ve nakit benzerleri",     tur: B, yon: 1,  parasal: true,  kalem: "Dönen varlıklar"}
+  - {kod: "1020", ad: "Ticari alacaklar",              tur: B, yon: 1,  parasal: true,  kalem: "Dönen varlıklar"}
+  - {kod: "1025", ad: "Grup içi alacaklar",            tur: B, yon: 1,  parasal: true,  kalem: "Dönen varlıklar", elimine: true}
+  - {kod: "1030", ad: "Stoklar",                       tur: B, yon: 1,  parasal: false, kalem: "Dönen varlıklar"}
+  - {kod: "1040", ad: "Diğer dönen varlıklar",         tur: B, yon: 1,  parasal: true,  kalem: "Dönen varlıklar"}
+  - {kod: "1510", ad: "Maddi duran varlıklar",         tur: B, yon: 1,  parasal: false, kalem: "Duran varlıklar"}
+  - {kod: "1520", ad: "Birikmiş amortisman",           tur: B, yon: -1, parasal: false, kalem: "Duran varlıklar"}
+  - {kod: "1530", ad: "Maddi olmayan duran varlıklar", tur: B, yon: 1,  parasal: false, kalem: "Duran varlıklar"}
+
+  # --- YÜKÜMLÜLÜKLER ---
+  - {kod: "2010", ad: "Ticari borçlar",                tur: B, yon: -1, parasal: true,  kalem: "Kısa vadeli yükümlülükler"}
+  - {kod: "2015", ad: "Grup içi borçlar",              tur: B, yon: -1, parasal: true,  kalem: "Kısa vadeli yükümlülükler", elimine: true}
+  - {kod: "2020", ad: "Finansal borçlar",              tur: B, yon: -1, parasal: true,  kalem: "Kısa vadeli yükümlülükler"}
+  - {kod: "2030", ad: "Personel borçları",             tur: B, yon: -1, parasal: true,  kalem: "Kısa vadeli yükümlülükler"}
+  - {kod: "2040", ad: "Vergi yükümlülükleri",          tur: B, yon: -1, parasal: true,  kalem: "Kısa vadeli yükümlülükler"}
+  - {kod: "2510", ad: "Uzun vadeli finansal borçlar",  tur: B, yon: -1, parasal: true,  kalem: "Uzun vadeli yükümlülükler"}
+  - {kod: "2520", ad: "Kıdem tazminatı karşılığı",     tur: B, yon: -1, parasal: false, kalem: "Uzun vadeli yükümlülükler"}
+
+  # --- ÖZKAYNAK ---
+  - {kod: "3010", ad: "Ödenmiş sermaye",               tur: B, yon: -1, parasal: false, kalem: "Özkaynaklar"}
+  - {kod: "3020", ad: "Sermaye yedekleri",             tur: B, yon: -1, parasal: false, kalem: "Özkaynaklar"}
+  - {kod: "3030", ad: "Geçmiş yıl kârları",            tur: B, yon: -1, parasal: false, kalem: "Özkaynaklar"}
+  - {kod: "3090", ad: "Yabancı para çevrim farkları",  tur: B, yon: -1, parasal: false, kalem: "Özkaynaklar", hesaplanan: true}
+
+  # --- GELİR TABLOSU ---
+  - {kod: "4010", ad: "Yurt içi satışlar",             tur: G, yon: -1, kalem: "Hasılat"}
+  - {kod: "4020", ad: "Yurt dışı satışlar",            tur: G, yon: -1, kalem: "Hasılat"}
+  - {kod: "4025", ad: "Grup içi satışlar",             tur: G, yon: -1, kalem: "Hasılat", elimine: true}
+  - {kod: "4090", ad: "Satış iskonto ve iadeleri",     tur: G, yon: 1,  kalem: "Hasılat"}
+  - {kod: "5010", ad: "Satılan malın maliyeti",        tur: G, yon: 1,  kalem: "Satışların maliyeti"}
+  - {kod: "5025", ad: "Grup içi alımların maliyeti",   tur: G, yon: 1,  kalem: "Satışların maliyeti", elimine: true}
+  - {kod: "6010", ad: "Personel giderleri",            tur: G, yon: 1,  kalem: "Faaliyet giderleri"}
+  - {kod: "6020", ad: "Kira giderleri",                tur: G, yon: 1,  kalem: "Faaliyet giderleri"}
+  - {kod: "6030", ad: "Pazarlama ve satış giderleri",  tur: G, yon: 1,  kalem: "Faaliyet giderleri"}
+  - {kod: "6040", ad: "Genel yönetim giderleri",       tur: G, yon: 1,  kalem: "Faaliyet giderleri"}
+  - {kod: "6050", ad: "Amortisman gideri",             tur: G, yon: 1,  kalem: "Faaliyet giderleri", amortisman: true}
+  - {kod: "6060", ad: "Danışmanlık giderleri",         tur: G, yon: 1,  kalem: "Faaliyet giderleri"}
+  - {kod: "7010", ad: "Faiz geliri",                   tur: G, yon: -1, kalem: "Finansal gelir/gider"}
+  - {kod: "7020", ad: "Faiz gideri",                   tur: G, yon: 1,  kalem: "Finansal gelir/gider"}
+  - {kod: "7030", ad: "Kur farkı geliri/gideri, net",  tur: G, yon: 1,  kalem: "Finansal gelir/gider"}
+  - {kod: "8010", ad: "Kurumlar vergisi gideri",       tur: G, yon: 1,  kalem: "Vergi"}
+
+  # --- ASKI ---
+  # Grup planına eşlenemeyen yerel hesaplar buraya düşer. Satırı ATMAK yerine
+  # askıya almak, tutarın kaybolmamasını ve bilançonun denk kalmasını sağlar.
+  # Askıda bakiye varken kapanış imzalanmaz — K09 kritik önemde.
+  # tur: B seçildi, yani kapanış kuruyla çevrilir; eşlenmemiş hesabın gerçek
+  # türü bilinmediği için bu muhafazakâr bir varsayımdır, düzeltilmesi gerekir.
+  - {kod: "9999", ad: "ASKIDA — grup planına eşlenmemiş", tur: B, yon: 1,  parasal: true, kalem: "Askı", aski: true}
+
+# Gelir tablosu sunum düzeni — pano ve Excel bu sırayı kullanır.
+# Bakiyeler "borç - alacak" olduğu için gelir hesapları negatif gelir;
+# sunumda işaret ters çevrilir (bkz. src/sema.py → sunum_isareti).
+gelir_tablosu_duzeni:
+  - {ad: "Hasılat",              tip: toplam,  kalemler: ["Hasılat"]}
+  - {ad: "Satışların maliyeti",  tip: toplam,  kalemler: ["Satışların maliyeti"]}
+  - {ad: "BRÜT KÂR",             tip: ara_toplam, bilesenler: ["Hasılat", "Satışların maliyeti"]}
+  - {ad: "Faaliyet giderleri",   tip: toplam,  kalemler: ["Faaliyet giderleri"]}
+  - {ad: "FAALİYET KÂRI",        tip: ara_toplam, bilesenler: ["BRÜT KÂR", "Faaliyet giderleri"]}
+  - {ad: "FAVÖK",                tip: ozel,    aciklama: "Faaliyet kârı + amortisman"}
+  - {ad: "Finansal gelir/gider", tip: toplam,  kalemler: ["Finansal gelir/gider"]}
+  - {ad: "VERGİ ÖNCESİ KÂR",     tip: ara_toplam, bilesenler: ["FAALİYET KÂRI", "Finansal gelir/gider"]}
+  - {ad: "Vergi",                tip: toplam,  kalemler: ["Vergi"]}
+  - {ad: "NET KÂR",              tip: ara_toplam, bilesenler: ["VERGİ ÖNCESİ KÂR", "Vergi"]}
+
+bilanco_duzeni:
+  - {ad: "Dönen varlıklar",              kalemler: ["Dönen varlıklar"]}
+  - {ad: "Duran varlıklar",              kalemler: ["Duran varlıklar"]}
+  - {ad: "TOPLAM VARLIKLAR",             tip: ara_toplam, bilesenler: ["Dönen varlıklar", "Duran varlıklar"]}
+  - {ad: "Kısa vadeli yükümlülükler",    kalemler: ["Kısa vadeli yükümlülükler"]}
+  - {ad: "Uzun vadeli yükümlülükler",    kalemler: ["Uzun vadeli yükümlülükler"]}
+  - {ad: "Özkaynaklar",                  kalemler: ["Özkaynaklar"]}
+  - {ad: "TOPLAM KAYNAKLAR",             tip: ara_toplam, bilesenler: ["Kısa vadeli yükümlülükler", "Uzun vadeli yükümlülükler", "Özkaynaklar"]}
+  - {ad: "Askı",                         kalemler: ["Askı"], uyari: "Sıfır olmalı; değilse kapanış imzalanamaz"}

@@ -1,0 +1,87 @@
+# ============================================================
+# GİRDİ KOLON EŞLEŞTİRME
+#
+# ERP'den gelen dosyaların kolon adları → motorun iç şeması.
+# Her iç alan için birden çok olası dış ad yazılabilir; ilk eşleşen kullanılır.
+# Eşleşme büyük/küçük harf ve baştaki-sondaki boşluk duyarsızdır.
+#
+# YENİ BİR ERP BAĞLARKEN: kod değil, sadece bu dosya değişir.
+# ============================================================
+
+mizan:
+  VUK_TDHP:
+    yerel_hesap_kod: ["Hesap Kodu", "Hesap No", "HesapKodu"]
+    yerel_hesap_ad:  ["Hesap Adı", "Hesap Adi", "Açıklama"]
+    borc:            ["Borç", "Borc", "Borç Tutarı", "Borç Bakiye"]
+    alacak:          ["Alacak", "Alacak Tutarı", "Alacak Bakiye"]
+  SKR04:
+    yerel_hesap_kod: ["Konto", "Kontonummer", "Konto-Nr"]
+    yerel_hesap_ad:  ["Kontobezeichnung", "Bezeichnung"]
+    borc:            ["Soll", "Soll EUR"]
+    alacak:          ["Haben", "Haben EUR"]
+  UK_COA:
+    yerel_hesap_kod: ["Nominal Code", "N/C", "Account Code"]
+    yerel_hesap_ad:  ["Name", "Account Name", "Description"]
+    borc:            ["Debit", "Dr"]
+    alacak:          ["Credit", "Cr"]
+
+yevmiye:
+  VUK_TDHP:
+    fis_no:          ["Fiş No", "Fis No", "Yevmiye No"]
+    fis_tarihi:      ["Fiş Tarihi", "Kayıt Tarihi"]
+    belge_tarihi:    ["Belge Tarihi", "Fatura Tarihi"]
+    yerel_hesap_kod: ["Hesap Kodu", "Hesap No"]
+    borc:            ["Borç", "Borc"]
+    alacak:          ["Alacak"]
+    aciklama:        ["Açıklama", "Aciklama", "Fiş Açıklaması"]
+    kullanici:       ["Kullanıcı", "Kaydeden", "Kullanici"]
+    kayit_zamani:    ["Kayıt Zamanı", "Sistem Tarihi"]
+    masraf_merkezi:  ["Masraf Merkezi", "MM"]
+  SKR04:
+    fis_no:          ["Belegnummer", "Beleg-Nr"]
+    fis_tarihi:      ["Buchungsdatum"]
+    belge_tarihi:    ["Belegdatum"]
+    yerel_hesap_kod: ["Konto"]
+    borc:            ["Soll"]
+    alacak:          ["Haben"]
+    aciklama:        ["Buchungstext", "Text"]
+    kullanici:       ["Benutzer", "Erfasser"]
+    kayit_zamani:    ["Erfassungszeit"]
+    masraf_merkezi:  ["Kostenstelle"]
+  UK_COA:
+    fis_no:          ["Transaction No", "Trans No", "Entry No"]
+    fis_tarihi:      ["Posting Date", "Date"]
+    belge_tarihi:    ["Document Date", "Invoice Date"]
+    yerel_hesap_kod: ["Nominal Code", "N/C"]
+    borc:            ["Debit", "Dr"]
+    alacak:          ["Credit", "Cr"]
+    aciklama:        ["Details", "Description", "Narrative"]
+    kullanici:       ["User", "Posted By"]
+    kayit_zamani:    ["Created At", "Timestamp"]
+    masraf_merkezi:  ["Cost Centre", "Department"]
+
+butce:
+  '*':                                    # tüm planlar için ortak
+    yerel_hesap_kod: ["Hesap Kodu", "Konto", "Nominal Code", "Account"]
+    donem:           ["Dönem", "Periode", "Period", "Ay"]
+    tutar:           ["Bütçe", "Budget", "Plan", "Tutar", "Amount"]
+    masraf_merkezi:  ["Masraf Merkezi", "Kostenstelle", "Cost Centre"]
+
+satis:
+  '*':
+    urun_kod:        ["Ürün Kodu", "Artikelnummer", "Product Code", "SKU"]
+    urun_ad:         ["Ürün Adı", "Artikel", "Product Name"]
+    kategori:        ["Kategori", "Warengruppe", "Category"]
+    miktar:          ["Miktar", "Menge", "Quantity", "Qty"]
+    birim_fiyat:     ["Birim Fiyat", "Einzelpreis", "Unit Price"]
+    tutar:           ["Tutar", "Betrag", "Amount", "Net Value"]
+    musteri_tipi:    ["Müşteri Tipi", "Kundengruppe", "Customer Type"]
+    donem:           ["Dönem", "Periode", "Period"]
+
+grup_ici:
+  '*':
+    karsi_sirket:    ["Karşı Şirket", "Gegenpartei", "Counterparty", "Karsi Sirket"]
+    donem:           ["Dönem", "Periode", "Period"]
+    tur:             ["Tür", "Art", "Type"]
+    tutar:           ["Tutar", "Betrag", "Amount"]
+    yon:             ["Yön", "Richtung", "Direction"]     # alacak / borç

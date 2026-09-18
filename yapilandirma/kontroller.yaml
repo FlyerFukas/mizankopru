@@ -1,0 +1,163 @@
+# ============================================================
+# İÇ KONTROL TESTLERİ
+#
+# Her test: aktif (çalışsın mı), onem (bulgunun ağırlığı), ve kendi eşikleri.
+# onem: kritik > yuksek > orta > dusuk
+# Yeni bir şirket/politika için eşikleri buradan değiştir — kod değişmez.
+# ============================================================
+
+genel:
+  # Onay limitleri — şirketin fonksiyonel para biriminde
+  onay_limitleri:
+    TR01: {para_birimi: TRY, tek_fis_limiti: 2000000}
+    TR02: {para_birimi: TRY, tek_fis_limiti: 1000000}
+    DE01: {para_birimi: EUR, tek_fis_limiti: 50000}
+    UK01: {para_birimi: GBP, tek_fis_limiti: 40000}
+  # Mesai tanımı — bu aralık dışı kayıtlar işaretlenir
+  mesai_saatleri: {baslangic: "07:00", bitis: "20:00"}
+  calisma_gunleri: [1, 2, 3, 4, 5]   # 1=Pazartesi ... 7=Pazar
+
+testler:
+
+  - kod: "K01"
+    ad: "Bilanço denkliği"
+    aciklama: "Her şirket-dönem için borç toplamı alacak toplamına eşit olmalı."
+    neden_onemli: "Eşit değilse mizan eksik ya da bozuk gelmiştir; üstüne kurulan her rakam yanlıştır."
+    aktif: true
+    onem: kritik
+    esikler:
+      tolerans: 0.01          # yerel para biriminde mutlak tolerans
+
+  - kod: "K02"
+    ad: "Mükerrer fiş"
+    aciklama: "Aynı tarih, tutar ve hesap ikilisine sahip birden çok fiş."
+    neden_onemli: "Çift ödeme ve çift gider kaydının klasik göstergesi."
+    aktif: true
+    onem: yuksek
+    esikler:
+      asgari_tutar: 1000      # bu tutarın altındakileri gürültü say
+      gun_penceresi: 3        # kaç gün içindeki tekrarlar mükerrer sayılsın
+
+  - kod: "K03"
+    ad: "Dönem kayması (cut-off)"
+    aciklama: "Belge tarihi dönem dışında olduğu hâlde o döneme kaydedilmiş fişler."
+    neden_onemli: "Dönemsellik ilkesi ihlali; kârı dönemler arası kaydırmanın en yaygın yolu."
+    aktif: true
+    onem: yuksek
+    esikler:
+      asgari_tutar: 5000
+      tolerans_gun: 0         # dönem dışı her gün işaretlensin
+
+  - kod: "K04"
+    ad: "Mesai dışı kayıt"
+    aciklama: "Hafta sonu veya mesai saatleri dışında girilmiş yüksek tutarlı fişler."
+    neden_onemli: "Gözetimin en zayıf olduğu anlar; usulsüzlük literatüründe kırmızı bayrak."
+    aktif: true
+    onem: orta
+    esikler:
+      asgari_tutar: 100000    # sunum para biriminde (EUR)
+
+  - kod: "K05"
+    ad: "Yetki limiti aşımı"
+    aciklama: "Tek bir fişin şirketin onay limitini aşması."
+    neden_onemli: "Yetkilendirme kontrolünün atlanması; SOX/iç kontrol bulgusu."
+    aktif: true
+    onem: kritik
+    esikler:
+      # Onay limiti bir HARCAMA YETKİSİDİR. Müşteri tahsilatına, satış
+      # faturasına, rutin stok alımına ya da bordro kaydına uygulanmaz —
+      # onlar kendi süreçleriyle (sipariş, sözleşme, bordro) yönetilir.
+      # Kapsam dışı bırakılmazsa test binlerce yanlış pozitif üretir ve
+      # okunmaz hâle gelir.
+      kapsam_grup_hesaplari: ["6020", "6030", "6040", "6060", "1510", "1530"]
+                            # kira, pazarlama, genel yönetim, danışmanlık, yatırım
+      # Açılış/devir kayıtları ve otomatik sistem kayıtları bir kişinin
+      # harcama yetkisiyle girilmez; onay limiti onlara uygulanmaz.
+      # (Bu istisnayı yapay zekâ triyajı önerdi — 2026-09-18.)
+      haric_kullanicilar: ["SISTEM", "SYSTEM"]
+
+  - kod: "K06"
+    ad: "Limit parçalama (splitting)"
+    aciklama: "Aynı gün, aynı kullanıcı ve hesapta, onay limitinin hemen altında birden çok fiş."
+    neden_onemli: "Limit aşımından kaçınmak için işlemi bölmek — aşımın kendisinden daha ciddi bir sinyal."
+    aktif: true
+    onem: kritik
+    esikler:
+      limit_orani_alt: 0.70   # limitin %70-100 bandındaki fişlere bak
+      asgari_adet: 2          # aynı gün kaç tane olursa şüpheli
+
+  - kod: "K07"
+    ad: "Benford ilk rakam testi"
+    aciklama: "Tutarların ilk rakam dağılımının Benford yasasından ki-kare sapması."
+    neden_onemli: "Elle uydurulmuş tutarlar doğal dağılımı bozar; toplu veride hızlı tarama aracı."
+    aktif: true
+    onem: orta
+    esikler:
+      asgari_gozlem: 100      # bu sayının altında test güvenilmez, çalıştırma
+      ki_kare_kritik: 20.09   # 8 serbestlik derecesi, %99 anlamlılık
+
+  - kod: "K08"
+    ad: "Grup içi eliminasyon farkı"
+    aciklama: "A şirketinin B'den alacağı ile B'nin A'ya borcunun tutmaması."
+    neden_onemli: "Konsolide bilançoyu doğrudan şişirir; kapanışın en çok vakit alan kalemi."
+    aktif: true
+    onem: kritik
+    esikler:
+      tolerans_mutlak: 1000   # EUR
+      tolerans_oran: 0.005    # %0,5
+
+  - kod: "K09"
+    ad: "Eşleşmeyen hesap"
+    aciklama: "Yerel mizanda olup grup hesap planı eşleme tablosunda karşılığı bulunmayan hesap."
+    neden_onemli: "Eşleşmeyen hesap sessizce konsolidasyon dışı kalır — en tehlikeli hata türü, çünkü tablo yine de denk görünür."
+    aktif: true
+    onem: kritik
+    esikler: {}
+
+  - kod: "K10"
+    ad: "Eksik dönem"
+    aciklama: "Bir şirketin bir döneminin hiç gelmemiş olması."
+    neden_onemli: "Geç kapanış; konsolide tabloda o şirket o ay yok sayılır."
+    aktif: true
+    onem: kritik
+    esikler: {}
+
+  - kod: "K11"
+    ad: "Ters bakiye"
+    aciklama: "Hesabın normal yönünün tersine bakiye vermesi (ör. gelir hesabında borç bakiye)."
+    neden_onemli: "Yanlış hesaba kayıt, eksik iade ya da sınıflandırma hatası göstergesi."
+    aktif: true
+    onem: orta
+    esikler:
+      asgari_tutar: 10000     # sunum para biriminde
+
+  - kod: "K12"
+    ad: "Yuvarlak tutar yoğunluğu"
+    aciklama: "Belirli bir hesap/masraf merkezinde aşırı yuvarlak tutarların payı."
+    neden_onemli: "Gerçek ticari işlemler nadiren tam yuvarlaktır; tahmini/uydurma kayıt sinyali."
+    aktif: true
+    onem: dusuk
+    esikler:
+      yuvarlaklik: 1000       # bu sayının tam katları
+      pay_esigi: 0.15         # payı %15'i geçerse işaretle
+      asgari_gozlem: 20
+
+  - kod: "K13"
+    ad: "Görevler ayrılığı — tek kullanıcı yoğunluğu"
+    aciklama: "Bir hesaptaki kayıtların büyük bölümünün tek kullanıcı tarafından girilmiş olması."
+    neden_onemli: "Görevler ayrılığı ilkesinin zayıflaması; kontrol ortamı bulgusu."
+    aktif: true
+    onem: orta
+    esikler:
+      pay_esigi: 0.90
+      asgari_gozlem: 30
+
+  - kod: "K14"
+    ad: "Büyük bütçe sapması"
+    aciklama: "Bütçe-fiili sapmasının hem oransal hem mutlak eşiği aşması."
+    neden_onemli: "FP&A'nın açıklama borcu doğduğu eşik; ikisi birden aranır ki küçük kalemler gürültü yapmasın."
+    aktif: true
+    onem: yuksek
+    esikler:
+      oran_esigi: 0.10        # %10
+      mutlak_esik: 100000     # EUR — ikisi de aşılmalı

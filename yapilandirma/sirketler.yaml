@@ -1,0 +1,95 @@
+# ============================================================
+# GRUP YAPISI
+# Yeni bir tüzel kişilik eklemek için buraya bir blok ekleyip
+# hesap_eslesme.csv'ye o hesap planının satırlarını girmek yeterli.
+# Kod değişikliği gerekmez.
+# ============================================================
+
+grup:
+  ad: "Anadolu Holding A.Ş."
+  kod: "GRP"
+  sunum_para_birimi: "EUR"      # Konsolide tabloların para birimi
+  mali_yil_baslangic_ay: 1      # 1 = Ocak
+
+sirketler:
+  - kod: "TR01"
+    ad: "Anadolu Üretim A.Ş."
+    ulke: "TR"
+    fonksiyonel_para_birimi: "TRY"
+    hesap_plani: "VUK_TDHP"      # hesap_eslesme.csv'deki plan_kodu
+    sahiplik_orani: 1.00
+    faaliyet: "Üretim"
+    # Hiperenflasyonist ekonomi (TMS 29 / IAS 29) — v2'de devreye girecek
+    hiperenflasyon: true
+    # Girdi dosyalarının biçim özellikleri
+    bicim:
+      ondalik_ayrac: ","
+      binlik_ayrac: "."
+      tarih_bicimi: "%d.%m.%Y"
+      kodlama: "utf-8"
+
+  - kod: "TR02"
+    ad: "Anadolu Perakende A.Ş."
+    ulke: "TR"
+    fonksiyonel_para_birimi: "TRY"
+    hesap_plani: "VUK_TDHP"
+    sahiplik_orani: 1.00
+    faaliyet: "Perakende"
+    hiperenflasyon: true
+    bicim:
+      ondalik_ayrac: ","
+      binlik_ayrac: "."
+      tarih_bicimi: "%d.%m.%Y"
+      kodlama: "utf-8"
+
+  - kod: "DE01"
+    ad: "Anadolu Deutschland GmbH"
+    ulke: "DE"
+    fonksiyonel_para_birimi: "EUR"
+    hesap_plani: "SKR04"
+    sahiplik_orani: 1.00
+    faaliyet: "Distribütör"
+    hiperenflasyon: false
+    bicim:
+      ondalik_ayrac: ","
+      binlik_ayrac: "."
+      tarih_bicimi: "%Y-%m-%d"
+      kodlama: "utf-8"
+
+  - kod: "UK01"
+    ad: "Anadolu UK Ltd"
+    ulke: "GB"
+    fonksiyonel_para_birimi: "GBP"
+    hesap_plani: "UK_COA"
+    sahiplik_orani: 0.75          # %25 azınlık payı (NCI) — kontrol gücü var, tam konsolide
+    faaliyet: "Satış ofisi"
+    hiperenflasyon: false
+    bicim:
+      ondalik_ayrac: "."
+      binlik_ayrac: ","
+      tarih_bicimi: "%m/%d/%Y"
+      kodlama: "utf-8"
+
+# Grup içi işlem çiftleri — eliminasyonda hangi şirket hangisiyle karşılaştırılacak.
+#
+# satici_ciro_payi: satıcının toplam cirosunun yüzde kaçının bu alıcıya gittiği.
+# Bu oran alıcının maliyetini de belirler (alıcı, satıcının kestiği faturayı
+# maliyet yazar). Oranlar alıcının kendi satılan mal maliyetini AŞMAMALI —
+# aşarsa alıcı yapısal olarak zarar eder ki bu bir veri kurgu hatasıdır.
+grup_ici_iliskiler:
+  - satici: "TR01"
+    alici: "TR02"
+    tur: "Mal satışı"
+    satici_ciro_payi: 0.11
+  - satici: "TR01"
+    alici: "DE01"
+    tur: "Mal satışı"
+    satici_ciro_payi: 0.09
+  - satici: "TR01"
+    alici: "UK01"
+    tur: "Mal satışı"
+    satici_ciro_payi: 0.05
+  - satici: "DE01"
+    alici: "UK01"
+    tur: "Hizmet / yönetim bedeli"
+    satici_ciro_payi: 0.08

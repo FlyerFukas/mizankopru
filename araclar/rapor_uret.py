@@ -1,4 +1,11 @@
 # -*- coding: utf-8 -*-
+# MizanKöprü — çok şirketli, çok para birimli konsolidasyon ve iç kontrol motoru
+# Copyright (c) 2026 Furkan Akduman · https://github.com/FlyerFukas
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
+#
+# Ticari olmayan kullanım serbesttir (bkz. LICENSE).
+# İşletmeler ve her türlü ticari kullanım ayrı, ücretli lisans gerektirir.
+# Ayrıntı ve iletişim: COMMERCIAL.md
 """
 MİZANKÖPRÜ — Proje raporu üreteci (HTML → PDF).
 
@@ -143,8 +150,14 @@ def main():
       <b>Hazırlayan:</b> Furkan Akduman<br>
       <b>Tarih:</b> {datetime.now().strftime("%d.%m.%Y")}<br>
       <b>Depo:</b> github.com/FlyerFukas/mizankopru<br>
-      <b>Lisans:</b> MIT<br>
+      <b>Lisans:</b> PolyForm Noncommercial 1.0.0 + ticari lisans<br>
       <b>Yapay zekâ ortağı:</b> Claude (claude-opus-5)
+    </div>
+    <div style="margin-top:14pt;font-size:8.6pt;color:#5a6b7d;max-width:118mm;
+                margin-left:auto;margin-right:auto;text-align:center">
+      Ticari olmayan kullanım serbesttir. İşletmeler ve her türlü ticari kullanım
+      telif hakkı sahibinden ayrı, ücretli lisans alınmasını gerektirir.
+      Ayrıntı: COMMERCIAL.md
     </div></div>''')
 
     # ================= 1. ÖZET =================

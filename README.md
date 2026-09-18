@@ -13,6 +13,23 @@ formatlı Excel konsolidasyon paketi.
 > control tests, and decomposes budget variance into price / mix / volume / FX.
 > Documentation is in Turkish.*
 
+> ### ⚖️ Lisans — önce bunu okuyun
+>
+> Kaynak kodu açıktır, **ticari kullanım serbest değildir.**
+>
+> | Kullanım | Durum |
+> |---|---|
+> | Kişisel, öğrenme, hobi, araştırma | **ücretsiz** |
+> | Üniversite, kamu, hayır kurumu | **ücretsiz** |
+> | Bir işletmede ya da işletme için | **ayrı, ücretli lisans gerekir** |
+> | Müşteriye hizmet üretirken, ürüne gömerek, yeniden satarak | **ayrı, ücretli lisans gerekir** |
+>
+> [PolyForm Noncommercial 1.0.0](LICENSE) + ticari lisans. Koşullar, kapsam ve
+> iletişim: **[COMMERCIAL.md](COMMERCIAL.md)**
+>
+> *Source-available, not open source. Commercial use requires a paid license —
+> see [COMMERCIAL.md](COMMERCIAL.md).*
+
 ---
 
 ## Çözdüğü problem
@@ -265,4 +282,26 @@ eşleme, kur ve çevrim farkı, denetim izi.
 
 ## Lisans
 
-[MIT](LICENSE) · Güvenlik bildirimi için [SECURITY.md](SECURITY.md)
+**Çift lisanslı.** Kaynak kodu herkese açıktır; bu, serbestçe
+ticarileştirilebileceği anlamına gelmez.
+
+### Ücretsiz — [PolyForm Noncommercial 1.0.0](LICENSE)
+
+Kişisel öğrenme ve deneme, hobi projeleri, akademik araştırma, eğitim kurumları,
+kamu kurumları, hayır kurumları. İzin almanıza gerek yok. Tek yükümlülük:
+yazılımı başkasına verirken lisans metnini ve telif bildirimini birlikte vermek.
+
+### Ücretli — ticari lisans gerekir
+
+Bir şirketin operasyonlarında kullanmak (kendi kapanışınızı yapmak dahil),
+müşterilere hizmet üretirken kullanmak, bir ürüne/SaaS'a gömmek, yeniden satmak.
+Ölçüt niyet değil bağlamdır: kâr amacı güden bir organizasyon içinde ya da onun
+için yapılan kullanım ticaridir.
+
+Lisans biçimleri (kurum içi, yıllık abonelik, hizmet sağlayıcı, OEM, kaynak kodu
+devri), fiyatlandırma ve iletişim: **[COMMERCIAL.md](COMMERCIAL.md)** ·
+Pazarlığa açıktır.
+
+Projenin mimarisi ve kaynak kodu **Furkan Akduman**'a aittir.
+
+Güvenlik bildirimi için [SECURITY.md](SECURITY.md)

@@ -1,4 +1,11 @@
 # -*- coding: utf-8 -*-
+# MizanKöprü — çok şirketli, çok para birimli konsolidasyon ve iç kontrol motoru
+# Copyright (c) 2026 Furkan Akduman · https://github.com/FlyerFukas
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
+#
+# Ticari olmayan kullanım serbesttir (bkz. LICENSE).
+# İşletmeler ve her türlü ticari kullanım ayrı, ücretli lisans gerektirir.
+# Ayrıntı ve iletişim: COMMERCIAL.md
 """
 MİZANKÖPRÜ — Yapay zekâ katmanı (Claude API).
 

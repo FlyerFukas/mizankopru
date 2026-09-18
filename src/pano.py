@@ -1,4 +1,11 @@
 # -*- coding: utf-8 -*-
+# MizanKöprü — çok şirketli, çok para birimli konsolidasyon ve iç kontrol motoru
+# Copyright (c) 2026 Furkan Akduman · https://github.com/FlyerFukas
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
+#
+# Ticari olmayan kullanım serbesttir (bkz. LICENSE).
+# İşletmeler ve her türlü ticari kullanım ayrı, ücretli lisans gerektirir.
+# Ayrıntı ve iletişim: COMMERCIAL.md
 """
 MİZANKÖPRÜ — [6a] PANO: tek dosyalık HTML kapanış panosu.
 
@@ -464,6 +471,7 @@ def main():
     p.append('</tbody></table></div></div></div>')
 
     p.append('<footer>MizanKöprü · konsolidasyon ve iç kontrol motoru · '
+             '© 2026 Furkan Akduman · ticari kullanım ayrı lisans gerektirir · '
              f'yapılandırma parmak izi: '
              f'<code>{dosya_parmak_izi(KOK / "yapilandirma" / "hesap_eslesme.csv")}</code> · '
              f'bu dosya <code>py src/pano.py</code> ile üretildi ve elle '

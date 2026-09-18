@@ -1,0 +1,234 @@
+{
+  "tohum": 42,
+  "uretim": "2026-09-18 15:37:42.249665",
+  "tuzaklar": [
+    {
+      "tuzak": "T1",
+      "beklenen_test": "K02",
+      "aciklama": "TR01'de 3 fiş birebir kopyalandı",
+      "detay": [
+        {
+          "fis_no": "202510-04262-K",
+          "donem": "2025-10",
+          "tutar": 2655099.65
+        },
+        {
+          "fis_no": "202503-01218-K",
+          "donem": "2025-03",
+          "tutar": 7359813.38
+        },
+        {
+          "fis_no": "202510-04266-K",
+          "donem": "2025-10",
+          "tutar": 1554795.2
+        }
+      ]
+    },
+    {
+      "tuzak": "T2",
+      "beklenen_test": "K03",
+      "aciklama": "DE01 Aralık kapanışına 5 fiş, belge tarihi Ocak 2026 olduğu hâlde alındı",
+      "detay": [
+        {
+          "fis_no": "202512-05014"
+        },
+        {
+          "fis_no": "202512-04835"
+        },
+        {
+          "fis_no": "202512-05018"
+        },
+        {
+          "fis_no": "202512-04965"
+        },
+        {
+          "fis_no": "202512-04942"
+        }
+      ]
+    },
+    {
+      "tuzak": "T3",
+      "beklenen_test": "K08",
+      "aciklama": "DE01'in TR01'e Haziran borcu %18 eksik kaydedildi",
+      "detay": [
+        {
+          "donem": "2025-06",
+          "dogru": 174735.9,
+          "kayitli": 143283.44
+        }
+      ]
+    },
+    {
+      "tuzak": "T4",
+      "beklenen_test": "K09",
+      "aciklama": "DE01 Temmuz'da 6815 'IT- und Softwarekosten' hesabını açtı, grup eşleme tablosuna eklenmedi",
+      "detay": [
+        {
+          "yerel_kod": "6815",
+          "ad": "IT- und Softwarekosten",
+          "satir": 156,
+          "ilk_donem": "2025-07",
+          "dogru_grup_kod": "6040"
+        }
+      ]
+    },
+    {
+      "tuzak": "T5",
+      "beklenen_test": "K04",
+      "aciklama": "TR02'de 6 fiş pazar günü ve gece saatlerinde girildi",
+      "detay": [
+        {
+          "fis_no": "202512-05296",
+          "zaman": "2025-12-28 03:41:39"
+        },
+        {
+          "fis_no": "202512-05288",
+          "zaman": "2025-12-14 03:51:41"
+        },
+        {
+          "fis_no": "202511-05276",
+          "zaman": "2025-11-23 02:20:17"
+        },
+        {
+          "fis_no": "202512-05293",
+          "zaman": "2025-12-07 23:34:34"
+        },
+        {
+          "fis_no": "202510-05262",
+          "zaman": "2025-10-19 03:20:33"
+        },
+        {
+          "fis_no": "202511-05271",
+          "zaman": "2025-11-16 23:04:54"
+        }
+      ]
+    },
+    {
+      "tuzak": "T6",
+      "beklenen_test": "K05",
+      "aciklama": "TR01'de onay limitini aşan 2 tekil fiş",
+      "detay": [
+        {
+          "fis_no": "202505-05336",
+          "donem": "2025-05",
+          "tutar": 2700000.0,
+          "limit": 2000000
+        },
+        {
+          "fis_no": "202509-05337",
+          "donem": "2025-09",
+          "tutar": 3240000.0,
+          "limit": 2000000
+        }
+      ]
+    },
+    {
+      "tuzak": "T7",
+      "beklenen_test": "K06",
+      "aciklama": "TR02'de aynı gün (2025-08-14) limitin hemen altında 4 fiş — limit 1,000,000 TRY",
+      "detay": [
+        {
+          "fis_no": "202508-05297",
+          "tutar": 944447.63
+        },
+        {
+          "fis_no": "202508-05298",
+          "tutar": 961581.53
+        },
+        {
+          "fis_no": "202508-05299",
+          "tutar": 926751.01
+        },
+        {
+          "fis_no": "202508-05300",
+          "tutar": 957804.45
+        }
+      ]
+    },
+    {
+      "tuzak": "T8",
+      "beklenen_test": "K07/K12",
+      "aciklama": "UK01 ofis gideri hesabına 132 adet uydurma, yuvarlak tutarlı fiş",
+      "detay": [
+        {
+          "adet": 132,
+          "hesap_rolu": "6040 → UK 7500"
+        }
+      ]
+    },
+    {
+      "tuzak": "T9",
+      "beklenen_test": "K01",
+      "aciklama": "UK01 Eylül mizanında tek taraflı kayıt — borç/alacak denkliği bozuk",
+      "detay": [
+        {
+          "donem": "2025-09",
+          "fis_no": "202509-05170",
+          "kayip_alacak": 79642.07
+        }
+      ]
+    },
+    {
+      "tuzak": "T10",
+      "beklenen_test": "K10",
+      "aciklama": "TR02'nin Kasım 2025 mizan dosyası hiç üretilmedi (geç kapanış)",
+      "detay": [
+        {
+          "sirket": "TR02",
+          "donem": "2025-11"
+        }
+      ]
+    },
+    {
+      "tuzak": "T11",
+      "beklenen_test": "K11",
+      "aciklama": "TR01 Şubat'ta yurt içi satış hesabı iade nedeniyle borç bakiye verdi",
+      "detay": [
+        {
+          "fis_no": "202502-05338",
+          "tutar": 54498435.33
+        }
+      ]
+    },
+    {
+      "tuzak": "T12",
+      "beklenen_test": "K13",
+      "aciklama": "TR02'de kayıtların neredeyse tamamı tek kullanıcı (b.sahin) tarafından girildi",
+      "detay": [
+        {
+          "sirket": "TR02",
+          "kullanici": "b.sahin"
+        }
+      ]
+    },
+    {
+      "tuzak": "T13",
+      "beklenen_test": "topla.py",
+      "aciklama": "Sayı biçimi şirkete göre değişiyor: TR/DE '1.234,56' metin, UK '1,234.56' metin, DE01 mizanı gerçek sayı",
+      "detay": [
+        {
+          "TR01": "metin, virgül ondalık"
+        },
+        {
+          "UK01": "metin, nokta ondalık"
+        }
+      ]
+    },
+    {
+      "tuzak": "T14",
+      "beklenen_test": "topla.py",
+      "aciklama": "Tarih biçimi ve dosya düzeni şirkete göre değişiyor: TR aylık ayrı xlsx, DE tek xlsx 12 sekme, UK tek csv",
+      "detay": [
+        {
+          "TR": "%d.%m.%Y"
+        },
+        {
+          "DE": "%Y-%m-%d"
+        },
+        {
+          "UK": "%m/%d/%Y"
+        }
+      ]
+    }
+  ]
+}

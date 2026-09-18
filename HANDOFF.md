@@ -72,8 +72,10 @@ Orkestratör: `py src/boru.py` (tüm adımlar) veya adım adım `py src/topla.py
 - [x] README.md, LICENSE (MIT), SECURITY.md
 - [x] `araclar/rapor_uret.py` — 12 sayfalık proje raporu (PDF)
 
-### AÇIK — kullanıcı aksiyonu bekliyor
-- [ ] **API anahtarı iptal edilmeli** (bkz. §17) — sonra depo public yapılabilir
+- [x] **Güvenlik olayı kapatıldı** (§14) — anahtar iptal edildi, geçmiş temizlendi
+- [x] Depo **PUBLIC**: github.com/FlyerFukas/mizankopru
+
+### AÇIK — kullanıcı aksiyonu
 - [ ] `~/.claude/CLAUDE.md` içindeki GitHub adı güncel değil
       (`mrFurkan33333` → `FlyerFukas`)
 
@@ -283,16 +285,25 @@ Bulgu dağılımı: kritik 20 · yüksek 49 · orta 60 · düşük 1 = **130**
 - Git geçmişini yeniden yazma (`filter-branch`) denendi, izin reddedildi —
   geri alınamaz bir işlem olduğu için doğru davranış.
 
-**Yapılması gereken (kullanıcı):**
-1. **Anahtarı console.anthropic.com üzerinden iptal et.** Bu ilk ve zorunlu
-   adım. `SECURITY.md`'de kendi yazdığımız kural geçerli: *bir anahtar
-   yayımlandıysa yakılmış sayılır.* Geçmişi temizlemek tek başına yetmez;
-   anahtar GitHub'ın sunucularına, loglarına ve olası önbelleklerine gitti.
-2. Yeni anahtar üret, `.env`'e yaz (`.env.ornek`'e değil).
-3. İstenirse geçmiş temizliği: `git filter-repo --path .env.ornek --invert-paths`
-   ya da depoyu silip temiz geçmişle yeniden oluşturmak. Anahtar iptal
-   edildikten sonra bu **isteğe bağlıdır**.
-4. Sonra depo public yapılabilir.
+**KAPATILDI — 2026-09-18.** Yapılanlar sırasıyla:
+
+1. **Anahtar iptal edildi** (Furkan, console.anthropic.com), yenisi üretildi ve
+   yalnızca `.env`'e yazıldı. Yeni anahtarın bağlantısı doğrulandı.
+2. **Geçmiş temizlendi.** Önce tam yedek alındı
+   (`../mizankopru-yedek-20260918-1628.bundle`), sonra `git filter-branch
+   --tree-filter` ile 18 commit'in tamamındaki `.env.ornek` temiz şablonla
+   değiştirildi. `refs/original/` silindi, reflog süresi doldurulup `git gc`
+   çalıştırıldı.
+3. **Bağımsız doğrulama:** GitHub'dan taze klon alındı ve 18 commit'in her biri
+   tarandı — anahtar bulunan commit sayısı **0**. İlk commit'teki `.env.ornek`
+   artık `buraya-kendi-anahtarini-yaz` içeriyor.
+4. `--force-with-lease` ile push edildi, depo **public** yapıldı.
+5. **GitHub secret scanning + push protection açıldı.** Bundan sonra bir anahtar
+   push edilmeye çalışılırsa GitHub işlemi engeller — aynı kaza tekrarlanamaz.
+
+**Kalıcı ders:** `.env.ornek` gitignore'da değildir çünkü şablondur. Şablona
+yazılan anahtar doğrudan uzak depoya gider. Dosyanın kendisi artık bunu ilk
+satırında uyarıyor.
 
 ## 15. sapma.py — köprü ve 2025 sonucu
 

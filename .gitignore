@@ -1,0 +1,25 @@
+# Sırlar — asla depoya girmez
+.env
+*.key
+
+# Üretilen veriler ve çıktılar
+veri/girdi/*
+veri/ara/*
+cikti/*
+gunluk/*
+!veri/girdi/.gitkeep
+!veri/ara/.gitkeep
+!cikti/.gitkeep
+!gunluk/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Ofis geçici dosyaları
+~$*
+.DS_Store
+Thumbs.db
+desktop.ini

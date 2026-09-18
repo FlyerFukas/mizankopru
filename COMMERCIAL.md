@@ -103,24 +103,58 @@ karşılığının ödenmesi.
 
 ---
 
-## 6. Katkılar
+## 6. Sorumluluk
 
-Katkıya açığım. Ancak çift lisans modelinin çalışabilmesi için, birleştirilen
-katkıların telif haklarının proje sahibine devredilmesi ya da proje sahibine
-sınırsız lisans verilmesi gerekir. Bir pull request açmadan önce issue üzerinden
-konuşalım.
+[LICENSE](LICENSE) dosyasındaki *No Liability* maddesi, **hukukun izin verdiği
+ölçüde** her türlü garanti ve sorumluluğu reddeder. Bu sınırın kendisi de
+hukuka tabidir: Türk hukukunda ağır kusur ve kasıt hâlleri için sorumsuzluk
+kaydı geçerli sayılmaz (TBK m.115). Yani bu madde, kasıtlı bir kusuru
+örtmez ve örtmesi de amaçlanmamıştır.
+
+**Ücretsiz (ticari olmayan) kullanımda** yazılım olduğu gibi sunulur; doğruluk,
+uygunluk ya da kesintisizlik garantisi verilmez.
+
+**Ticari lisansta** sorumluluk, imzalanacak sözleşmede ayrıca düzenlenir.
+Standart yaklaşımım, sorumluluğun o dönem için ödenen lisans bedeliyle sınırlı
+tutulması ve dolaylı zararların (kâr kaybı, iş kesintisi, veri kaybı) kapsam
+dışında bırakılmasıdır. Daha geniş bir sorumluluk isteniyorsa fiyatlamaya
+yansır ve konuşulabilir.
+
+**Kullanıcının sorumluluğu.** Bu yazılım bir karar destek aracıdır, mali
+müşavir, bağımsız denetçi ya da yeminli mali müşavir yerine geçmez. Ürettiği
+konsolide tablolar ve kontrol bulguları **insan incelemesi gerektirir**; motor
+bunu kendi arayüzünde de açıkça söyler ("Bulgu ≠ hata", "kapanış imzalanamaz"
+uyarısı). Yasal beyan, denetim ve raporlama yükümlülükleri kullanıcıya aittir.
+
+## 7. Katkılar
+
+Katkıya açığım — ama çift lisans modeli, katkılar için özel bir kural
+gerektiriyor: birleştirilen katkıların **mali haklarının proje sahibine
+devredilmesi** ya da proje sahibine ticari lisanslama dahil sınırsız kullanım
+hakkı tanınması gerekir. Aksi hâlde o satırlar ticari lisansa dahil edilemez ve
+model kırılır.
+
+Koşullar ve gerekçesi: **[CONTRIBUTING.md](CONTRIBUTING.md)**. Büyük bir
+değişiklik planlıyorsanız önce issue açın.
 
 ---
 
-## 7. Sürüm geçmişi
+## 8. Sürüm geçmişi
 
-| Tarih | Değişiklik |
+| Tarih (TSİ) | Değişiklik |
 |---|---|
-| 18.09.2026 | Proje MIT lisansıyla yayımlandı |
-| 18.09.2026 | **PolyForm Noncommercial 1.0.0 + ticari lisans** modeline geçildi |
+| 18.09.2026 15:55 | Proje MIT lisansıyla işaretlendi (depo o sırada **private**) |
+| 18.09.2026 ~16:30 | Depo public yapıldı |
+| 18.09.2026 19:33 | **PolyForm Noncommercial 1.0.0 + ticari lisans** modeline geçildi |
 
-MIT altında yayımlandığı kısa süre içinde alınmış kopyalar için MIT hakları
-geri alınamaz; bu tarihten sonraki tüm sürümler bu belgedeki koşullara tabidir.
+MIT lisansı geri alınamaz bir izindir: o pencerede kopya alan biri, **aldığı o
+sürüm için** MIT haklarını korur. Sonraki tüm sürümler bu belgedeki koşullara
+tabidir.
+
+**Ölçülen maruziyet:** MIT etiketi depo public iken yaklaşık üç saat açık kaldı.
+Bu sürenin sonunda GitHub istatistikleri **0 fork, 0 star, 0 klon, 0
+görüntüleme** gösteriyordu; yani bilinen hiçbir kopya alınmadı. Kayıt niteliğinde
+buraya yazılmıştır.
 
 ---
 

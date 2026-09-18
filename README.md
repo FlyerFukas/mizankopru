@@ -304,4 +304,7 @@ Pazarlığa açıktır.
 
 Projenin mimarisi ve kaynak kodu **Furkan Akduman**'a aittir.
 
+Katkıda bulunmak isterseniz [CONTRIBUTING.md](CONTRIBUTING.md) — çift lisans
+modeli nedeniyle katkılarda telif devri gerekiyor, gerekçesi orada yazılı.
+
 Güvenlik bildirimi için [SECURITY.md](SECURITY.md)

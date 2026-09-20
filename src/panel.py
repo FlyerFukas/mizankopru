@@ -91,15 +91,20 @@ ADIMLAR = [
      "Tek dosyalık HTML kapanış panosu."),
     ("excel", "src/excel.py", "[6b] Excel",
      "9 sayfalık konsolidasyon paketi."),
-    ("rapor", "araclar/rapor_uret.py", "Rapor (PDF)",
-     "12 sayfalık proje raporu. Rakamlar güncel çıktı dosyalarından okunur."),
+    ("rapor", "araclar/rapor_uret.py", "Teknik rapor (PDF)",
+     "12 sayfalık teknik rapor: mimari, ölçümler, tasarım kararları. "
+     "Rakamlar güncel çıktı dosyalarından okunur."),
+    ("anlatim", "araclar/anlatim_uret.py", "Tanıtım belgesi (PDF)",
+     "Projeyi hiç bilmeyen birine anlatan 11 sayfalık belge. Jargon açıklanır, "
+     "'yapay zekâ mı yapıyor Python mu' sorusu kanıtla cevaplanır."),
 ]
 ADIM_SOZLUK = {a[0]: a for a in ADIMLAR}
 
 CIKTI_DOSYALARI = [
     ("pano.html", "Kapanış panosu", "HTML"),
     ("konsolidasyon_paketi.xlsx", "Konsolidasyon paketi", "Excel · 9 sayfa"),
-    ("MizanKopru-Proje-Raporu.pdf", "Proje raporu", "PDF · 12 sayfa"),
+    ("MizanKopru-Proje-Raporu.pdf", "Teknik rapor", "PDF · 12 sayfa"),
+    ("MizanKopru-Nasil-Calisir.pdf", "Tanıtım belgesi", "PDF · 11 sayfa"),
     ("bulgular.csv", "Kontrol bulguları", "CSV"),
     ("sapma_koprusu.csv", "Sapma köprüsü", "CSV"),
     ("sapma_yorumu.md", "Sapma yorumu", "Markdown"),

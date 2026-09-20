@@ -13,7 +13,7 @@ formatlı Excel konsolidasyon paketi.
 > control tests, and decomposes budget variance into price / mix / volume / FX.
 > Documentation is in Turkish.*
 
-> ### ⚖️ Lisans — önce bunu okuyun
+> ### ⚖️ Lisans önce bunu okuyun
 >
 > Kaynak kodu açıktır, **ticari kullanım serbest değildir.**
 >
@@ -49,8 +49,8 @@ Demo veride TR01 şirketi için 2025 yılı üç farklı şekilde okunur:
 | Ölçüt | Değişim |
 |---|---|
 | Satılan adet | **−%12,1** |
-| Ciro (TRY, yerel para) | **+%2,1** — bütçenin üstünde |
-| Ciro (EUR, sunum para birimi) | **−%11,2** — bütçenin altında |
+| Ciro (TRY, yerel para) | **+%2,1** bütçenin üstünde |
+| Ciro (EUR, sunum para birimi) | **−%11,2** bütçenin altında |
 
 Türkiye'deki müdür "TL'de bütçeyi tutturduk" der. Grup merkezi "EUR'da %11
 altındasınız" der. **İkisi de doğrudur.** Motorun işi kimin haklı olduğunu değil,
@@ -67,7 +67,7 @@ Bütçe (bütçe kuruyla)        77.035.451 EUR
 ```
 
 Fiyat artışı hacim kaybını neredeyse tam karşılamış. 6 milyon EUR'luk açığın
-tamamı kurdan geliyor — bu bir performans sorunu değil, çeviri sorunudur.
+tamamı kurdan geliyor bu bir performans sorunu değil, çeviri sorunudur.
 Ayrıştırma yapılmadan bu iki şey birbirinden ayrılamaz.
 
 ---
@@ -75,7 +75,7 @@ Ayrıştırma yapılmadan bu iki şey birbirinden ayrılamaz.
 ## Boru hattı
 
 ```
-veri/girdi/   41 dağınık dosya — farklı biçim, kolon adı, tarih ve sayı formatı
+veri/girdi/   41 dağınık dosya farklı biçim, kolon adı, tarih ve sayı formatı
      │        (panelden sürükle-bırak ile de yüklenebilir)
      │
      ├─[1] topla.py    tek şemaya normalize et           44.000 satır
@@ -96,12 +96,12 @@ py src/panel.py
 Tarayıcıda açılan yerel bir arayüz. Terminale hiç dönmeden:
 
 - Her adımı tek tek ya da tüm boru hattını çalıştırma
-- **Canlı çıktı akışı** — hangi adım nerede, ne kadar sürdü, kaç uyarı çıktı
+- **Canlı çıktı akışı** hangi adım nerede, ne kadar sürdü, kaç uyarı çıktı
 - **Kendi Excel dosyalarınızı sürükle-bırak ile yükleme** (`.xlsx`, `.xls`, `.csv`)
 - Üretilen çıktıları açma ve indirme
 - Yapılandırma, anahtar ve bulgu durumunun tek bakışta görünmesi
 
-Panel yalnızca `127.0.0.1` üzerinde çalışır — ağdan erişilemez. Windows'ta
+Panel yalnızca `127.0.0.1` üzerinde çalışır ağdan erişilemez. Windows'ta
 `PANEL.bat` dosyasına çift tıklamak da yeterlidir.
 
 ## Komut satırı
@@ -113,7 +113,7 @@ py src/boru.py --veri-uret
 ```
 
 Her adım tek başına da çalışır (`py src/topla.py`), durum `veri/ara/` altında
-taşınır. Bir adım hata verirse boru hattı **durur** — yanlış veriyle devam etmek
+taşınır. Bir adım hata verirse boru hattı **durur** yanlış veriyle devam etmek
 hatayı görünmez kılar.
 
 ---
@@ -162,12 +162,12 @@ hattının ortasında değil, en başta çıkar.
 | Kod | Test | Ne arar |
 |---|---|---|
 | K01 | Bilanço denkliği | Borç ≠ alacak; mizan eksik ya da tek taraflı kayıt var |
-| K02 | Mükerrer fiş | Aynı tutar + hesap + tarih penceresi — çift ödeme |
+| K02 | Mükerrer fiş | Aynı tutar + hesap + tarih penceresi çift ödeme |
 | K03 | Dönem kayması | Belge tarihi dönem dışında; dönemsellik ihlali |
 | K04 | Mesai dışı kayıt | Hafta sonu / gece girilmiş yüksek tutarlı fiş |
 | K05 | Yetki limiti aşımı | Onay limitini aşan tek fiş |
 | K06 | Limit parçalama | Aynı gün/kullanıcı/hesapta limitin hemen altında birden çok fiş |
-| K07 | Benford | İlk rakam dağılımının ki-kare sapması — uydurma tutar |
+| K07 | Benford | İlk rakam dağılımının ki-kare sapması uydurma tutar |
 | K08 | Eliminasyon farkı | A'nın alacağı ile B'nin borcunun tutmaması |
 | K09 | Eşleşmeyen hesap | Grup planında karşılığı olmayan yerel hesap |
 | K10 | Eksik dönem | Bir şirketin bir dönemi hiç gelmemiş |
@@ -177,7 +177,7 @@ hattının ortasında değil, en başta çıkar.
 | K14 | Büyük bütçe sapması | Hem oransal hem mutlak eşiği aşan sapma |
 
 **Bulgu ≠ hata.** Her bulgu bir iddia değil bir sorudur: *"bu kayıt neden böyle?"*.
-Motor karar vermez, kanıtı gösterir ve sıraya koyar — hangi fiş, hangi tutar,
+Motor karar vermez, kanıtı gösterir ve sıraya koyar hangi fiş, hangi tutar,
 hangi kullanıcı. Karar imzayı atacak olanındır.
 
 ### Doğrulama: tuzak avı
@@ -186,7 +186,7 @@ Demo veri üreteci, üretim bittikten sonra **14 kasıtlı hata** enjekte eder v
 hepsini `veri/ornek/TUZAK_CEVAP_ANAHTARI.json` dosyasına yazar. Boru hattı bu
 dosyayı okumaz. Son durum:
 
-**14/14 tuzak yakalandı** — 130 bulgu (kritik 20, yüksek 49, orta 60, düşük 1).
+**14/14 tuzak yakalandı** 130 bulgu (kritik 20, yüksek 49, orta 60, düşük 1).
 
 Bu, motorun kendi kendini sınaması için kurulmuş bir çerçevedir: yeni bir test
 eklendiğinde ya da bir eşik değiştiğinde skorun düşüp düşmediği ölçülebilir.
@@ -198,7 +198,7 @@ eklendiğinde ya da bir eşik değiştiğinde skorun düşüp düşmediği ölç
 Dört görev: eşleşmeyen hesaba grup hesabı önerisi, kontrol bulgularının aciliyet
 triyajı, sapma köprüsünün finans diline çevrilmesi, yönetici özeti.
 
-**Çekirdek kısıt — LLM hiçbir sayıyı üretmez.** Motor sayıyı üretir; LLM yalnızca
+**Çekirdek kısıt LLM hiçbir sayıyı üretmez.** Motor sayıyı üretir; LLM yalnızca
 hazır sayıyı yorumlar, önceliklendirir ya da bir *ad* eşlemesi önerir. Bu bir
 pazarlama cümlesi değil mimari bir kısıttır:
 
@@ -212,7 +212,7 @@ pazarlama cümlesi değil mimari bir kısıttır:
 
 **Denetim izi.** Her çağrı `gunluk/denetim_izi.jsonl`'a görev, model, istem parmak
 izi, token sayısı, maliyet ve yanıt parmak iziyle kaydedilir. Regüle bir süreçte
-*"bu yorumu kim yazdı"* sorusunun cevabı dosyada durur. Önbellek açıktır — aynı
+*"bu yorumu kim yazdı"* sorusunun cevabı dosyada durur. Önbellek açıktır aynı
 istem ikinci kez API'ye gitmez.
 
 Model: `claude-opus-5` (yapılandırmadan değiştirilebilir). Tam bir kapanış
@@ -226,14 +226,14 @@ Kodun içine gömülü üç karar, projenin çoğunu açıklar:
 
 **1. Eşleşmeyen satır atılmaz, askıya alınır.** Eşleşmeyen bir hesabın satırı
 düşürülürse konsolide tablo yine denk çıkar, toplamlar makul görünür, ama o
-hesabın tutarı yok olur — ne hata mesajı vardır ne denksizlik. Askı hesabı (9999)
+hesabın tutarı yok olur ne hata mesajı vardır ne denksizlik. Askı hesabı (9999)
 tutarın kaybolmasını engeller ve kapanış imzalanmadan çözülmesi gereken bir
 bulguya dönüştürür.
 
 **2. Gelir tablosu aylık çevrilir, YTD değil.** Mizan kümülatiftir. YTD hasılatı
 tek kurla çevirmek, EUR/TRY'nin 36,80'den 50,60'a gittiği bir yılda Ocak'ta
 kazanılan geliri de Aralık kuruyla çevirir. Motor YTD'den aylık hareketi türetip
-her ayı kendi ortalama kuruyla çevirir. Ölçülen fark TR şirketlerinde **%12** —
+her ayı kendi ortalama kuruyla çevirir. Ölçülen fark TR şirketlerinde **%12**
 tek kurla çevirmek ciroyu sistematik olarak küçültür.
 
 **3. Çevrim farkı ile veri hatası ayrıştırılır.** Çevrimden sonra bilanço denk
@@ -247,14 +247,14 @@ hatası, kalanı saf çevrim farkı.
 ## Excel'i öldürmüyor, üretiyor
 
 Bu projenin amacı Excel'i ortadan kaldırmak değil. Amaç, Excel'e giden yoldaki
-**elle yapılan işi** — pivot, VLOOKUP, kur çevirme, mutabakat — ortadan
+**elle yapılan işi** pivot, VLOOKUP, kur çevirme, mutabakat ortadan
 kaldırmak. Kapanış paketi yine `.xlsx` olarak çıkar, çünkü onu imzalayacak,
 denetçiye gönderecek ve üzerine not alacak olan kişi orada çalışır.
 
 Fark: bu dosya elle değil, izlenebilir bir boru hattıyla üretilir ve her rakam
 kaynağına kadar geri sürülebilir.
 
-`cikti/konsolidasyon_paketi.xlsx` — 9 sayfa: kapak ve kapanış durumu, gelir
+`cikti/konsolidasyon_paketi.xlsx` 9 sayfa: kapak ve kapanış durumu, gelir
 tablosu, bilanço, sapma köprüsü, kontrol bulguları, grup içi mutabakat, hesap
 eşleme, kur ve çevrim farkı, denetim izi.
 
@@ -262,7 +262,7 @@ eşleme, kur ve çevrim farkı, denetim izi.
 
 ## Yol haritası
 
-- [ ] **IAS 29 enflasyon muhasebesi** — Türkiye 2022'den beri hiperenflasyonist
+- [ ] **IAS 29 enflasyon muhasebesi** Türkiye 2022'den beri hiperenflasyonist
       ekonomi sayılıyor; parasal/parasal olmayan ayrımı hesap planında zaten var
 - [ ] TCMB ve TÜİK verilerini canlı API'den çekme (şu an sabit tablo)
 - [ ] Rolling forecast ve senaryo motoru ("kur %10 daha artarsa?")
@@ -276,7 +276,7 @@ eşleme, kur ve çevrim farkı, denetim izi.
 - Python 3.14 · pandas 3.0 · openpyxl · xlsxwriter · PyYAML · anthropic
 - Harici servis bağımlılığı yok (AI katmanı hariç ve o da isteğe bağlı)
 - Windows'ta konsol UTF-8'e zorlanır (`gunluk.py`); cp1254 Türkçe çıktıyı bozuyor
-- Demo veri sabit tohumla (`TOHUM = 42`) üretilir — tekrar üretilebilir
+- Demo veri sabit tohumla (`TOHUM = 42`) üretilir tekrar üretilebilir
 - `veri/girdi/`, `veri/ara/`, `cikti/` ve `gunluk/` depoda tutulmaz; hepsi
   `py src/boru.py --veri-uret` ile yeniden üretilir
 
@@ -285,13 +285,13 @@ eşleme, kur ve çevrim farkı, denetim izi.
 **Çift lisanslı.** Kaynak kodu herkese açıktır; bu, serbestçe
 ticarileştirilebileceği anlamına gelmez.
 
-### Ücretsiz — [PolyForm Noncommercial 1.0.0](LICENSE)
+### Ücretsiz [PolyForm Noncommercial 1.0.0](LICENSE)
 
 Kişisel öğrenme ve deneme, hobi projeleri, akademik araştırma, eğitim kurumları,
 kamu kurumları, hayır kurumları. İzin almanıza gerek yok. Tek yükümlülük:
 yazılımı başkasına verirken lisans metnini ve telif bildirimini birlikte vermek.
 
-### Ücretli — ticari lisans gerekir
+### Ücretli ticari lisans gerekir
 
 Bir şirketin operasyonlarında kullanmak (kendi kapanışınızı yapmak dahil),
 müşterilere hizmet üretirken kullanmak, bir ürüne/SaaS'a gömmek, yeniden satmak.
@@ -304,7 +304,7 @@ Pazarlığa açıktır.
 
 Projenin mimarisi ve kaynak kodu **Furkan Akduman**'a aittir.
 
-Katkıda bulunmak isterseniz [CONTRIBUTING.md](CONTRIBUTING.md) — çift lisans
+Katkıda bulunmak isterseniz [CONTRIBUTING.md](CONTRIBUTING.md) çift lisans
 modeli nedeniyle katkılarda telif devri gerekiyor, gerekçesi orada yazılı.
 
 Güvenlik bildirimi için [SECURITY.md](SECURITY.md)

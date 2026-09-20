@@ -29,7 +29,7 @@ sürdürülmektedir.
   yoktur.
 - Anahtarınız sızdıysa önce [Anthropic Console](https://console.anthropic.com/)
   üzerinden iptal edin, sonra yenisini üretin. Git geçmişinden silmek tek başına
-  yeterli değildir — anahtar bir kez yayımlandıysa yakılmış sayılır.
+  yeterli değildir, anahtar bir kez yayımlandıysa yakılmış sayılır.
 
 ## Veri gizliliği
 
@@ -39,7 +39,7 @@ sürdürülmektedir.
   hesap kodları ve adları, kontrol bulgusu özetleri ve toplulaştırılmış sapma
   rakamları. **Yevmiye satırları, fiş içerikleri ve kişi adları gönderilmez.**
   Ne gönderildiğini tam olarak görmek için `gunluk/zeka_onbellek/` altındaki
-  JSON dosyalarını açın — her istem olduğu gibi orada durur.
+  JSON dosyalarını açın, her istem olduğu gibi orada durur.
 - Katmanı tamamen kapatmak için: `py src/boru.py --zeka-kapali`, ya da
   `yapilandirma/zeka.yaml` içindeki `gorevler` girdilerini `false` yapın.
   Kapalıyken motorun ürettiği hiçbir rakam değişmez.
@@ -58,7 +58,7 @@ sürdürülmektedir.
 
 Çalışma zamanı bağımlılıkları: `pandas`, `numpy`, `openpyxl`, `xlsxwriter`,
 `PyYAML`, `anthropic` (isteğe bağlı). Hepsi yaygın kullanılan paketlerdir ve
-sürümleri sabitlenmemiştir — üretim ortamında kullanacaksanız kendi
+sürümleri sabitlenmemiştir, üretim ortamında kullanacaksanız kendi
 `requirements.txt` dosyanızda sabitleyin.
 
 **Girdi dosyaları güvenilmez kabul edilmelidir.** Motor `.xlsx` ve `.csv` okur;
@@ -76,9 +76,9 @@ Lisanssız ticari kullanım sırasında karşılaşılan sorunlar için destek v
 
 Aşağıdakiler bu projenin tehdit modelinde değildir:
 
-- Çok kullanıcılı erişim kontrolü — araç tek kullanıcının kendi makinesinde
+- Çok kullanıcılı erişim kontrolü, araç tek kullanıcının kendi makinesinde
   çalışır
-- Verinin diskte şifrelenmesi — işletim sistemi düzeyinde çözülmelidir
+- Verinin diskte şifrelenmesi, işletim sistemi düzeyinde çözülmelidir
 - Üretilen `.xlsx` ve `.html` dosyalarının paylaşımdan sonraki güvenliği
-- Yapay zekâ modelinin çıktısının doğruluğu — yorum metinleri insan
+- Yapay zekâ modelinin çıktısının doğruluğu, yorum metinleri insan
   gözetimi gerektirir ve hiçbir rakamın kaynağı değildir

@@ -2,7 +2,7 @@
 # YAPAY ZEKÂ KATMANI AYARLARI
 #
 # Bu katman KAPATILABİLİR. Kapalıyken boru hattının ürettiği
-# hiçbir rakam değişmez — sadece yorum metinleri üretilmez.
+# hiçbir rakam değişmez, sadece yorum metinleri üretilmez.
 # Rakam LLM'den gelmez, motordan gelir (bkz. src/zeka.py başlığı).
 # ============================================================
 

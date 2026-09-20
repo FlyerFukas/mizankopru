@@ -19,7 +19,7 @@ sirketler:
     hesap_plani: "VUK_TDHP"      # hesap_eslesme.csv'deki plan_kodu
     sahiplik_orani: 1.00
     faaliyet: "Üretim"
-    # Hiperenflasyonist ekonomi (TMS 29 / IAS 29) — v2'de devreye girecek
+    # Hiperenflasyonist ekonomi (TMS 29 / IAS 29), v2'de devreye girecek
     hiperenflasyon: true
     # Girdi dosyalarının biçim özellikleri
     bicim:
@@ -61,7 +61,7 @@ sirketler:
     ulke: "GB"
     fonksiyonel_para_birimi: "GBP"
     hesap_plani: "UK_COA"
-    sahiplik_orani: 0.75          # %25 azınlık payı (NCI) — kontrol gücü var, tam konsolide
+    sahiplik_orani: 0.75          # %25 azınlık payı (NCI), kontrol gücü var, tam konsolide
     faaliyet: "Satış ofisi"
     hiperenflasyon: false
     bicim:
@@ -70,11 +70,11 @@ sirketler:
       tarih_bicimi: "%m/%d/%Y"
       kodlama: "utf-8"
 
-# Grup içi işlem çiftleri — eliminasyonda hangi şirket hangisiyle karşılaştırılacak.
+# Grup içi işlem çiftleri, eliminasyonda hangi şirket hangisiyle karşılaştırılacak.
 #
 # satici_ciro_payi: satıcının toplam cirosunun yüzde kaçının bu alıcıya gittiği.
 # Bu oran alıcının maliyetini de belirler (alıcı, satıcının kestiği faturayı
-# maliyet yazar). Oranlar alıcının kendi satılan mal maliyetini AŞMAMALI —
+# maliyet yazar). Oranlar alıcının kendi satılan mal maliyetini AŞMAMALI:
 # aşarsa alıcı yapısal olarak zarar eder ki bu bir veri kurgu hatasıdır.
 grup_ici_iliskiler:
   - satici: "TR01"

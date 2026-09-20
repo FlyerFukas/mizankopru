@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# MizanKöprü — çok şirketli, çok para birimli konsolidasyon ve iç kontrol motoru
+# MizanKöprü: çok şirketli, çok para birimli konsolidasyon ve iç kontrol motoru
 # Copyright (c) 2026 Furkan Akduman · https://github.com/FlyerFukas
 # SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 #
@@ -7,17 +7,17 @@
 # İşletmeler ve her türlü ticari kullanım ayrı, ücretli lisans gerektirir.
 # Ayrıntı ve iletişim: COMMERCIAL.md
 """
-MİZANKÖPRÜ — [4] KONTROL: iç kontrol testleri.
+MİZANKÖPRÜ [4] KONTROL: iç kontrol testleri.
 
 GÖREV
   Konsolidasyona giren veriyi 14 testten geçirir ve bulgu listesi üretir.
   Testlerin eşikleri yapilandirma/kontroller.yaml'da; kod değişmeden
   şirket politikasına göre ayarlanır.
 
-TASARIM İLKESİ — BULGU ≠ HATA
+TASARIM İLKESİ: BULGU ≠ HATA
   Her bulgu bir iddia değil, bir sorudur: "bu kayıt neden böyle?".
   Motor karar vermez, kanıtı gösterir ve sıraya koyar. Kararı imzayı
-  atacak olan verir. Bu yüzden her bulgu 'kanit' alanı taşır — hangi fiş,
+  atacak olan verir. Bu yüzden her bulgu 'kanit' alanı taşır, hangi fiş,
   hangi tutar, hangi kullanıcı.
 
 YANLIŞ POZİTİF
@@ -46,7 +46,7 @@ from gunluk import Gunluk, para, tablo_yaz                    # noqa: E402
 from sema import ARA_DIZIN, BULGU_KOLONLARI, CIKTI_DIZIN, ONEM_SIRASI, yukle  # noqa: E402
 from zeka import Zeka                                          # noqa: E402
 
-# Benford yasası — ilk rakamın beklenen dağılımı
+# Benford yasası, ilk rakamın beklenen dağılımı
 BENFORD = {d: np.log10(1 + 1 / d) for d in range(1, 10)}
 
 
@@ -91,7 +91,7 @@ class Kontrolcu:
         return float(tutar) * self.y.kur(donem, pb, tip)
 
     # =================================================================
-    # K01 — Bilanço denkliği
+    # K01 · Bilanço denkliği
     # =================================================================
     def k01(self, mizan: pd.DataFrame):
         if not self.aktif("K01"):
@@ -120,7 +120,7 @@ class Kontrolcu:
         self.calisan.append("K01")
 
     # =================================================================
-    # K02 — Mükerrer fiş
+    # K02 · Mükerrer fiş
     # =================================================================
     def k02(self, yevmiye: pd.DataFrame):
         if not self.aktif("K02"):
@@ -163,7 +163,7 @@ class Kontrolcu:
         self.calisan.append("K02")
 
     # =================================================================
-    # K03 — Dönem kayması (cut-off)
+    # K03 · Dönem kayması (cut-off)
     # =================================================================
     def k03(self, yevmiye: pd.DataFrame):
         if not self.aktif("K03"):
@@ -186,7 +186,7 @@ class Kontrolcu:
                 gun = (belge - son).days
                 self.bulgu("K03", r.sirket_kod, r.donem, f"fiş {r.fis_no}",
                            self.eur(r.borc, r.donem, r.sirket_kod),
-                           f"Belge tarihi {belge} — kaydedildiği dönemden {gun} gün SONRA. "
+                           f"Belge tarihi {belge}, kaydedildiği dönemden {gun} gün SONRA. "
                            f"Gelecek döneme ait bir belge bu dönemin sonucuna girmiş.",
                            {"fis_no": r.fis_no, "belge_tarihi": str(belge),
                             "fis_tarihi": str(r.fis_t), "donem_sonu": str(son),
@@ -196,14 +196,14 @@ class Kontrolcu:
                 gun = (ilk - belge).days
                 self.bulgu("K03", r.sirket_kod, r.donem, f"fiş {r.fis_no}",
                            self.eur(r.borc, r.donem, r.sirket_kod),
-                           f"Belge tarihi {belge} — kayıttan {gun} gün önce. "
+                           f"Belge tarihi {belge}, kayıttan {gun} gün önce. "
                            f"Geç kaydedilmiş bir belge; ait olduğu dönemi etkiler.",
                            {"fis_no": r.fis_no, "belge_tarihi": str(belge),
                             "gecikme_gun": gun, "tutar": round(r.borc, 2)})
         self.calisan.append("K03")
 
     # =================================================================
-    # K04 — Mesai dışı kayıt
+    # K04 · Mesai dışı kayıt
     # =================================================================
     def k04(self, yevmiye: pd.DataFrame):
         if not self.aktif("K04"):
@@ -249,7 +249,7 @@ class Kontrolcu:
         self.calisan.append("K04")
 
     # =================================================================
-    # K05 — Yetki limiti aşımı
+    # K05 · Yetki limiti aşımı
     # =================================================================
     def k05(self, yevmiye: pd.DataFrame):
         if not self.aktif("K05"):
@@ -287,7 +287,7 @@ class Kontrolcu:
             asim = r.borc / lim["tek_fis_limiti"]
             self.bulgu("K05", r.sirket_kod, r.donem, f"fiş {r.fis_no}",
                        self.eur(r.borc, r.donem, r.sirket_kod),
-                       f"Tek fiş {para(r.borc, 0)} {lim['para_birimi']} — onay limitinin "
+                       f"Tek fiş {para(r.borc, 0)} {lim['para_birimi']}, onay limitinin "
                        f"{asim:.2f} katı (limit {para(lim['tek_fis_limiti'], 0)}). "
                        f"Kaydeden: {r.kullanici}. Açıklama: \"{str(r.aciklama)[:50]}\"",
                        {"fis_no": r.fis_no, "tutar": round(r.borc, 2),
@@ -296,7 +296,7 @@ class Kontrolcu:
         self.calisan.append("K05")
 
     # =================================================================
-    # K06 — Limit parçalama (splitting)
+    # K06 · Limit parçalama (splitting)
     # =================================================================
     def k06(self, yevmiye: pd.DataFrame):
         if not self.aktif("K06"):
@@ -327,7 +327,7 @@ class Kontrolcu:
                        f"Aynı gün, aynı kullanıcı ve hesapta limitin %{alt_oran*100:.0f}-100 "
                        f"bandında {len(bantta)} fiş; toplam {para(toplam, 0)} "
                        f"{lim['para_birimi']} (limit {para(L, 0)}). Tek işlem bölünmüş "
-                       f"olabilir — aşımın kendisinden daha ciddi bir sinyal.",
+                       f"olabilir, aşımın kendisinden daha ciddi bir sinyal.",
                        {"fis_nolar": list(bantta["fis_no"]),
                         "tutarlar": [round(t, 2) for t in bantta["tutar"]],
                         "limit": L, "kullanici": kullanici, "hesap": hesap,
@@ -336,7 +336,7 @@ class Kontrolcu:
         self.calisan.append("K06")
 
     # =================================================================
-    # K07 — Benford ilk rakam testi
+    # K07 · Benford ilk rakam testi
     # =================================================================
     def k07(self, yevmiye: pd.DataFrame):
         if not self.aktif("K07"):
@@ -375,7 +375,7 @@ class Kontrolcu:
         self.calisan.append("K07")
 
     # =================================================================
-    # K08 — Grup içi eliminasyon farkı
+    # K08 · Grup içi eliminasyon farkı
     # =================================================================
     def k08(self, grup_ici: pd.DataFrame):
         if not self.aktif("K08"):
@@ -414,7 +414,7 @@ class Kontrolcu:
                 continue
             self.bulgu("K08", a, donem, f"{a} ↔ {b}", abs(fark),
                        f"{a}'nın alacağı {para(eur_a, 0)} EUR, {b}'nin borcu "
-                       f"{para(eur_b, 0)} EUR — {para(abs(fark), 0)} EUR "
+                       f"{para(eur_b, 0)} EUR, {para(abs(fark), 0)} EUR "
                        f"(%{abs(fark)/taban*100:.1f}) fark. Konsolide bilanço bu kadar "
                        f"şişer ya da eksilir.",
                        {"satici": a, "alici": b,
@@ -424,7 +424,7 @@ class Kontrolcu:
         self.calisan.append("K08")
 
     # =================================================================
-    # K09 — Eşleşmeyen hesap
+    # K09 · Eşleşmeyen hesap
     # =================================================================
     def k09(self, eslesmeyenler: pd.DataFrame):
         if not self.aktif("K09"):
@@ -436,7 +436,7 @@ class Kontrolcu:
                        f"\"{r.yerel_hesap_ad}\" grup hesap planına eşlenmiyor; "
                        f"{r.donem_sayisi} dönemdir ({r.ilk_donem}→{r.son_donem}) "
                        f"askıda ve {para(abs(r.bakiye_eur), 0)} EUR taşıyor. "
-                       f"Eşleşmeyen hesap konsolidasyondan sessizce düşer — tablo "
+                       f"Eşleşmeyen hesap konsolidasyondan sessizce düşer, tablo "
                        f"yine denk görünür.",
                        {"yerel_kod": r.yerel_hesap_kod, "ad": r.yerel_hesap_ad,
                         "plan": r.hesap_plani, "donem_sayisi": r.donem_sayisi,
@@ -444,7 +444,7 @@ class Kontrolcu:
         self.calisan.append("K09")
 
     # =================================================================
-    # K10 — Eksik dönem
+    # K10 · Eksik dönem
     # =================================================================
     def k10(self, mizan: pd.DataFrame, yevmiye: pd.DataFrame):
         if not self.aktif("K10"):
@@ -465,7 +465,7 @@ class Kontrolcu:
         self.calisan.append("K10")
 
     # =================================================================
-    # K11 — Ters bakiye
+    # K11 · Ters bakiye
     # =================================================================
     def k11(self, cevrilmis: pd.DataFrame):
         if not self.aktif("K11"):
@@ -496,7 +496,7 @@ class Kontrolcu:
         self.calisan.append("K11")
 
     # =================================================================
-    # K12 — Yuvarlak tutar yoğunluğu
+    # K12 · Yuvarlak tutar yoğunluğu
     # =================================================================
     def k12(self, yevmiye: pd.DataFrame):
         if not self.aktif("K12"):
@@ -522,7 +522,7 @@ class Kontrolcu:
                        self.eur(grup[grup["yuvarlak"]]["borc"].sum(), donem, sirket),
                        f"Kayıtların %{pay*100:.0f}'i tam {yuv:,.0f}'in katı "
                        f"({grup['yuvarlak'].sum():,}/{len(grup):,}); şirket geneli "
-                       f"%{t*100:.1f}. Gerçek ticari işlem nadiren tam yuvarlaktır — "
+                       f"%{t*100:.1f}. Gerçek ticari işlem nadiren tam yuvarlaktır, "
                        f"tahmini ya da uydurma kayıt sinyali.",
                        {"hesap": hesap, "gozlem": len(grup),
                         "yuvarlak_adet": int(grup["yuvarlak"].sum()),
@@ -530,7 +530,7 @@ class Kontrolcu:
         self.calisan.append("K12")
 
     # =================================================================
-    # K13 — Görevler ayrılığı
+    # K13 · Görevler ayrılığı
     # =================================================================
     def k13(self, yevmiye: pd.DataFrame):
         if not self.aktif("K13"):
@@ -562,7 +562,7 @@ class Kontrolcu:
         self.calisan.append("K13")
 
     # =================================================================
-    # K14 — Büyük bütçe sapması
+    # K14 · Büyük bütçe sapması
     # =================================================================
     def k14(self, cevrilmis: pd.DataFrame, butce: pd.DataFrame):
         if not self.aktif("K14"):
@@ -598,7 +598,7 @@ class Kontrolcu:
             yon = "üstünde" if sapma > 0 else "altında"
             self.bulgu("K14", r.sirket_kod, son, f"{r.grup_kod} {h['ad']}",
                        abs(sapma),
-                       f"Fiili {para(f, 0)} EUR, bütçe {para(bt, 0)} EUR — "
+                       f"Fiili {para(f, 0)} EUR, bütçe {para(bt, 0)} EUR, "
                        f"%{abs(oran)*100:.0f} {yon} ({para(abs(sapma), 0)} EUR). "
                        f"Açıklama gerekiyor.",
                        {"grup_kod": r.grup_kod, "fiili_eur": round(f, 2),
@@ -672,7 +672,7 @@ def main():
         return
 
     onem_sayim = bulgular["onem"].value_counts().to_dict()
-    g.bilgi(f"\nToplam {len(bulgular):,} bulgu — "
+    g.bilgi(f"\nToplam {len(bulgular):,} bulgu, "
             + " · ".join(f"{o}: {onem_sayim.get(o, 0)}"
                          for o in ["kritik", "yuksek", "orta", "dusuk"]
                          if onem_sayim.get(o)))
@@ -691,7 +691,7 @@ def main():
             with open(CIKTI_DIZIN / "bulgu_triyaji.json", "w", encoding="utf-8") as f:
                 json.dump(triyaj, f, ensure_ascii=False, indent=2)
             sira = {x["bulgu_no"]: x for x in triyaj["siralama"]}
-            tablo_yaz("Yapay zekâ triyajı — kapanış öncesi sıra",
+            tablo_yaz("Yapay zekâ triyajı, kapanış öncesi sıra",
                       [[sira[i]["aciliyet"], kritikler.iloc[i]["test_kod"],
                         kritikler.iloc[i]["sirket_kod"],
                         str(sira[i]["atilacak_adim"])[:78]]
@@ -702,7 +702,7 @@ def main():
                       ["Aciliyet", "Test", "Şirket", "Atılacak adım"])
             g.bilgi(f"\nGenel değerlendirme: {triyaj['genel_degerlendirme']}")
     else:
-        g.bilgi(f"Triyaj atlandı — {z.neden or 'yapılandırmada kapalı'}")
+        g.bilgi(f"Triyaj atlandı, {z.neden or 'yapılandırmada kapalı'}")
 
     g.bilgi(f"\nBulgular: {CIKTI_DIZIN / 'bulgular.csv'}")
     g.bitir({"bulgu": len(bulgular), "kritik": onem_sayim.get("kritik", 0),

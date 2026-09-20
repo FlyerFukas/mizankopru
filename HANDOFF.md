@@ -1,4 +1,4 @@
-# MİZANKÖPRÜ — Devir Dosyası (HANDOFF)
+# MİZANKÖPRÜ. Devir Dosyası (HANDOFF)
 
 > Bu dosya oturumlar arası hafızadır. **Her anlamlı çıktıdan sonra güncellenir.**
 > Yeni bir oturum açan (insan ya da model) önce burayı okur, sonra koda bakar.
@@ -26,14 +26,14 @@ IAS 21'e göre çevirir, üstünden **iç kontrol testleri** geçirir ve bütçe
 | Amaç | **Gerçek işte kullanılacak araç** | → Yapılandırma dosyadan, kod değişmeden yeni şirket/hesap planı eklenebilir |
 
 **Amaç kararının doğrudan mimari sonucu:** Sentetik veri *demo*dur, motor değildir.
-Hesap planı eşlemesi, kolon adları, kontrol eşikleri, şirket listesi — hepsi
+Hesap planı eşlemesi, kolon adları, kontrol eşikleri, şirket listesi, hepsi
 `yapilandirma/` altındaki YAML'lerde. Furkan kendi mizanını `veri/girdi/` altına
 koyup sadece YAML düzenleyerek çalıştırabilmeli.
 
 ## 3. Boru hattı
 
 ```
-veri/girdi/  (dağınık .xlsx/.csv — farklı kolon adı, tarih ve sayı formatı)
+veri/girdi/  (dağınık .xlsx/.csv, farklı kolon adı, tarih ve sayı formatı)
   │
   ├─[1] topla.py   → tek şemaya normalize et, ham veriyi parmak iziyle sakla
   ├─[2] esle.py    → yerel hesap kodu → grup hesap planı (eşleşmeyenleri raporla)
@@ -50,62 +50,62 @@ Orkestratör: `py src/boru.py` (tüm adımlar) veya adım adım `py src/topla.py
 ### Tamamlanan
 - [x] Klasör iskeleti
 - [x] HANDOFF.md
-- [x] Yapılandırma katmanı — 6 dosya, kendi kendini doğruluyor (`py src/sema.py`)
+- [x] Yapılandırma katmanı, 6 dosya, kendi kendini doğruluyor (`py src/sema.py`)
 - [x] Ortak altyapı: günlük/denetim izi (`src/gunluk.py`), şema (`src/sema.py`)
-- [x] Sentetik veri üreteci (`araclar/veri_uret.py`) — 41 dosya, ~41.000 yevmiye satırı, 14 tuzak
-- [x] Veri kalibrasyonu doğrulandı — başlık bulgu veride mevcut (bkz. §7)
-- [x] Yapay zekâ katmanı (`src/zeka.py`) — Claude API, anahtarsız da çalışır
-- [x] `src/topla.py` — çok formatlı okuma + normalizasyon · **41 dosya, 44.414 satır okundu**
+- [x] Sentetik veri üreteci (`araclar/veri_uret.py`), 41 dosya, ~41.000 yevmiye satırı, 14 tuzak
+- [x] Veri kalibrasyonu doğrulandı, başlık bulgu veride mevcut (bkz. §7)
+- [x] Yapay zekâ katmanı (`src/zeka.py`). Claude API, anahtarsız da çalışır
+- [x] `src/topla.py`: çok formatlı okuma + normalizasyon · **41 dosya, 44.414 satır okundu**
 
-- [x] `src/esle.py` — hesap planı köprüsü · **askı hesabı + AI eşleme önerisi**
-- [x] `src/cevir.py` — IAS 21 çevrim + konsolidasyon + NCI
+- [x] `src/esle.py`: hesap planı köprüsü · **askı hesabı + AI eşleme önerisi**
+- [x] `src/cevir.py`: IAS 21 çevrim + konsolidasyon + NCI
 
-- [x] `src/kontrol.py` — 14 kontrol testi · **14/14 tuzak yakalandı, 130 bulgu**
+- [x] `src/kontrol.py`: 14 kontrol testi · **14/14 tuzak yakalandı, 130 bulgu**
 - [x] Claude API bağlandı ve doğrulandı (oturum maliyeti $0,51)
 
-- [x] `src/sapma.py` — fiyat/karışım/hacim/kur ayrıştırması · **özdeşlik artığı 0,0000**
+- [x] `src/sapma.py`: fiyat/karışım/hacim/kur ayrıştırması · **özdeşlik artığı 0,0000**
 - [x] Git deposu kuruldu, 11 adım adım commit
 
-- [x] `src/pano.py` — tek dosyalık HTML pano (25 KB, saf SVG şelale grafiği)
-- [x] `src/excel.py` — 9 sayfalık konsolidasyon paketi
-- [x] `src/boru.py` — orkestratör · **uçtan uca 42 sn**
+- [x] `src/pano.py`: tek dosyalık HTML pano (25 KB, saf SVG şelale grafiği)
+- [x] `src/excel.py`: 9 sayfalık konsolidasyon paketi
+- [x] `src/boru.py`: orkestratör · **uçtan uca 42 sn**
 - [x] README.md, LICENSE (MIT), SECURITY.md
-- [x] `araclar/rapor_uret.py` — 12 sayfalık proje raporu (PDF)
+- [x] `araclar/rapor_uret.py`: 12 sayfalık proje raporu (PDF)
 
-- [x] **Güvenlik olayı kapatıldı** (§14) — anahtar iptal edildi, geçmiş temizlendi
+- [x] **Güvenlik olayı kapatıldı** (§14), anahtar iptal edildi, geçmiş temizlendi
 - [x] Depo **PUBLIC**: github.com/FlyerFukas/mizankopru
 
-- [x] Panel (`src/panel.py`) — tarayıcıdan çalıştırma + sürükle-bırak yükleme
+- [x] Panel (`src/panel.py`), tarayıcıdan çalıştırma + sürükle-bırak yükleme
 - [x] **Lisans modeli: PolyForm Noncommercial + ticari lisans** (§18)
 
-### AÇIK — kullanıcı aksiyonu
+### AÇIK, kullanıcı aksiyonu
 - [ ] `~/.claude/CLAUDE.md` içindeki GitHub adı güncel değil
       (`mrFurkan33333` → `FlyerFukas`)
 
 ### Yol haritası (v2)
-- [ ] `src/sapma.py` — sapma ayrıştırma
-- [ ] `src/pano.py` / `src/excel.py` — çıktılar
-- [ ] `src/boru.py` — orkestratör
+- [ ] `src/sapma.py`: sapma ayrıştırma
+- [ ] `src/pano.py` / `src/excel.py`: çıktılar
+- [ ] `src/boru.py`: orkestratör
 
 ### Yol haritası (v2)
-- IAS 29 enflasyon muhasebesi (TÜİK ÜFE ile) — Türkiye için gerçek ve ayırt edici
+- IAS 29 enflasyon muhasebesi (TÜİK ÜFE ile). Türkiye için gerçek ve ayırt edici
 - TCMB kurlarını canlı API'den çekme (şu an sabit tablo)
 - Rolling forecast + senaryo motoru
 - VUK ↔ IFRS köprüsü (ertelenmiş vergi)
 
-## 5. Yapay zekâ katmanı — kural
+## 5. Yapay zekâ katmanı, kural
 
 **LLM hiçbir sayıyı üretmez.** Motor sayıyı üretir; LLM yalnızca hazır sayıyı
 finans diline çevirir, önceliklendirir ya da bir hesap eşlemesi önerir.
 Katman kapatılsa boru hattının ürettiği rakamların hepsi aynı kalır.
-Bu mimari bir kısıt — `src/zeka.py` başlığında ve her istemin içinde yazılı.
+Bu mimari bir kısıt, `src/zeka.py` başlığında ve her istemin içinde yazılı.
 
 Dört görev: `esleme_oner` (K09 bulgusuna çözüm önerisi) · `bulgu_triyaj`
 (kontrol bulgularını aciliyete göre sırala) · `sapma_yorumla` · `yonetici_ozeti`.
 
 Her çağrı denetim izine düşer: görev, model, istem parmak izi, token, tahmini
 maliyet, yanıt parmak izi. Regüle süreçte "bu yorumu kim yazdı" sorusunun cevabı.
-Önbellek açık (`gunluk/zeka_onbellek/`) — aynı istem tekrar API'ye gitmez.
+Önbellek açık (`gunluk/zeka_onbellek/`), aynı istem tekrar API'ye gitmez.
 
 **Anahtar kurulumu:** `cp .env.ornek .env` → içine `ANTHROPIC_API_KEY=...`.
 `.env` gitignore'da. Kod içinde anahtar yok, olmayacak.
@@ -120,7 +120,7 @@ Anahtar yoksa katman sessizce kapanır, motor tam çalışır.
   - `groupby.apply` `include_groups=False` istiyor
 - **Windows encoding:** JSON/metin yazarken `encoding="utf-8"` **şart**, yoksa cp1254 yazar.
   Scriptlerin başında stdout UTF-8'e zorlanıyor (`src/gunluk.py` içinde).
-- Ajan/workflow **üretilmiyor** — Furkan'ın açık talimatı (token tüketimi).
+- Ajan/workflow **üretilmiyor**: Furkan'ın açık talimatı (token tüketimi).
 
 ## 7. Veri: başlık bulgu (doğrulandı)
 
@@ -143,18 +143,18 @@ Kalibrasyon: TR'de fiili fiyat +%68/yıl (bütçe %25 varsaymıştı), fiili mik
 −%18/yıl (bütçe +%7 varsaymıştı), bütçe kuru EUR/TRY 38'de sabitlenmişti,
 gerçekleşen yıl sonu 50,60.
 
-**Dikkat — veriye gömülü ikinci tuzak:** Mevsimsellik çarpanı Ocak 0,86 /
+**Dikkat, veriye gömülü ikinci tuzak:** Mevsimsellik çarpanı Ocak 0,86 /
 Aralık 1,24. "Ocak'a göre Aralık" karşılaştırması bu yüzden yanıltıcıdır;
 miktar düşüyor olmasına rağmen artıyor görünür. Doğru çerçeve bütçe-fiili
-yıllık toplamdır. Bu kasıtlı — motorun bunu ayırt etmesi bekleniyor.
+yıllık toplamdır. Bu kasıtlı, motorun bunu ayırt etmesi bekleniyor.
 
-## 8. topla.py — yaşanmış iki tuzak (tekrar etmesin)
+## 8. topla.py, yaşanmış iki tuzak (tekrar etmesin)
 
 **1. `str()` hesap kodunu bozar.** Excel'de `100` yazan hücre pandas'a `100.0`
 float olarak gelir; `str()` onu `"100.0"` yapar. Eşleme tablosunda `"100"`
 arandığı için 1.359 hesabın **tamamı** eşleşmeyen çıkmıştı. Tablo yine denk
-görünüyordu — hata yalnızca eşleme oranına bakınca fark edildi.
-Çözüm: `kod_metni()` (src/topla.py) — tam sayı float'ların kuyruğunu atar ama
+görünüyordu, hata yalnızca eşleme oranına bakınca fark edildi.
+Çözüm: `kod_metni()` (src/topla.py), tam sayı float'ların kuyruğunu atar ama
 `770.01` gibi gerçek ondalıklı kodları korur. Tüm anahtar alanlarda kullanılıyor.
 
 **2. Sayı ayracı belirsizliği.** `1.234` Türkçe biçimde 1234, İngilizce biçimde
@@ -164,12 +164,12 @@ yapılandırma dışı tek ayraç + 3 basamaklı kuyruk durumunda binlik varsaya
 **sayar ve raporlar**. Sayaç sıfır değilse insan bakmalı.
 
 **Doğrulama sonucu:** üç farklı sayı/dosya biçimi (TR metin virgüllü ×12 dosya,
-DE gerçek sayı 12 sekme, UK metin noktalı tek csv) kayıpsız okundu — mizan
+DE gerçek sayı 12 sekme, UK metin noktalı tek csv) kayıpsız okundu, mizan
 toplamı yevmiye toplamına birebir eşit (tek fark TR02 Kasım, ki o T10 tuzağı).
 
-## 9. cevir.py — IAS 21 uygulaması ve iki tasarım kararı
+## 9. cevir.py. IAS 21 uygulaması ve iki tasarım kararı
 
-**Karar 1 — mizan YTD, gelir tablosu aylık çevrilir.**
+**Karar 1, mizan YTD, gelir tablosu aylık çevrilir.**
 Mizan yılbaşından itibaren kümülatiftir. Gelir tablosu kalemini YTD hâliyle tek
 kurla çevirmek, EUR/TRY'nin 36,80'den 50,60'a gittiği bir yılda Ocak'ta kazanılan
 geliri de Aralık kuruyla çevirir. Motor YTD'den aylık hareketi türetip her ayı
@@ -183,7 +183,7 @@ kendi ortalama kuruyla çevirir. Ölçülen fark:
 
 Tek kurla çevirmek TR şirketlerinin cirosunu sistematik olarak ~%12 küçültüyor.
 
-**Karar 2 — çevrim farkı ile veri hatası ayrıştırılır.**
+**Karar 2, çevrim farkı ile veri hatası ayrıştırılır.**
 Çevrimden sonra bilanço denk gelmez; fark özkaynağa (3090) yazılır. Ama yerel
 mizan zaten denk değilse (UK01'de T9 tuzağı) o denksizlik de aynı yere düşer ve
 bir **veri hatası, "kur çevrim farkı" adı altında özkaynağa gömülüp kaybolur.**
@@ -200,23 +200,23 @@ Bunlar motorun değil, **sentetik verinin** hatalarıydı; motoru test ederken �
 
 1. **Grup içi satış ≠ grup içi alım maliyeti.** Her şirket grup içi alımını kendi
    cirosundan tahmin ediyordu, satıcının ona kestiği faturadan değil. Eliminasyon
-   5,8M EUR açık veriyordu. Çözüm: iki geçişli üretim — `grup_ici_satis` sözlüğü
+   5,8M EUR açık veriyordu. Çözüm: iki geçişli üretim, `grup_ici_satis` sözlüğü
    kimin kime ne sattığını tutar, `smm_yaz()` alıcının maliyetini ondan türetir.
-   Kalan fark (~%0,5) kur kaynaklı ve **kasıtlı** — K08'in ölçtüğü şey bu.
+   Kalan fark (~%0,5) kur kaynaklı ve **kasıtlı**: K08'in ölçtüğü şey bu.
 2. **Stok alımı hiç yoktu.** SMM stoktan çıkıyor ama stok girişi yazılmıyordu;
    stok yıl boyunca negatife gidiyor, dönen varlıklar −14,7M EUR çıkıyordu.
 3. **T8 tuzağı absürt ölçekteydi.** Uydurma ofis gideri fişleri 10.000–98.000 GBP
    seçilmişti; UK01'in genel yönetim gideri 10,4M EUR, cirosu 9,75M EUR oluyordu.
-   Tuzağın ayırt edici özelliği tutarların YUVARLAKLIĞI, büyüklüğü değil — 10× küçültüldü.
+   Tuzağın ayırt edici özelliği tutarların YUVARLAKLIĞI, büyüklüğü değil, 10× küçültüldü.
 4. **Giderler grup içi ciro dahil hesaplanıyordu.** Konsolidasyonda hasılat elimine
    edilince gider oranı yapay olarak şişiyor, faaliyet kârı −9M çıkıyordu. Gider
    tabanı dış ciroya bağlandı.
 
-Sonuç — sağlıklı bir grup tablosu: konsolide hasılat 61,6M EUR, brüt marj %35,5,
+Sonuç, sağlıklı bir grup tablosu: konsolide hasılat 61,6M EUR, brüt marj %35,5,
 faaliyet marjı %12,5, net marj %8,9. UK01 tek başına zararda (−%3,6) çünkü T8
 tuzağı orada; bu **kasıtlı** ve kontrol testinin bulacağı bir sinyal.
 
-## 11. kontrol.py — yanlış pozitif dersi
+## 11. kontrol.py, yanlış pozitif dersi
 
 İlk çalıştırmada **1.902 bulgu** çıktı; bunun 1.499'u tek bir testten (K05).
 Bu, modülün kendi başlığındaki ilkenin ihlaliydi: *"400 bulgulu bir rapor
@@ -224,7 +224,7 @@ okunmaz; okunmayan rapor kontrol değildir."* Üç kaynak vardı:
 
 | Test | Önce | Sonra | Kök neden |
 |---|---|---|---|
-| K05 Yetki aşımı | 1.499 | **3** | Onay limiti tüm fişlere uygulanıyordu. Limit bir HARCAMA yetkisidir — müşteri tahsilatına, satış faturasına, rutin stok alımına, bordroya uygulanmaz. Kapsam `kapsam_grup_hesaplari` ile gider ve yatırım hesaplarına daraltıldı. |
+| K05 Yetki aşımı | 1.499 | **3** | Onay limiti tüm fişlere uygulanıyordu. Limit bir HARCAMA yetkisidir, müşteri tahsilatına, satış faturasına, rutin stok alımına, bordroya uygulanmaz. Kapsam `kapsam_grup_hesaplari` ile gider ve yatırım hesaplarına daraltıldı. |
 | K04 Mesai dışı | 279 | **3** | Veri üreteci fiş gününü rastgele seçiyordu, üçte biri hafta sonuna düşüyordu. Fişin TARİHİ hafta sonu olabilir (satış olur) ama muhasebe KAYDI hafta içi girilir. `_rastgele_zaman` kayıt gününü hafta içine çekiyor. |
 | K12 Yuvarlak tutar | 0 | **1** | Eşik 10.000'in katıydı, tuzak tutarları 1.000'in katı. Ayrıca oran %21,8 çıkıp %25 eşiğinin hemen altında kalmıştı. Eşik 1.000 / %15'e çekildi. |
 
@@ -248,14 +248,14 @@ Triyaj ayrıca tekil bulgulardan desen çıkardı:
 > şüphesi doğuruyor."*
 
 Bu, motorun yapmadığı bir iş: motor 13 ayrı bulgu üretti, AI bunların bir
-desen oluşturduğunu gördü. **Ama hiçbir sayıyı AI üretmedi** — 13 rakamı da,
+desen oluşturduğunu gördü. **Ama hiçbir sayıyı AI üretmedi**: 13 rakamı da,
 tutarları da motor hesapladı.
 
-## 13. Tuzak avı — durum tablosu
+## 13. Tuzak avı, durum tablosu
 
 | Tuzak | Test | Nerede yakalanacak | Durum |
 |---|---|---|---|
-**SKOR: 14/14** — motor cevap anahtarını görmeden hepsini buldu.
+**SKOR: 14/14**: motor cevap anahtarını görmeden hepsini buldu.
 
 | Tuzak | Test | Ne | Bulgu |
 |---|---|---|---|
@@ -271,11 +271,11 @@ tutarları da motor hesapladı.
 | T10 eksik dönem | K10 | TR02 Kasım mizanı yok, 5,1M EUR hacim var | 1 ✓ |
 | T11 ters bakiye | K11 | TR01 Şubat, satış hesabı borç bakiye | 3 ✓ |
 | T12 görevler ayrılığı | K13 | TR02'de fişlerin %94'ü tek kullanıcı | 1 ✓ |
-| T13, T14 biçim tuzakları | — | topla.py'de aşıldı | ✓ |
+| T13, T14 biçim tuzakları | - | topla.py'de aşıldı | ✓ |
 
 Bulgu dağılımı: kritik 20 · yüksek 49 · orta 60 · düşük 1 = **130**
 
-## 14. GÜVENLİK OLAYI — API anahtarı git geçmişinde
+## 14. GÜVENLİK OLAYI. API anahtarı git geçmişinde
 
 **Ne oldu:** Anahtar `.env` yerine `.env.ornek` şablonuna yazıldı.
 `.env.ornek` şablon olduğu için `.gitignore`'da **değildir** ve ilk commit'te
@@ -283,12 +283,12 @@ Bulgu dağılımı: kritik 20 · yüksek 49 · orta 60 · düşük 1 = **130**
 
 **Ne yapıldı:**
 - `.env.ornek` temizlendi, içine açık uyarı kondu (commit `dba5113`).
-- `.env` dosyasına dokunulmadı — anahtarın doğru yeri orası, gitignore'da.
+- `.env` dosyasına dokunulmadı, anahtarın doğru yeri orası, gitignore'da.
 - **Depo PRIVATE bırakıldı.** Public yapılmadı.
-- Git geçmişini yeniden yazma (`filter-branch`) denendi, izin reddedildi —
+- Git geçmişini yeniden yazma (`filter-branch`) denendi, izin reddedildi:
   geri alınamaz bir işlem olduğu için doğru davranış.
 
-**KAPATILDI — 2026-09-18.** Yapılanlar sırasıyla:
+**KAPATILDI, 2026-09-18.** Yapılanlar sırasıyla:
 
 1. **Anahtar iptal edildi** (Furkan, console.anthropic.com), yenisi üretildi ve
    yalnızca `.env`'e yazıldı. Yeni anahtarın bağlantısı doğrulandı.
@@ -298,20 +298,20 @@ Bulgu dağılımı: kritik 20 · yüksek 49 · orta 60 · düşük 1 = **130**
    değiştirildi. `refs/original/` silindi, reflog süresi doldurulup `git gc`
    çalıştırıldı.
 3. **Bağımsız doğrulama:** GitHub'dan taze klon alındı ve 18 commit'in her biri
-   tarandı — anahtar bulunan commit sayısı **0**. İlk commit'teki `.env.ornek`
+   tarandı, anahtar bulunan commit sayısı **0**. İlk commit'teki `.env.ornek`
    artık `buraya-kendi-anahtarini-yaz` içeriyor.
 4. `--force-with-lease` ile push edildi, depo **public** yapıldı.
 5. **GitHub secret scanning + push protection açıldı.** Bundan sonra bir anahtar
-   push edilmeye çalışılırsa GitHub işlemi engeller — aynı kaza tekrarlanamaz.
+   push edilmeye çalışılırsa GitHub işlemi engeller, aynı kaza tekrarlanamaz.
 
 **Kalıcı ders:** `.env.ornek` gitignore'da değildir çünkü şablondur. Şablona
 yazılan anahtar doğrudan uzak depoya gider. Dosyanın kendisi artık bunu ilk
 satırında uyarıyor.
 
-## 15. sapma.py — köprü ve 2025 sonucu
+## 15. sapma.py, köprü ve 2025 sonucu
 
 Ayrıştırma matematiksel olarak tamdır (artık terim yok) ve özdeşlik her
-çalıştırmada sayısal olarak sınanır — tutmayan bir köprü yayımlanmamalıdır.
+çalıştırmada sayısal olarak sınanır, tutmayan bir köprü yayımlanmamalıdır.
 
 **Grup köprüsü, 2025 (EUR):**
 
@@ -337,23 +337,23 @@ tablosu onun üzerine eklendi.
 
 ## 16. Git
 
-Depo-yerel kimlik (CLAUDE.md kuralı — Vercel `Deployment Blocked` tuzağı):
+Depo-yerel kimlik (CLAUDE.md kuralı. Vercel `Deployment Blocked` tuzağı):
 ```
 user.name  = mrFurkan33333
 user.email = 250136320+mrFurkan33333@users.noreply.github.com
 ```
 `.env` gitignore'da ve `git check-ignore` ile doğrulandı. Üretilen veri,
-çıktı ve günlükler depoda yok — hepsi `py araclar/veri_uret.py` ile
+çıktı ve günlükler depoda yok, hepsi `py araclar/veri_uret.py` ile
 yeniden üretilebilir. Cevap anahtarı (`veri/ornek/`) depoda.
 
-## 18. Lisans modeli — MIT değil, çift lisans
+## 18. Lisans modeli. MIT değil, çift lisans
 
 **Karar:** Proje 18 Eylül'de kısa süre MIT olarak yayımlandı, sonra
 **PolyForm Noncommercial 1.0.0 + ticari lisans** modeline geçirildi.
 
 **Neden MIT yanlıştı:** MIT ticari kullanıma sınırsız izin verir. İstenen ise
 kişisel/eğitim/araştırma kullanımının serbest, işletme kullanımının ayrı bir
-anlaşmaya bağlı olmasıydı — MIT tam tersini yapıyordu.
+anlaşmaya bağlı olmasıydı. MIT tam tersini yapıyordu.
 
 **Neden PolyForm:** Avukat tarafından hazırlanmış, kısa ve okunabilir standart
 bir lisans. "Ticari olmayan amaç" ve "ticari olmayan kuruluş" tanımlarını açıkça
@@ -363,7 +363,7 @@ yapıyor. Aynı model EPPlus gibi ticari Excel kütüphanelerinde kullanılıyor
 | Lisans | Neden elendi |
 |---|---|
 | BUSL 1.1 | Belirli bir tarihte otomatik açık kaynağa dönüşüyor; istenmiyordu |
-| Elastic License 2.0 | İç ticari kullanıma izin veriyor — istenen bu değildi |
+| Elastic License 2.0 | İç ticari kullanıma izin veriyor, istenen bu değildi |
 | Commons Clause | MIT'e eklenen kısıt; tanımları PolyForm kadar net değil |
 | CC BY-NC | Creative Commons yazılım için kullanılmasını kendisi önermiyor |
 
@@ -373,18 +373,18 @@ SPDX başlığı, README uyarısı, pano/panel/PDF altbilgileri,
 `.github/ISSUE_TEMPLATE/ticari-lisans.yml`.
 
 **Bilinmesi gerekenler:**
-- GitHub lisansı **"Other / NOASSERTION"** olarak gösteriyor — PolyForm,
+- GitHub lisansı **"Other / NOASSERTION"** olarak gösteriyor. PolyForm,
   GitHub'ın `licensee` listesinde yok. LICENSE dosyası yine tıklanabilir;
   README'nin en üstündeki uyarı bunu telafi ediyor.
 - **MIT geri alınamaz.** O kısa süre içinde kopya alan varsa hakları devam eder.
   Bu tarihten sonraki sürümler yeni koşullara tabi. Kayıt: COMMERCIAL.md §7.
-- Katkı kabul edilirse telif devri ya da sınırsız lisans gerekir — yoksa çift
+- Katkı kabul edilirse telif devri ya da sınırsız lisans gerekir, yoksa çift
   lisans modeli çalışmaz (COMMERCIAL.md §6).
 - **Bu hukuki tavsiye değildir.** Ciddi bir ticari anlaşma öncesi avukata danışın.
 
 ## 19. Oturum günlüğü
 
-### Oturum 1 — 2026-09-18
+### Oturum 1, 2026-09-18
 - Proje kararları alındı (§2 tablosu).
 - İskelet + 6 dosyalık yapılandırma katmanı kuruldu, çapraz doğrulama geçti.
 - `gunluk.py` (denetim izi) + `sema.py` (yapılandırma yükleyici) yazıldı.
@@ -400,7 +400,7 @@ SPDX başlığı, README uyarısı, pano/panel/PDF altbilgileri,
 - Veri üretecinde 4 kurgu hatası bulunup düzeltildi (§10). Konsolide tablo sağlıklı.
 - Claude API anahtarı bağlandı (.env, gitignore'da). Bağlantı doğrulandı.
   AI ilk gerçek işini yaptı: askıdaki `6815 IT- und Softwarekosten` hesabına
-  **6040 Genel yönetim giderleri** önerdi — cevap anahtarındaki doğru kod.
+  **6040 Genel yönetim giderleri** önerdi, cevap anahtarındaki doğru kod.
   Güveni "orta" verdi ve "6060 Danışmanlık da mümkün" diye kendi kuşkusunu yazdı.
 - `kontrol.py` yazıldı: 14 test. İlk tur 1.902 bulgu → kapsam düzeltmeleriyle 130.
 - **14/14 tuzak yakalandı.**
@@ -408,7 +408,7 @@ SPDX başlığı, README uyarısı, pano/panel/PDF altbilgileri,
 - `sapma.py` yazıldı: fiyat/karışım/hacim/kur ayrıştırması, özdeşlik sınaması,
   mutabakat tablosu, AI sapma yorumu.
 - Git deposu kuruldu; adım adım commit'lerle GitHub'a gönderildi
-  (github.com/FlyerFukas/mizankopru — **private**).
+  (github.com/FlyerFukas/mizankopru, **private**).
 - `pano.py`, `excel.py`, `boru.py` yazıldı; boru hattı uçtan uca 42 sn.
 - README, MIT lisansı, SECURITY.md eklendi.
 - `rapor_uret.py` ile 12 sayfalık proje raporu (PDF) üretildi.

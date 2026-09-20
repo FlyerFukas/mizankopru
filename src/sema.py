@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# MizanKöprü — çok şirketli, çok para birimli konsolidasyon ve iç kontrol motoru
+# MizanKöprü: çok şirketli, çok para birimli konsolidasyon ve iç kontrol motoru
 # Copyright (c) 2026 Furkan Akduman · https://github.com/FlyerFukas
 # SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 #
@@ -7,7 +7,7 @@
 # İşletmeler ve her türlü ticari kullanım ayrı, ücretli lisans gerektirir.
 # Ayrıntı ve iletişim: COMMERCIAL.md
 """
-MİZANKÖPRÜ — Yapılandırma yükleyici ve iç veri şeması.
+MİZANKÖPRÜ. Yapılandırma yükleyici ve iç veri şeması.
 
 Motorun tek doğruluk kaynağı burası. Boru hattının hiçbir adımı
 YAML/CSV dosyasını doğrudan okumaz; hepsi Yapilandirma nesnesinden geçer.
@@ -212,9 +212,9 @@ class Yapilandirma:
         """1 birim para_birimi kaç sunum para birimi eder.
 
         tip:
-          kapanis  — IAS 21, bilanço kalemleri (dönem sonu kuru)
-          ortalama — IAS 21, gelir tablosu kalemleri (dönem içi ortalama)
-          butce    — bütçe yapılırken yıl başında sabitlenen kur.
+          kapanis. IAS 21, bilanço kalemleri (dönem sonu kuru)
+          ortalama. IAS 21, gelir tablosu kalemleri (dönem içi ortalama)
+          butce, bütçe yapılırken yıl başında sabitlenen kur.
                      Fiiliyi bu kurla çevirmek kur etkisini izole eder
                      (sabit kur / constant currency).
         """

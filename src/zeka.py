@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# MizanKöprü — çok şirketli, çok para birimli konsolidasyon ve iç kontrol motoru
+# MizanKöprü: çok şirketli, çok para birimli konsolidasyon ve iç kontrol motoru
 # Copyright (c) 2026 Furkan Akduman · https://github.com/FlyerFukas
 # SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 #
@@ -7,7 +7,7 @@
 # İşletmeler ve her türlü ticari kullanım ayrı, ücretli lisans gerektirir.
 # Ayrıntı ve iletişim: COMMERCIAL.md
 """
-MİZANKÖPRÜ — Yapay zekâ katmanı (Claude API).
+MİZANKÖPRÜ. Yapay zekâ katmanı (Claude API).
 
 ÇEKİRDEK İLKE
   LLM hiçbir sayıyı üretmez, hesaplamaz, tahmin etmez.
@@ -43,7 +43,7 @@ KOK = Path(__file__).resolve().parent.parent
 ONBELLEK_DIZIN = KOK / "gunluk" / "zeka_onbellek"
 ONBELLEK_DIZIN.mkdir(parents=True, exist_ok=True)
 
-# 1M token başına USD — yapilandirma/zeka.yaml'dan geçersiz kılınabilir
+# 1M token başına USD, yapilandirma/zeka.yaml'dan geçersiz kılınabilir
 VARSAYILAN_FIYAT = {"claude-opus-5": (5.0, 25.0),
                     "claude-sonnet-5": (2.0, 10.0),
                     "claude-haiku-4-5": (1.0, 5.0)}
@@ -79,7 +79,7 @@ def _env_oku(yol: Path) -> dict:
 
 class Zeka:
     """Claude API sarmalayıcısı. Anahtar yoksa aktif=False olur ve
-    her çağrı None döner — çağıran taraf buna göre davranır."""
+    her çağrı None döner, çağıran taraf buna göre davranır."""
 
     def __init__(self, y=None, g=None):
         self.y = y
@@ -131,7 +131,7 @@ class Zeka:
     def cagir(self, gorev: str, istem: str, sema: dict | None = None,
               azami_token: int = 4000) -> dict | str | None:
         """Tek çağrı. sema verilirse doğrulanmış sözlük, yoksa metin döner.
-        Anahtar yoksa ya da çağrı başarısızsa None döner — çağıran taraf
+        Anahtar yoksa ya da çağrı başarısızsa None döner, çağıran taraf
         yorum katmanı olmadan devam edebilmeli."""
         if not self.aktif:
             return None
@@ -230,7 +230,7 @@ class Zeka:
         """Eşleşmeyen yerel hesaplar için grup hesabı önerir (K09 bulgusuna çözüm).
 
         Bu, LLM'in en güvenli ve en faydalı kullanımı: sayı değil, AD eşleştiriyor.
-        Öneri doğrudan uygulanmaz — hesap_eslesme_onerisi.csv'ye yazılır,
+        Öneri doğrudan uygulanmaz, hesap_eslesme_onerisi.csv'ye yazılır,
         insan onaylayıp yapılandırmaya alır."""
         if not eslesmeyenler:
             return []
@@ -310,7 +310,7 @@ class Zeka:
             "Ayrıştırmayı motor yaptı; sen sadece yorumla.\n\n"
             f"{ozet}\n\n"
             "Yaz:\n"
-            "1. Tek cümlelik başlık bulgu — bir yöneticinin aklında kalacak cümle.\n"
+            "1. Tek cümlelik başlık bulgu, bir yöneticinin aklında kalacak cümle.\n"
             "2. En fazla 4 madde: her biri bir sapma bileşenini açıklasın, "
             "bileşenin adını ve verilen sayıyı kullansın.\n"
             "3. 'Dikkat' başlığı altında en fazla 2 madde: bu tablodan yanlış "
@@ -326,10 +326,10 @@ class Zeka:
             "sayısal özeti var. CFO'ya sunulacak kapanış notunu yaz.\n\n"
             f"{paket}\n\n"
             "Yapı:\n"
-            "- 'Sonuç' — 2 cümle: dönemin özeti.\n"
-            "- 'Rakamlar ne diyor' — en fazla 4 madde.\n"
-            "- 'Kontrol ortamı' — en fazla 3 madde, bulgulardan.\n"
-            "- 'Karar bekleyen' — en fazla 3 madde, yönetimin karar vermesi gerekenler.\n"
+            "- 'Sonuç', 2 cümle: dönemin özeti.\n"
+            "- 'Rakamlar ne diyor', en fazla 4 madde.\n"
+            "- 'Kontrol ortamı', en fazla 3 madde, bulgulardan.\n"
+            "- 'Karar bekleyen', en fazla 3 madde, yönetimin karar vermesi gerekenler.\n"
             "300 kelimeyi geçme. Verilen sayıların dışına çıkma, yeni sayı üretme."
         )
         return self.cagir("yonetici_ozeti", istem, azami_token=4000)
@@ -337,7 +337,7 @@ class Zeka:
     # ---------------------------------------------------------------
     def ozet(self) -> str:
         if not self.aktif:
-            return f"Zeka katmanı KAPALI — {self.neden}"
+            return f"Zeka katmanı KAPALI, {self.neden}"
         i = self.istatistik
         return (f"Zeka katmanı açık ({self.model}) · {i['cagri']} çağrı, "
                 f"{i['onbellek']} önbellek · "
@@ -363,6 +363,6 @@ if __name__ == "__main__":
             g.uyari(f"Beklenmeyen yanıt: {yanit!r}")
         g.bilgi(z.ozet())
     else:
-        g.uyari("Anahtar yok — .env dosyasına ANTHROPIC_API_KEY=... satırını ekle.")
+        g.uyari("Anahtar yok, .env dosyasına ANTHROPIC_API_KEY=... satırını ekle.")
         g.bilgi("Motor bu katman olmadan da tam çalışır; sadece yorum metinleri üretilmez.")
     g.bitir(z.istatistik)

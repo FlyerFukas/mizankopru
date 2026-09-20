@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# MizanKöprü — çok şirketli, çok para birimli konsolidasyon ve iç kontrol motoru
+# MizanKöprü: çok şirketli, çok para birimli konsolidasyon ve iç kontrol motoru
 # Copyright (c) 2026 Furkan Akduman · https://github.com/FlyerFukas
 # SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 #
@@ -7,7 +7,7 @@
 # İşletmeler ve her türlü ticari kullanım ayrı, ücretli lisans gerektirir.
 # Ayrıntı ve iletişim: COMMERCIAL.md
 """
-MİZANKÖPRÜ — PANEL: yerel web arayüzü.
+MİZANKÖPRÜ. PANEL: yerel web arayüzü.
 
 GÖREV
   Boru hattını terminal yerine tarayıcıdan çalıştırmak. Her adım bir kart,
@@ -20,7 +20,7 @@ NEDEN EK KÜTÜPHANE YOK
   `py src/panel.py` ile açılır, başka hiçbir şey gerekmez.
 
 GÜVENLİK
-  Sunucu yalnızca 127.0.0.1'e bağlanır — ağdan erişilemez. Yüklenen dosya
+  Sunucu yalnızca 127.0.0.1'e bağlanır, ağdan erişilemez. Yüklenen dosya
   adları temizlenir, yalnızca .xlsx/.xls/.csv kabul edilir ve hedef dizinin
   dışına yazılamaz.
 
@@ -70,7 +70,7 @@ AZAMI_DOSYA_MB = 40
 
 ADIMLAR = [
     ("veri_uret", "araclar/veri_uret.py", "Demo veri",
-     "Sentetik ERP verisi üretir — 4 şirket, 41 dosya, 14 kasıtlı tuzak. "
+     "Sentetik ERP verisi üretir, 4 şirket, 41 dosya, 14 kasıtlı tuzak. "
      "Kendi verinizi yüklediyseniz bunu ÇALIŞTIRMAYIN: girdi dizinini temizler."),
     ("topla", "src/topla.py", "[1] Topla",
      "Dağınık dosyaları tek şemaya indirir. Farklı kolon adı, sayı ve tarih "
@@ -185,7 +185,7 @@ class Calistirici:
                 break
             if not self._tek(ad, i, len(adimlar)):
                 self.yayinla("satir",
-                             metin=f"\n⨯ [{ad}] başarısız — zincir durduruldu.",
+                             metin=f"\n⨯ [{ad}] başarısız, zincir durduruldu.",
                              seviye="hata")
                 break
         self.aktif = None
@@ -437,7 +437,7 @@ class Sunucu(BaseHTTPRequestHandler):
         self._json({"hata": "bulunamadı"}, 404)
 
     def _akis(self):
-        """Sunucu-gönderimli olaylar (SSE) — canlı log akışı."""
+        """Sunucu-gönderimli olaylar (SSE), canlı log akışı."""
         self.send_response(200)
         self.send_header("Content-Type", "text/event-stream; charset=utf-8")
         self.send_header("Cache-Control", "no-cache")
@@ -491,7 +491,7 @@ class Sunucu(BaseHTTPRequestHandler):
                         d.unlink()
                         silinen += 1
             CALISTIRICI.yayinla(
-                "satir", metin=f"⌫ Girdi dizini temizlendi — {silinen} dosya silindi.",
+                "satir", metin=f"⌫ Girdi dizini temizlendi, {silinen} dosya silindi.",
                 seviye="uyari")
             self._json({"tamam": True, "silinen": silinen})
             return
@@ -510,7 +510,7 @@ class Sunucu(BaseHTTPRequestHandler):
         self._json({"hata": "bulunamadı"}, 404)
 
     def _yukle(self):
-        """Sürükle-bırak yükleme. Dosyalar base64 olarak JSON gövdede gelir —
+        """Sürükle-bırak yükleme. Dosyalar base64 olarak JSON gövdede gelir:
         multipart ayrıştırıcıya (Python 3.13'te kaldırılan cgi modülü) gerek
         kalmaz ve bağımlılık eklenmez."""
         g = self._govde()
@@ -548,7 +548,7 @@ class Sunucu(BaseHTTPRequestHandler):
                 seviye="iyi")
         for a in atlanan:
             CALISTIRICI.yayinla("satir",
-                                metin=f"⨯ {a['ad']} atlandı — {a['neden']}",
+                                metin=f"⨯ {a['ad']} atlandı, {a['neden']}",
                                 seviye="uyari")
         self._json({"tamam": True, "yazilan": yazilan, "atlanan": atlanan})
 
@@ -583,11 +583,11 @@ def main():
     d = girdi_durumu()
     print(f"  Girdi   : {d['dosya']} dosya, {d['boyut_mb']} MB"
           + ("  (demo verisi)" if d["demo_mu"] else
-             "  (kendi verileriniz)" if d["dosya"] else "  — boş"))
+             "  (kendi verileriniz)" if d["dosya"] else ", boş"))
     ak = anahtar_durumu()
     print(f"  Zeka    : {'açık · ' + str(ak['model']) if ak['var'] else 'kapalı'}")
     yp = yapilandirma_ozeti()
-    print(f"  Ayarlar : {yp['ozet'] if yp['gecerli'] else 'HATA — ' + yp.get('hata','')}")
+    print(f"  Ayarlar : {yp['ozet'] if yp['gecerli'] else 'HATA, ' + yp.get('hata','')}")
     print()
 
     if not a.tarayici_acma:

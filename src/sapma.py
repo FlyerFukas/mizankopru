@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# MizanKöprü — çok şirketli, çok para birimli konsolidasyon ve iç kontrol motoru
+# MizanKöprü: çok şirketli, çok para birimli konsolidasyon ve iç kontrol motoru
 # Copyright (c) 2026 Furkan Akduman · https://github.com/FlyerFukas
 # SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 #
@@ -7,7 +7,7 @@
 # İşletmeler ve her türlü ticari kullanım ayrı, ücretli lisans gerektirir.
 # Ayrıntı ve iletişim: COMMERCIAL.md
 """
-MİZANKÖPRÜ — [5] SAPMA: bütçe-fiili köprüsü ve bileşen ayrıştırması.
+MİZANKÖPRÜ [5] SAPMA: bütçe-fiili köprüsü ve bileşen ayrıştırması.
 
 SORU
   "Hedefin altında kaldık" cümlesi tek başına hiçbir şey söylemez.
@@ -15,7 +15,7 @@ SORU
   yoksa hiçbiri olmadı da sadece kur mu değişti? Dördü dört ayrı sorumluluk,
   dört ayrı aksiyon. Bu modül tek bir sapmayı bu dörde ayırır.
 
-AYRIŞTIRMA (matematiksel olarak tam — artık terim yok)
+AYRIŞTIRMA (matematiksel olarak tam, artık terim yok)
 
   Yerel para cinsinden, ürün bazında:
     Fiyat etkisi   = Σ (P_fiili,i − P_bütçe,i) × Q_fiili,i
@@ -121,10 +121,10 @@ def koprü_kur_dogrula(df: pd.DataFrame, g: Gunluk) -> bool:
     eur_artik = (eur_toplam - df["fiili_eur"]).abs().max()
     tamam = yerel_artik < 0.5 and eur_artik < 0.5
     if tamam:
-        g.iyi(f"Ayrıştırma özdeşliği doğrulandı — en büyük artık: "
+        g.iyi(f"Ayrıştırma özdeşliği doğrulandı, en büyük artık: "
               f"yerel {yerel_artik:.4f}, EUR {eur_artik:.4f}")
     else:
-        g.hata(f"AYRIŞTIRMA TUTMUYOR — yerel artık {yerel_artik:.2f}, "
+        g.hata(f"AYRIŞTIRMA TUTMUYOR, yerel artık {yerel_artik:.2f}, "
                f"EUR artık {eur_artik:.2f}. Köprü güvenilmez.")
     return tamam
 
@@ -202,7 +202,7 @@ def main():
     kopru.to_csv(CIKTI_DIZIN / "sapma_koprusu.csv", index=False, encoding="utf-8-sig")
 
     if not koprü_kur_dogrula(kopru, g):
-        g.uyari("Köprü doğrulaması başarısız — sonuçlar yayımlanmamalı.")
+        g.uyari("Köprü doğrulaması başarısız, sonuçlar yayımlanmamalı.")
 
     # ---- Şirket bazında yıllık köprü ----
     ozet = kopru.groupby("sirket_kod", as_index=False).agg(
@@ -212,7 +212,7 @@ def main():
         miktar_b=("miktar_butce", "sum"), miktar_f=("miktar_fiili", "sum"),
         fiili_yerel=("fiili_yerel", "sum"), butce_yerel=("butce_yerel", "sum"))
 
-    tablo_yaz("HASILAT SAPMA KÖPRÜSÜ — 2025 yılı, şirket bazında (EUR)",
+    tablo_yaz("HASILAT SAPMA KÖPRÜSÜ, 2025 yılı, şirket bazında (EUR)",
               [[r.sirket_kod, para(r.butce_eur, 0), para(r.fiyat, 0),
                 para(r.karisim, 0), para(r.hacim, 0), para(r.kur, 0),
                 para(r.fiili_eur, 0),
@@ -223,7 +223,7 @@ def main():
 
     t = ozet[["butce_eur", "fiyat", "karisim", "hacim", "kur", "fiili_eur"]].sum()
     g.bilgi("")
-    tablo_yaz("GRUP TOPLAMI — köprü",
+    tablo_yaz("GRUP TOPLAMI, köprü",
               [["Bütçe (bütçe kuruyla)", para(t["butce_eur"], 0), ""],
                ["  + Fiyat etkisi", para(t["fiyat"], 0),
                 f"{t['fiyat']/t['butce_eur']*100:+.1f}%"],
@@ -264,7 +264,7 @@ def main():
             "Finansal gelir/gider", "Vergi"]
     kalem_ozet["_s"] = kalem_ozet["kalem"].map({k: i for i, k in enumerate(sira)})
     kalem_ozet = kalem_ozet.sort_values("_s").dropna(subset=["_s"])
-    tablo_yaz("GELİR TABLOSU SAPMASI — kur etkisi ayrıştırılmış (EUR)",
+    tablo_yaz("GELİR TABLOSU SAPMASI, kur etkisi ayrıştırılmış (EUR)",
               [[r.kalem, para(r.butce, 0), para(r.fiili, 0), para(r.toplam, 0),
                 para(r.is_sapmasi, 0), para(r.kur, 0)]
                for r in kalem_ozet.itertuples()],
@@ -274,21 +274,21 @@ def main():
     # Köprü satış detayından (brüt fatura tutarı), gelir tablosu mizandan gelir.
     # İkisi arasındaki fark tesadüf değildir; açıklanmadan iki rakam yan yana
     # sunulamaz. Fark genellikle iade/iskontonun hasılat hesabına doğrudan
-    # yazılmasından doğar — bu aynı zamanda bir sınıflandırma bulgusudur.
+    # yazılmasından doğar, bu aynı zamanda bir sınıflandırma bulgusudur.
     gt_hasilat = cevrilmis[(cevrilmis["tur"] == "G")
                            & (cevrilmis["kalem"] == "Hasılat")]
     mizan_hasilat = -gt_hasilat["eur_aylik"].sum()
     kopru_hasilat = float(t["fiili_eur"])
     fark = kopru_hasilat - mizan_hasilat
     iskonto = -cevrilmis[cevrilmis["grup_kod"] == "4090"]["eur_aylik"].sum()
-    tablo_yaz("MUTABAKAT — satış detayı ile gelir tablosu arasındaki fark",
+    tablo_yaz("MUTABAKAT, satış detayı ile gelir tablosu arasındaki fark",
               [["Köprü fiili (satış detayı, brüt fatura)", para(kopru_hasilat, 0), ""],
                ["Gelir tablosu hasılatı (mizan)", para(mizan_hasilat, 0), ""],
                ["FARK", para(fark, 0),
                 f"%{abs(fark)/mizan_hasilat*100:.1f}" if mizan_hasilat else ""],
                ["  bunun 4090 iade/iskonto hesabından", para(iskonto, 0), ""],
                ["  hasılat hesabına DOĞRUDAN yazılan iade",
-                para(fark - iskonto, 0), "sınıflandırma hatası — bkz. K11"]],
+                para(fark - iskonto, 0), "sınıflandırma hatası, bkz. K11"]],
               ["Kalem", "EUR", "Not"])
     if abs(fark - iskonto) > 1000:
         g.uyari(f"{para(fark - iskonto, 0)} EUR tutarındaki iade, 4090 yerine "
@@ -319,13 +319,13 @@ def main():
         yorum = z.sapma_yorumla("\n".join(metin))
         if yorum:
             yol = CIKTI_DIZIN / "sapma_yorumu.md"
-            yol.write_text(f"# Sapma yorumu — 2025\n\n{yorum}\n", encoding="utf-8")
+            yol.write_text(f"# Sapma yorumu, 2025\n\n{yorum}\n", encoding="utf-8")
             g.bilgi("\n" + "─" * 74)
             print(yorum)
             g.bilgi("─" * 74)
             g.bilgi(f"Yorum dosyası: {yol}")
     else:
-        g.bilgi(f"Sapma yorumu atlandı — {z.neden or 'yapılandırmada kapalı'}")
+        g.bilgi(f"Sapma yorumu atlandı, {z.neden or 'yapılandırmada kapalı'}")
 
     g.bitir({"kopru_satir": len(kopru), "kalem_satir": len(kalem),
              "zeka": z.istatistik})

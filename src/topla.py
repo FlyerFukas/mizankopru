@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# MizanKöprü — çok şirketli, çok para birimli konsolidasyon ve iç kontrol motoru
+# MizanKöprü: çok şirketli, çok para birimli konsolidasyon ve iç kontrol motoru
 # Copyright (c) 2026 Furkan Akduman · https://github.com/FlyerFukas
 # SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 #
@@ -7,7 +7,7 @@
 # İşletmeler ve her türlü ticari kullanım ayrı, ücretli lisans gerektirir.
 # Ayrıntı ve iletişim: COMMERCIAL.md
 """
-MİZANKÖPRÜ — [1] TOPLA: çok formatlı okuma ve normalizasyon.
+MİZANKÖPRÜ [1] TOPLA: çok formatlı okuma ve normalizasyon.
 
 GÖREV
   veri/girdi/ altındaki dağınık ERP çıktılarını tek şemaya indirir:
@@ -18,7 +18,7 @@ GÖREV
 EN TEHLİKELİ HATA
   Sayı biçimini yanlış okumak. "1.234" Türkçe biçimde bin iki yüz otuz dört,
   İngilizce biçimde bir virgül iki üç dört. Bu hatayı yapan boru hattı çöker
-  değil — sessizce 1000 kat yanlış rakam üretir. Bu yüzden sayı ayrıştırıcı
+  değil, sessizce 1000 kat yanlış rakam üretir. Bu yüzden sayı ayrıştırıcı
   önce şirketin yapılandırılmış biçimini uygular, sonuç belirsizse
   sezgisel çözümler ve HER BELİRSİZ DURUMU raporlar.
 
@@ -70,7 +70,7 @@ class SayiAyristirici:
     """Metin hâlindeki tutarları güvenle sayıya çevirir.
 
     Şirketin yapılandırılmış biçimi önceliklidir. Yapılandırma bir sonuç
-    vermiyorsa sezgisel çalışır ve belirsiz her durumu sayar — sayaç
+    vermiyorsa sezgisel çalışır ve belirsiz her durumu sayar, sayaç
     sıfır değilse rapora düşer ve insanın bakması gerekir."""
 
     def __init__(self, ondalik: str = ",", binlik: str = "."):
@@ -114,7 +114,7 @@ class SayiAyristirici:
                 sayi = metin.replace(self.binlik, "")
             elif kuyruk == 3:
                 # Yapılandırma dışı bir ayraç, tam 3 basamak: binlik varsayıyoruz.
-                # Gerçekten ondalıksa 1000 kat hata olur — bu yüzden sayılıyor.
+                # Gerçekten ondalıksa 1000 kat hata olur, bu yüzden sayılıyor.
                 self.belirsiz += 1
                 if len(self.ornekler) < 5:
                     self.ornekler.append(str(deger))
@@ -139,7 +139,7 @@ def kod_metni(deger) -> str:
 
     Excel'de "100" yazan bir hücre pandas'a float olarak gelir ve düz str()
     onu "100.0" yapar. Eşleme tablosunda "100" aradığımız için bu, hesabın
-    sessizce eşleşmemesine yol açar — tablo yine denk görünür, kalem kaybolur.
+    sessizce eşleşmemesine yol açar, tablo yine denk görünür, kalem kaybolur.
     Hesap planındaki "770.01" gibi gerçek ondalıklı kodlar korunmalı, o yüzden
     yalnızca tam sayı olan float'ların kuyruğu atılır."""
     if deger is None:
@@ -207,7 +207,7 @@ def kolon_bul(df: pd.DataFrame, adaylar: list[str]) -> str | None:
         a = aday.strip().lower()
         if a in normal:
             return normal[a]
-    # Kısmi eşleşme — son çare
+    # Kısmi eşleşme, son çare
     for aday in adaylar:
         a = aday.strip().lower()
         for norm, asil in normal.items():
@@ -310,7 +310,7 @@ def oku_mizan(y, dosyalar, g: Gunluk) -> pd.DataFrame:
                 continue
             bulunan, eksik = kolonlari_esle(df, harita, g, yol.name)
             if eksik:
-                g.uyari(f"{yol.name}[{sekme}]: eksik kolon {eksik} — atlandı")
+                g.uyari(f"{yol.name}[{sekme}]: eksik kolon {eksik}, atlandı")
                 continue
 
             # Dönem üç yerden gelebilir: sekme adı, dosya adı, kolon
@@ -355,7 +355,7 @@ def oku_yevmiye(y, dosyalar, g: Gunluk) -> pd.DataFrame:
             bulunan, eksik = kolonlari_esle(df, harita, g, yol.name)
             kritik = [a for a in ("fis_no", "yerel_hesap_kod", "borc", "alacak") if a in eksik]
             if kritik:
-                g.uyari(f"{yol.name}[{sekme}]: kritik kolon eksik {kritik} — atlandı")
+                g.uyari(f"{yol.name}[{sekme}]: kritik kolon eksik {kritik}, atlandı")
                 continue
             if eksik:
                 g.uyari(f"{yol.name}[{sekme}]: isteğe bağlı kolon eksik {eksik}")
@@ -398,7 +398,7 @@ def oku_butce(y, dosyalar, g: Gunluk) -> pd.DataFrame:
                 continue
             bulunan, eksik = kolonlari_esle(df, harita, g, yol.name)
             if [a for a in ("yerel_hesap_kod", "tutar", "donem") if a in eksik]:
-                g.uyari(f"{yol.name}[{sekme}]: bütçe kolonları eksik {eksik} — atlandı")
+                g.uyari(f"{yol.name}[{sekme}]: bütçe kolonları eksik {eksik}, atlandı")
                 continue
             for _, satir in df.iterrows():
                 donem = donem_normalize(satir[bulunan["donem"]])
@@ -428,7 +428,7 @@ def oku_satis(y, dosyalar, g: Gunluk) -> pd.DataFrame:
                 continue
             bulunan, eksik = kolonlari_esle(df, harita, g, yol.name)
             if [a for a in ("urun_kod", "miktar", "tutar", "donem") if a in eksik]:
-                g.uyari(f"{yol.name}[{sekme}]: satış kolonları eksik {eksik} — atlandı")
+                g.uyari(f"{yol.name}[{sekme}]: satış kolonları eksik {eksik}, atlandı")
                 continue
             # Sekme adı senaryoyu belirler: Fiili / Butce
             senaryo = "butce" if sekme.strip().lower().startswith(("but", "büt", "bud", "plan")) \
@@ -465,7 +465,7 @@ def oku_grup_ici(y, dosyalar, g: Gunluk) -> pd.DataFrame:
                 continue
             bulunan, eksik = kolonlari_esle(df, harita, g, yol.name)
             if [a for a in ("karsi_sirket", "donem", "tutar") if a in eksik]:
-                g.uyari(f"{yol.name}[{sekme}]: grup içi kolonları eksik {eksik} — atlandı")
+                g.uyari(f"{yol.name}[{sekme}]: grup içi kolonları eksik {eksik}, atlandı")
                 continue
             for _, satir in df.iterrows():
                 donem = donem_normalize(satir[bulunan["donem"]])

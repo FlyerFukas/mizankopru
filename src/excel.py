@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# MizanKöprü — çok şirketli, çok para birimli konsolidasyon ve iç kontrol motoru
+# MizanKöprü: çok şirketli, çok para birimli konsolidasyon ve iç kontrol motoru
 # Copyright (c) 2026 Furkan Akduman · https://github.com/FlyerFukas
 # SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 #
@@ -7,7 +7,7 @@
 # İşletmeler ve her türlü ticari kullanım ayrı, ücretli lisans gerektirir.
 # Ayrıntı ve iletişim: COMMERCIAL.md
 """
-MİZANKÖPRÜ — [6b] EXCEL: konsolidasyon paketi.
+MİZANKÖPRÜ [6b] EXCEL: konsolidasyon paketi.
 
 GÖREV
   Kapanış paketini finansçının çalıştığı biçimde üretir: formatlı, çok
@@ -16,7 +16,7 @@ GÖREV
 NEDEN EXCEL
   Excel'i ortadan kaldırmak bu projenin amacı değil. Amaç, Excel'e giden
   yoldaki elle yapılan işi (pivot, VLOOKUP, kur çevirme, mutabakat)
-  ortadan kaldırmak. Kapanış paketi yine Excel olarak çıkar — çünkü onu
+  ortadan kaldırmak. Kapanış paketi yine Excel olarak çıkar, çünkü onu
   imzalayacak, denetçiye gönderecek ve üzerinde not alacak olan orada
   çalışır. Fark şu: bu dosya elle değil, izlenebilir bir boru hattıyla
   üretilir ve her rakam kaynağına kadar geri sürülebilir.
@@ -43,7 +43,7 @@ from sema import ARA_DIZIN, CIKTI_DIZIN, KOK, yukle   # noqa: E402
 
 
 class Paket:
-    """xlsxwriter sarmalayıcı — biçimleri bir kez tanımlar, sayfaları yazar."""
+    """xlsxwriter sarmalayıcı, biçimleri bir kez tanımlar, sayfaları yazar."""
 
     def __init__(self, yol: Path):
         self.kitap = xlsxwriter.Workbook(str(yol), {"nan_inf_to_errors": True})
@@ -152,12 +152,12 @@ def main():
                    f"Bu dosya py src/excel.py ile üretilmiştir; elle düzenlenmemelidir.")
     s.write(r, 0, "KAPANIŞ DURUMU", B["bolum"]); r += 1
     if kritik:
-        s.write(r, 0, f"İMZALANAMAZ — {kritik} kritik bulgu açık", B["kritik"])
+        s.write(r, 0, f"İMZALANAMAZ, {kritik} kritik bulgu açık", B["kritik"])
         s.write(r, 1, "Açık testler: " + ", ".join(
             sorted(bulgular[bulgular["onem"] == "kritik"]["test_kod"].unique())),
             B["metin"])
     else:
-        s.write(r, 0, "Kritik bulgu yok — imzalanabilir", B["iyi"])
+        s.write(r, 0, "Kritik bulgu yok, imzalanabilir", B["iyi"])
     r += 2
 
     s.write(r, 0, "ÖZET", B["bolum"]); r += 1
@@ -195,7 +195,7 @@ def main():
 
     # ================= 2. GELİR TABLOSU =================
     s, r = P.sayfa("Gelir tablosu", [34, 18, 18, 14],
-                   f"KONSOLİDE GELİR TABLOSU — {son} YTD",
+                   f"KONSOLİDE GELİR TABLOSU, {son} YTD",
                    "Gelir tablosu kalemleri IAS 21 uyarınca her ayın kendi "
                    "ortalama kuruyla çevrilip biriktirilmiştir. YTD tutarı tek "
                    "kurla çevirmek TR şirketlerinde ~%12 hata üretir.")
@@ -223,7 +223,7 @@ def main():
     # ================= 3. BİLANÇO =================
     b = ks[ks["tur"] == "B"]
     s, r = P.sayfa("Bilanço", [34, 18, 18],
-                   f"KONSOLİDE BİLANÇO — {son}",
+                   f"KONSOLİDE BİLANÇO, {son}",
                    "Bilanço kalemleri kapanış kuruyla çevrilmiştir. Çevrim "
                    "farkı özkaynakta 3090 hesabında toplanır. Askı hesabında "
                    "bakiye varken kapanış imzalanmamalıdır.")
@@ -249,7 +249,7 @@ def main():
     t = kopru[["butce_eur", "fiyat_eur", "karisim_eur", "hacim_eur",
                "kur_etkisi_eur", "fiili_eur"]].sum()
     s, r = P.sayfa("Sapma köprüsü", [30, 18, 14, 16, 16, 16, 16, 16],
-                   "HASILAT SAPMA KÖPRÜSÜ — 2025",
+                   "HASILAT SAPMA KÖPRÜSÜ, 2025",
                    "Fiyat + karışım + hacim toplamı yerel para sapmasına birebir "
                    "eşittir (artık terim yok, her çalıştırmada sınanır). Kur etkisi "
                    "= fiili yerel tutar × (gerçekleşen kur − bütçe kuru). Bütçe kuru "
@@ -305,13 +305,13 @@ def main():
         s.write(r, 1, sir.fonksiyonel_para_birimi, B["metin"])
         for i, v in enumerate([dm, dy, de]):
             s.write_number(r, 2 + i, float(v), B["yuzde"])
-        s.write(r, 5, "Yerelde hedef üstü, sunum para biriminde hedef altı — "
+        s.write(r, 5, "Yerelde hedef üstü, sunum para biriminde hedef altı, "
                       "fark kur çevriminden" if dy > 0 > de else "", B["metin_kucuk"])
         r += 1
 
     # ================= 5. KONTROL BULGULARI =================
     s, r = P.sayfa("Kontrol bulguları", [8, 26, 10, 9, 10, 26, 15, 62],
-                   f"İÇ KONTROL BULGULARI — {len(bulgular)} bulgu",
+                   f"İÇ KONTROL BULGULARI, {len(bulgular)} bulgu",
                    "Her bulgu bir iddia değil bir sorudur: 'bu kayıt neden böyle?'. "
                    "Kanıt sütunu hangi fiş, hangi tutar, hangi kullanıcı olduğunu "
                    "taşır. Karar imzayı atacak olanındır.")
@@ -372,7 +372,7 @@ def main():
                    "hesaplar (aşağıda) grup planında karşılığı bulunmayan, "
                    "konsolidasyondan sessizce düşebilecek kalemlerdir.")
     if not eslesmeyenler.empty:
-        s.write(r, 0, "ASKIDAKİ HESAPLAR — KAPANIŞ ÖNCESİ ÇÖZÜLMELİ", B["bolum"])
+        s.write(r, 0, "ASKIDAKİ HESAPLAR. KAPANIŞ ÖNCESİ ÇÖZÜLMELİ", B["bolum"])
         r += 1
         r = P.tablo_basligi(s, r, ["Şirket", "Plan", "Yerel hesap", "Dönem",
                                    "Aralık", "Bakiye EUR"])
@@ -427,7 +427,7 @@ def main():
                        B["kotu"] if abs(x.yerel_denksizlik) > 0.01 else B["sayi2"])
         s.write_number(r, 3, float(x.veri_hatasi_eur), B["sayi"])
         s.write_number(r, 4, float(x.cevrim_farki_eur), B["sayi"])
-        s.write(r, 5, "VERİ HATASI — K01" if abs(x.yerel_denksizlik) > 0.01 else "",
+        s.write(r, 5, "VERİ HATASI. K01" if abs(x.yerel_denksizlik) > 0.01 else "",
                 B["kritik"] if abs(x.yerel_denksizlik) > 0.01 else B["metin"])
         r += 1
 
@@ -436,7 +436,7 @@ def main():
                    "DENETİM İZİ",
                    "Boru hattının her adımı girdi/çıktı parmak izi bırakır. "
                    "Yapay zekâ çağrılarının istem ve yanıt parmak izleri de "
-                   "kaydedilir — 'bu yorumu kim yazdı' sorusunun cevabı burada.")
+                   "kaydedilir, 'bu yorumu kim yazdı' sorusunun cevabı burada.")
     izler = []
     iz_yolu = KOK / "gunluk" / "denetim_izi.jsonl"
     if iz_yolu.exists():

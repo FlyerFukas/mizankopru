@@ -104,6 +104,15 @@ Tarayıcıda açılan yerel bir arayüz. Terminale hiç dönmeden:
 Panel yalnızca `127.0.0.1` üzerinde çalışır ağdan erişilemez. Windows'ta
 `PANEL.bat` dosyasına çift tıklamak da yeterlidir.
 
+## Belgeler
+
+| Belge | Kime |
+|---|---|
+| Bu README | Teknik okuyucu, hızlı bakış |
+| `py araclar/anlatim_uret.py` → **Nasıl Çalışır** (11 sayfa PDF) | Projeyi hiç bilmeyen biri. Jargon açıklanır, "yapay zekâ mı yapıyor Python mu" sorusu kanıtla cevaplanır |
+| `py araclar/rapor_uret.py` → **Proje Raporu** (12 sayfa PDF) | Mimari, ölçümler, tasarım kararları |
+| [HANDOFF.md](HANDOFF.md) | Geliştirme günlüğü: her kararın gerekçesi ve yaşanmış tuzaklar |
+
 ## Komut satırı
 
 Tek komutla:

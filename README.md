@@ -27,7 +27,7 @@ formatlı Excel konsolidasyon paketi.
 > [PolyForm Noncommercial 1.0.0](LICENSE) + ticari lisans. Koşullar, kapsam ve
 > iletişim: **[COMMERCIAL.md](COMMERCIAL.md)**
 >
-> *Source-available, not open source. Commercial use requires a paid license —
+> *Source-available, not open source. Commercial use requires a paid license
 > see [COMMERCIAL.md](COMMERCIAL.md).*
 
 ---

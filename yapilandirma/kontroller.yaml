@@ -3,17 +3,17 @@
 #
 # Her test: aktif (çalışsın mı), onem (bulgunun ağırlığı), ve kendi eşikleri.
 # onem: kritik > yuksek > orta > dusuk
-# Yeni bir şirket/politika için eşikleri buradan değiştir — kod değişmez.
+# Yeni bir şirket/politika için eşikleri buradan değiştir, kod değişmez.
 # ============================================================
 
 genel:
-  # Onay limitleri — şirketin fonksiyonel para biriminde
+  # Onay limitleri, şirketin fonksiyonel para biriminde
   onay_limitleri:
     TR01: {para_birimi: TRY, tek_fis_limiti: 2000000}
     TR02: {para_birimi: TRY, tek_fis_limiti: 1000000}
     DE01: {para_birimi: EUR, tek_fis_limiti: 50000}
     UK01: {para_birimi: GBP, tek_fis_limiti: 40000}
-  # Mesai tanımı — bu aralık dışı kayıtlar işaretlenir
+  # Mesai tanımı, bu aralık dışı kayıtlar işaretlenir
   mesai_saatleri: {baslangic: "07:00", bitis: "20:00"}
   calisma_gunleri: [1, 2, 3, 4, 5]   # 1=Pazartesi ... 7=Pazar
 
@@ -65,7 +65,7 @@ testler:
     onem: kritik
     esikler:
       # Onay limiti bir HARCAMA YETKİSİDİR. Müşteri tahsilatına, satış
-      # faturasına, rutin stok alımına ya da bordro kaydına uygulanmaz —
+      # faturasına, rutin stok alımına ya da bordro kaydına uygulanmaz:
       # onlar kendi süreçleriyle (sipariş, sözleşme, bordro) yönetilir.
       # Kapsam dışı bırakılmazsa test binlerce yanlış pozitif üretir ve
       # okunmaz hâle gelir.
@@ -73,13 +73,13 @@ testler:
                             # kira, pazarlama, genel yönetim, danışmanlık, yatırım
       # Açılış/devir kayıtları ve otomatik sistem kayıtları bir kişinin
       # harcama yetkisiyle girilmez; onay limiti onlara uygulanmaz.
-      # (Bu istisnayı yapay zekâ triyajı önerdi — 2026-09-18.)
+      # (Bu istisnayı yapay zekâ triyajı önerdi, 2026-09-18.)
       haric_kullanicilar: ["SISTEM", "SYSTEM"]
 
   - kod: "K06"
     ad: "Limit parçalama (splitting)"
     aciklama: "Aynı gün, aynı kullanıcı ve hesapta, onay limitinin hemen altında birden çok fiş."
-    neden_onemli: "Limit aşımından kaçınmak için işlemi bölmek — aşımın kendisinden daha ciddi bir sinyal."
+    neden_onemli: "Limit aşımından kaçınmak için işlemi bölmek, aşımın kendisinden daha ciddi bir sinyal."
     aktif: true
     onem: kritik
     esikler:
@@ -109,7 +109,7 @@ testler:
   - kod: "K09"
     ad: "Eşleşmeyen hesap"
     aciklama: "Yerel mizanda olup grup hesap planı eşleme tablosunda karşılığı bulunmayan hesap."
-    neden_onemli: "Eşleşmeyen hesap sessizce konsolidasyon dışı kalır — en tehlikeli hata türü, çünkü tablo yine de denk görünür."
+    neden_onemli: "Eşleşmeyen hesap sessizce konsolidasyon dışı kalır, en tehlikeli hata türü, çünkü tablo yine de denk görünür."
     aktif: true
     onem: kritik
     esikler: {}
@@ -143,7 +143,7 @@ testler:
       asgari_gozlem: 20
 
   - kod: "K13"
-    ad: "Görevler ayrılığı — tek kullanıcı yoğunluğu"
+    ad: "Görevler ayrılığı, tek kullanıcı yoğunluğu"
     aciklama: "Bir hesaptaki kayıtların büyük bölümünün tek kullanıcı tarafından girilmiş olması."
     neden_onemli: "Görevler ayrılığı ilkesinin zayıflaması; kontrol ortamı bulgusu."
     aktif: true
@@ -160,4 +160,4 @@ testler:
     onem: yuksek
     esikler:
       oran_esigi: 0.10        # %10
-      mutlak_esik: 100000     # EUR — ikisi de aşılmalı
+      mutlak_esik: 100000     # EUR, ikisi de aşılmalı

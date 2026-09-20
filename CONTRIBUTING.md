@@ -14,7 +14,7 @@ ticari lisans ([COMMERCIAL.md](COMMERCIAL.md)).
 
 Bir yazılımı ticari lisansla satabilmek için **o yazılımın tamamının telif
 hakkına sahip olmak** gerekir. Kabul edilen bir katkının telifi katkıda
-bulunanda kalırsa, proje sahibi o satırları ticari lisansa dahil edemez — ve
+bulunanda kalırsa, proje sahibi o satırları ticari lisansa dahil edemez ve
 model çalışmaz.
 
 Bu, katkınızın değersiz görüldüğü anlamına gelmez. Tam tersi: kodunuzun
@@ -30,10 +30,10 @@ Bir pull request açarak aşağıdakileri beyan etmiş olursunuz:
    kopyalanmamıştır. Başka bir kaynaktan alınan bir bölüm varsa, kaynağını ve
    lisansını PR açıklamasında belirtirsiniz.
 2. Katkınız üzerindeki **mali hakları** (işleme, çoğaltma, yayma, temsil, umuma
-   iletim — FSEK m.21-25) proje sahibi **Furkan Akduman**'a devredersiniz; ya da
+   iletim; FSEK m.21-25) proje sahibi **Furkan Akduman**'a devredersiniz; ya da
    bu mümkün değilse, proje sahibine katkı üzerinde **süresiz, geri alınamaz,
    dünya çapında, alt lisans verilebilir ve münhasır olmayan** bir kullanım
-   hakkı tanırsınız — **ticari lisanslama dahil.**
+   hakkı tanırsınız; **ticari lisanslama dahil.**
 3. Bu devrin/iznin karşılığında bir ücret talep etmezsiniz.
 4. İşvereniniz varsa ve katkı çalışma saatlerinizde veya işverenin
    ekipmanıyla üretildiyse, bu devri yapmaya yetkili olduğunuzu teyit
@@ -52,10 +52,10 @@ değil; modelin çalışması için gereken belgedir.
 
 ## Katkı kabul edilmeyen durumlar
 
-- **Beyan satırı yoksa** — yukarıdaki sebep
-- **Kaynağı belirsiz kod** — başka bir projeden alınmış olabilecek, lisansı
+- **Beyan satırı yoksa**: yukarıdaki sebep
+- **Kaynağı belirsiz kod**: başka bir projeden alınmış olabilecek, lisansı
   bilinmeyen bölümler
-- **Copyleft lisanslı koddan türetilmiş katkı** (GPL, AGPL, LGPL) — bu
+- **Copyleft lisanslı koddan türetilmiş katkı** (GPL, AGPL, LGPL). Bu
   lisanslar türev eserin de aynı lisansla dağıtılmasını zorunlu kılar ve
   ticari lisanslamayı imkânsız hâle getirir
 - **Yeni bağımlılık ekleyen ve lisansı izin verici olmayan** katkılar
@@ -71,11 +71,11 @@ belge iyileştirmesi) için doğrudan PR açabilirsiniz.
 
 Özellikle ilgilendiğim katkılar:
 
-- **Yeni ERP adaptörleri** — Logo, Mikro, Netsis, SAP, Nebim gibi Türkiye'de
+- **Yeni ERP adaptörleri**: Logo, Mikro, Netsis, SAP, Nebim gibi Türkiye'de
   yaygın sistemlerin çıktıları için `yapilandirma/kolon_eslesme.yaml` girdileri
-- **Yeni iç kontrol testleri** — `kontrol.py` içindeki desene uygun
-- **IAS 29 enflasyon muhasebesi** — yol haritasındaki en büyük madde
-- **Yeni hesap planları** — farklı ülkelerin yerel planları için eşleme tabloları
+- **Yeni iç kontrol testleri**: `kontrol.py` içindeki desene uygun
+- **IAS 29 enflasyon muhasebesi**: yol haritasındaki en büyük madde
+- **Yeni hesap planları**: farklı ülkelerin yerel planları için eşleme tabloları
 
 ---
 
@@ -93,7 +93,7 @@ belge iyileştirmesi) için doğrudan PR açabilirsiniz.
 - **Tuzak skoru düşmesin.** Demo veride 14 kasıtlı hata var ve motor hepsini
   buluyor. Bir testi ya da eşiği değiştiriyorsanız skorun hâlâ 14/14 olduğunu
   ve toplam bulgu sayısının gürültüye boğulmadığını PR'da belirtin.
-- **Yeni kaynak dosyalara telif başlığı ekleyin** — mevcut dosyalardaki
+- **Yeni kaynak dosyalara telif başlığı ekleyin**: mevcut dosyalardaki
   SPDX bloğunu kopyalayın.
 
 ---

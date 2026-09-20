@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# MizanKöprü — çok şirketli, çok para birimli konsolidasyon ve iç kontrol motoru
+# MizanKöprü: çok şirketli, çok para birimli konsolidasyon ve iç kontrol motoru
 # Copyright (c) 2026 Furkan Akduman · https://github.com/FlyerFukas
 # SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 #
@@ -7,7 +7,7 @@
 # İşletmeler ve her türlü ticari kullanım ayrı, ücretli lisans gerektirir.
 # Ayrıntı ve iletişim: COMMERCIAL.md
 """
-MİZANKÖPRÜ — Tanıtım belgesi üreteci (HTML → PDF).
+MİZANKÖPRÜ. Tanıtım belgesi üreteci (HTML → PDF).
 
 FARKI NE
   araclar/rapor_uret.py teknik bir rapor üretir: mimari, ölçümler, kararlar.
@@ -149,7 +149,7 @@ def main():
 
     # Çıktı parmak izleri: "AI kapalıyken rakamlar aynı" iddiasının kanıtı
     def ozet(yol: Path) -> str:
-        return hashlib.md5(yol.read_bytes()).hexdigest() if yol.exists() else "—"
+        return hashlib.md5(yol.read_bytes()).hexdigest() if yol.exists() else "-"
     h_bulgu = ozet(CIKTI_DIZIN / "bulgular.csv")
     h_kopru = ozet(CIKTI_DIZIN / "sapma_koprusu.csv")
     h_kons = ozet(ARA_DIZIN / "konsolide.csv")
@@ -555,7 +555,7 @@ def main():
     Üretim tarihi: {datetime.now().strftime("%d.%m.%Y %H:%M")}</p>''')
 
     html = (f'<!DOCTYPE html><html lang="tr"><head><meta charset="utf-8">'
-            f'<title>MizanKöprü — Nasıl Çalışır</title><style>{STIL}</style>'
+            f'<title>MizanKöprü. Nasıl Çalışır</title><style>{STIL}</style>'
             f'</head><body>{"".join(P)}</body></html>')
 
     gecici = CIKTI_DIZIN / "_anlatim.html"

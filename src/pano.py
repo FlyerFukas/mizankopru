@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# MizanKöprü — çok şirketli, çok para birimli konsolidasyon ve iç kontrol motoru
+# MizanKöprü: çok şirketli, çok para birimli konsolidasyon ve iç kontrol motoru
 # Copyright (c) 2026 Furkan Akduman · https://github.com/FlyerFukas
 # SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 #
@@ -7,12 +7,12 @@
 # İşletmeler ve her türlü ticari kullanım ayrı, ücretli lisans gerektirir.
 # Ayrıntı ve iletişim: COMMERCIAL.md
 """
-MİZANKÖPRÜ — [6a] PANO: tek dosyalık HTML kapanış panosu.
+MİZANKÖPRÜ [6a] PANO: tek dosyalık HTML kapanış panosu.
 
 GÖREV
   Boru hattının ürettiği her şeyi tek bir .html dosyasında toplar: konsolide
   tablolar, sapma köprüsü, kontrol bulguları, yapay zekâ yorumu ve denetim izi.
-  Harici bağımlılık yok — dosya tek başına açılır, paylaşılır, arşivlenir.
+  Harici bağımlılık yok, dosya tek başına açılır, paylaşılır, arşivlenir.
 
 TASARIM
   Kapanış panosu bir gösterge tablosu değil, bir KARAR belgesidir. Bu yüzden
@@ -51,7 +51,7 @@ def kacis(metin) -> str:
 
 
 def serit(deger: float, tavan: float, sinif: str = "") -> str:
-    """Tablo içi oran çubuğu — sayıyı gözle karşılaştırılabilir yapar."""
+    """Tablo içi oran çubuğu, sayıyı gözle karşılaştırılabilir yapar."""
     if not tavan:
         return ""
     oran = min(abs(deger) / tavan * 100, 100)
@@ -59,9 +59,9 @@ def serit(deger: float, tavan: float, sinif: str = "") -> str:
 
 
 def kopru_svg(kalemler: list[tuple[str, float, str]], genislik=880, yukseklik=300) -> str:
-    """Sapma köprüsü (şelale) grafiği — saf SVG, kütüphane yok.
+    """Sapma köprüsü (şelale) grafiği, saf SVG, kütüphane yok.
 
-    kalemler: (etiket, değer, tip) — tip: 'temel' | 'artı' | 'eksi' | 'toplam'
+    kalemler: (etiket, değer, tip), tip: 'temel' | 'artı' | 'eksi' | 'toplam'
     """
     kenar_sol, kenar_alt, kenar_ust = 8, 56, 26
     ic_g = genislik - kenar_sol * 2
@@ -116,7 +116,7 @@ def kopru_svg(kalemler: list[tuple[str, float, str]], genislik=880, yukseklik=30
 SAYFA = """<!DOCTYPE html>
 <html lang="tr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MizanKöprü — Kapanış Panosu</title>
+<title>MizanKöprü. Kapanış Panosu</title>
 <style>
 :root {{
   --arka: #0d1117; --kart: #161b22; --kenar: #30363d; --metin: #e6edf3;
@@ -229,7 +229,7 @@ def main():
                "kur_etkisi_eur", "fiili_eur"]].sum()
 
     p = []
-    p.append(f'<h1>MizanKöprü — Kapanış Panosu</h1>')
+    p.append(f'<h1>MizanKöprü. Kapanış Panosu</h1>')
     p.append(f'<div class="ustbilgi">{kacis(y.grup["ad"])} · konsolide dönem '
              f'<b>{son}</b> · sunum para birimi {y.sunum_para_birimi} · '
              f'{len(y.sirketler)} tüzel kişilik · üretim '
@@ -240,14 +240,14 @@ def main():
         kritik_test = ", ".join(sorted(bulgular[bulgular["onem"] == "kritik"]
                                        ["test_kod"].unique()))
         p.append(f'<div class="karar engel"><div class="isaret">⛔</div><div>'
-                 f'<b>Kapanış imzalanamaz — {kritik} kritik bulgu açık</b>'
+                 f'<b>Kapanış imzalanamaz, {kritik} kritik bulgu açık</b>'
                  f'<div class="ayrinti">Açık testler: {kritik_test}. '
                  f'Kritik bulgular konsolide rakamı doğrudan değiştirebilir ya da '
                  f'yetki ihlaline işaret eder; çözülmeden imza atılmamalıdır.</div>'
                  f'</div></div>')
     else:
         p.append('<div class="karar tamam"><div class="isaret">✓</div><div>'
-                 '<b>Kritik bulgu yok — kapanış imzalanabilir</b></div></div>')
+                 '<b>Kritik bulgu yok, kapanış imzalanabilir</b></div></div>')
 
     # --- Özet kartlar ---
     def kart(etiket, deger, alt="", sinif=""):
@@ -271,7 +271,7 @@ def main():
     p.append('</div>')
 
     # --- Sapma köprüsü ---
-    p.append('<h2>Hasılat sapma köprüsü — bütçeden fiiliye</h2>')
+    p.append('<h2>Hasılat sapma köprüsü, bütçeden fiiliye</h2>')
     p.append('<div class="tablo-sarmal" style="padding:10px 6px 2px">')
     p.append(kopru_svg([
         ("Bütçe", float(t["butce_eur"]), "temel"),
@@ -295,7 +295,7 @@ def main():
         hacim=("hacim_eur", "sum"), kur=("kur_etkisi_eur", "sum"),
         mb=("miktar_butce", "sum"), mf=("miktar_fiili", "sum"),
         fy=("fiili_yerel", "sum"), by=("butce_yerel", "sum"))
-    p.append('<h2>Şirket bazında — aynı yıl, üç farklı okuma</h2>')
+    p.append('<h2>Şirket bazında, aynı yıl, üç farklı okuma</h2>')
     p.append('<div class="tablo-sarmal"><table><thead><tr>'
              '<th>Şirket</th><th>PB</th><th class="sag">Miktar Δ</th>'
              '<th class="sag">Yerel ciro Δ</th><th class="sag">EUR ciro Δ</th>'
@@ -361,7 +361,7 @@ def main():
     p.append('</div></div>')
 
     # --- Kontrol bulguları ---
-    p.append(f'<h2>İç kontrol bulguları — {len(bulgular)} bulgu, {len(y.kontroller)} test</h2>')
+    p.append(f'<h2>İç kontrol bulguları, {len(bulgular)} bulgu, {len(y.kontroller)} test</h2>')
     sayim = bulgular.groupby(["test_kod", "onem"]).size().reset_index(name="adet")
     p.append('<div class="tablo-sarmal"><table><thead><tr><th>Test</th>'
              '<th>Ne arar</th><th>Önem</th><th class="sag">Bulgu</th>'
@@ -374,8 +374,8 @@ def main():
         p.append(f'<tr><td><code>{kod}</code></td><td>{kacis(test["ad"])}</td>'
                  f'<td><span class="rozet {ONEM_RENK[test["onem"]]}">'
                  f'{test["onem"]}</span></td>'
-                 f'<td class="sag">{len(alt) or "—"}</td>'
-                 f'<td class="sag">{k(tutar) if len(alt) else "—"}'
+                 f'<td class="sag">{len(alt) or "-"}</td>'
+                 f'<td class="sag">{k(tutar) if len(alt) else "-"}'
                  f'{serit(tutar, tavan) if len(alt) else ""}</td></tr>')
     p.append('</tbody></table></div>')
 

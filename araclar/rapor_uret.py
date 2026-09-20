@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# MizanKöprü — çok şirketli, çok para birimli konsolidasyon ve iç kontrol motoru
+# MizanKöprü: çok şirketli, çok para birimli konsolidasyon ve iç kontrol motoru
 # Copyright (c) 2026 Furkan Akduman · https://github.com/FlyerFukas
 # SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 #
@@ -7,11 +7,11 @@
 # İşletmeler ve her türlü ticari kullanım ayrı, ücretli lisans gerektirir.
 # Ayrıntı ve iletişim: COMMERCIAL.md
 """
-MİZANKÖPRÜ — Proje raporu üreteci (HTML → PDF).
+MİZANKÖPRÜ. Proje raporu üreteci (HTML → PDF).
 
 Projenin ne yaptığını, nasıl çalıştığını ve hangi araçları kullandığını
 anlatan baskıya uygun bir belge üretir. Rakamlar boru hattının gerçek
-çıktılarından okunur — rapor elle güncellenmez.
+çıktılarından okunur, rapor elle güncellenmez.
 
 ÇALIŞTIRMA
   py araclar/rapor_uret.py
@@ -168,7 +168,7 @@ def main():
     hacim / kur bileşenlerine ayıran bir kapanış motoru.</div>''')
 
     A('''<p>Bir grup şirketinde ay sonu kapanışı şöyle geçer: dört ayrı ülkeden
-    dört ayrı biçimde mizan gelir — biri Excel'de virgüllü ondalıkla, biri
+    dört ayrı biçimde mizan gelir, biri Excel'de virgüllü ondalıkla, biri
     noktalıyla, biri 12 sekmeli tek dosyada, biri CSV. Hesap planları farklıdır.
     Kur çevrimi elle yapılır. Grup içi alım-satım elle mutabakat edilir. Sonra
     biri "hedefin altında kaldık" der ve kimse <b>neden</b> olduğunu söyleyemez.</p>''')
@@ -193,7 +193,7 @@ def main():
     </div>''')
 
     # ================= 2. ÇÖZDÜĞÜ PROBLEM =================
-    A('<h2>2. Çözdüğü problem — somut bir örnek</h2>')
+    A('<h2>2. Çözdüğü problem, somut bir örnek</h2>')
     A('''<p>Demo veride TR01 şirketinin 2025 yılı üç farklı şekilde okunabilir.
     Üçü de aynı veriden, üçü de doğru:</p>''')
     tr01 = ozet[ozet["sirket_kod"] == "TR01"].iloc[0]
@@ -201,16 +201,16 @@ def main():
     <tr><th>Ölçüt</th><th class="sag">Değişim</th><th>Ne anlama geliyor</th></tr>
     <tr><td>Satılan adet</td><td class="sag kotu">{(tr01.mf/tr01.mb-1)*100:+.1f}%</td>
       <td>Talep daraldı, hacim eridi</td></tr>
-    <tr><td>Ciro (TRY — yerel para)</td><td class="sag iyi">{(tr01.fy/tr01.by-1)*100:+.1f}%</td>
-      <td><b>Bütçenin üstünde</b> — enflasyon fiyatları taşıdı</td></tr>
-    <tr><td>Ciro (EUR — sunum para birimi)</td><td class="sag kotu">{(tr01.fiili/tr01.butce-1)*100:+.1f}%</td>
-      <td><b>Bütçenin altında</b> — kur artışı yedi</td></tr>
+    <tr><td>Ciro (TRY, yerel para)</td><td class="sag iyi">{(tr01.fy/tr01.by-1)*100:+.1f}%</td>
+      <td><b>Bütçenin üstünde</b>, enflasyon fiyatları taşıdı</td></tr>
+    <tr><td>Ciro (EUR, sunum para birimi)</td><td class="sag kotu">{(tr01.fiili/tr01.butce-1)*100:+.1f}%</td>
+      <td><b>Bütçenin altında</b>, kur artışı yedi</td></tr>
     </table>''')
     A('''<p>Türkiye'deki müdür "TL'de bütçeyi tutturduk" der. Grup merkezi "EUR'da
     %11 altındasınız" der. <b>İkisi de doğrudur.</b> Motorun işi kimin haklı
     olduğunu değil, <i>neyin olduğunu</i> göstermektir.</p>''')
 
-    A('<h3>Sapma köprüsü — grup toplamı, 2025</h3>')
+    A('<h3>Sapma köprüsü, grup toplamı, 2025</h3>')
     A(f'''<table>
     <tr><th>Kalem</th><th class="sag">EUR</th><th class="sag">Bütçeye oran</th><th>Açıklama</th></tr>
     <tr class="toplam"><td>Bütçe (bütçe kuruyla)</td><td class="sag">{para(t["butce_eur"])}</td>
@@ -237,16 +237,16 @@ def main():
     A('''<p><b>Okunuşu:</b> Fiyat artışı (+6,8M) hacim kaybını (−6,9M) neredeyse
     tam karşılamış; sabit kurda fiili, bütçeye göre yalnızca %0,2 aşağıda.
     Yaklaşık 6 milyon EUR'luk açığın <b>tamamı kurdan</b> geliyor. Bu bir
-    performans sorunu değil, bir çeviri sorunudur — ve ayrıştırma yapılmadan
+    performans sorunu değil, bir çeviri sorunudur, ve ayrıştırma yapılmadan
     ikisi birbirinden ayrılamaz.</p>''')
 
     A('''<div class="uyari"><b>Matematiksel garanti:</b> Fiyat + karışım + hacim
     toplamı yerel para sapmasına <b>birebir</b> eşittir; artık terim bırakmaz. Bu
     özdeşlik her çalıştırmada sayısal olarak sınanır (ölçülen en büyük artık:
-    0,0000). Tutmayan bir köprü yayımlanmamalıdır — kontrol koda gömülüdür.</div>''')
+    0,0000). Tutmayan bir köprü yayımlanmamalıdır, kontrol koda gömülüdür.</div>''')
 
     # ================= 3. MİMARİ =================
-    A('<h2 class="sayfa">3. Mimari — boru hattı</h2>')
+    A('<h2 class="sayfa">3. Mimari, boru hattı</h2>')
     A('''<pre>veri/girdi/   41 dağınık dosya (farklı biçim, kolon adı, tarih ve sayı formatı)
      │
      ├─[1] topla.py     tek şemaya normalize et
@@ -290,7 +290,7 @@ def main():
     A('</table>')
 
     A('''<p>Her adım ayrı bir süreç olarak çalışır ve tek başına da
-    çalıştırılabilir. Bir adım hata verirse boru hattı <b>durur</b> — yanlış
+    çalıştırılabilir. Bir adım hata verirse boru hattı <b>durur</b>, yanlış
     veriyle bir sonraki adıma geçmek hatayı görünmez kılar. Adımlar arası durum
     <code>veri/ara/</code> altındaki dosyalarda taşınır, bu da yeniden
     üretilebilirliği garanti eder.</p>''')
@@ -307,12 +307,12 @@ def main():
       geliştirme sırasında yaşandı ve devir dosyasına yazıldı.</td></tr>
     <tr><td><b>NumPy</b></td><td>2.5</td><td>Dirichlet dağılımıyla gerçekçi fatura tutarı üretimi,
       Benford testinde logaritmik beklenen dağılım.</td></tr>
-    <tr><td><b>openpyxl</b></td><td>3.1</td><td>Girdi <code>.xlsx</code> dosyalarının okunması —
+    <tr><td><b>openpyxl</b></td><td>3.1</td><td>Girdi <code>.xlsx</code> dosyalarının okunması:
       çok sekmeli kitaplar dahil.</td></tr>
     <tr><td><b>XlsxWriter</b></td><td>3.2</td><td>Çıktı Excel paketi: biçimlendirme, dondurulmuş
       başlıklar, otomatik filtre, koşullu renklendirme.</td></tr>
     <tr><td><b>PyYAML</b></td><td>6.0</td><td>Yapılandırma dosyalarının okunması.</td></tr>
-    <tr><td><b>anthropic</b></td><td>0.116</td><td>Claude API istemcisi. İsteğe bağlı — yoksa
+    <tr><td><b>anthropic</b></td><td>0.116</td><td>Claude API istemcisi. İsteğe bağlı, yoksa
       motor tam çalışır.</td></tr>
     </table>''')
 
@@ -332,7 +332,7 @@ def main():
       <td class="sag">${maliyet:.4f}</td></tr>
     </table>''')
 
-    A('''<div class="uyari"><b>Mimari kısıt — LLM hiçbir sayıyı üretmez.</b>
+    A('''<div class="uyari"><b>Mimari kısıt. LLM hiçbir sayıyı üretmez.</b>
     Motor sayıyı üretir; yapay zekâ yalnızca hazır sayıyı yorumlar,
     önceliklendirir ya da bir <i>ad</i> eşlemesi önerir. Bu bir pazarlama cümlesi
     değildir: her istem sayıları hazır verir ve "hesaplama yapma, verilen
@@ -343,7 +343,7 @@ def main():
     A('''<p><b>Denetim izi.</b> Her çağrı <code>gunluk/denetim_izi.jsonl</code>
     dosyasına görev, model, istem parmak izi, token sayısı, maliyet ve yanıt
     parmak iziyle kaydedilir. Regüle bir süreçte "bu yorumu kim yazdı" sorusunun
-    cevabı dosyada durur. Önbellek açıktır — aynı istem ikinci kez API'ye
+    cevabı dosyada durur. Önbellek açıktır, aynı istem ikinci kez API'ye
     gitmez.</p>''')
 
     A('<h3>Yapay zekânın gerçekten katkı yaptığı iki an</h3>')
@@ -351,7 +351,7 @@ def main():
     <li><b>Doğru hesap eşlemesini bildi.</b> DE01 şirketi Temmuz'da
     <code>6815 "IT- und Softwarekosten"</code> hesabını açmış ama grup eşleme
     tablosuna eklememişti. Motor hesabı askıya aldı; yapay zekâ
-    <code>6040 Genel yönetim giderleri</code> önerdi — cevap anahtarındaki doğru
+    <code>6040 Genel yönetim giderleri</code> önerdi, cevap anahtarındaki doğru
     kod. Güvenini "orta" verdi ve "6060 Danışmanlık giderleri de mümkün olabilir"
     diye kendi kuşkusunu yazdı.</li>
     <li><b>Kendi kural setimizdeki eksiği buldu.</b> Bulgu triyajında
@@ -361,7 +361,7 @@ def main():
     yetki aşımı yakalanmaya devam etti.</li>
     </ol>''')
     A('''<p class="kucuk">Her iki durumda da yapay zekâ <b>hiçbir sayı
-    üretmedi</b> — bir hesap adını eşleştirdi ve bir kural boşluğunu gördü.
+    üretmedi</b>, bir hesap adını eşleştirdi ve bir kural boşluğunu gördü.
     Rakamların tamamı motorun hesabıdır.</p>''')
 
     # ================= 5. KONTROL TESTLERİ =================
@@ -371,7 +371,7 @@ def main():
       '<th>Ne arar</th></tr>')
     ne_arar = {
         "K01": "Borç ≠ alacak; mizan eksik ya da tek taraflı kayıt var",
-        "K02": "Aynı tutar + hesap + tarih penceresi — çift ödeme göstergesi",
+        "K02": "Aynı tutar + hesap + tarih penceresi, çift ödeme göstergesi",
         "K03": "Belge tarihi dönem dışında; dönemsellik ilkesi ihlali",
         "K04": "Hafta sonu ya da gece girilmiş yüksek tutarlı fiş",
         "K05": "Onay limitini aşan tek fiş",
@@ -413,7 +413,7 @@ def main():
           f'<td><code>{test_es[tz["tuzak"]]}</code></td>'
           f'<td>{tz["aciklama"]}</td><td class="iyi">yakalandı</td></tr>')
     A('</table>')
-    A(f'''<p><b>Skor: 14/14</b> — toplam {len(bulgular)} bulgu üretildi
+    A(f'''<p><b>Skor: 14/14</b>, toplam {len(bulgular)} bulgu üretildi
     (kritik {kritik}, yüksek {int((bulgular["onem"]=="yuksek").sum())},
     orta {int((bulgular["onem"]=="orta").sum())},
     düşük {int((bulgular["onem"]=="dusuk").sum())}). Bu çerçeve, yeni bir test
@@ -424,7 +424,7 @@ def main():
     A('<h2 class="sayfa">6. Tasarımın arkasındaki kararlar</h2>')
     A('''<h4>1. Eşleşmeyen satır atılmaz, askıya alınır</h4>
     <p>Eşleşmeyen bir hesabın satırı düşürülürse konsolide tablo yine denk çıkar,
-    toplamlar makul görünür, ama o hesabın tutarı yok olur — ne hata mesajı vardır
+    toplamlar makul görünür, ama o hesabın tutarı yok olur, ne hata mesajı vardır
     ne denksizlik. Bu, hata sınıflarının en tehlikelisidir: <b>sessiz</b> olanı.
     Askı hesabı (9999) tutarın kaybolmasını engeller ve kapanış imzalanmadan
     çözülmesi gereken bir bulguya dönüştürür.</p>''')
@@ -441,7 +441,7 @@ def main():
       <td class="sag kotu">−%11,9</td></tr>
     <tr><td>TR02</td><td class="sag">10.792.134</td><td class="sag">9.415.982</td>
       <td class="sag kotu">−%12,8</td></tr>
-    <tr><td>DE01 (EUR — çevrim yok)</td><td class="sag">22.116.705</td>
+    <tr><td>DE01 (EUR, çevrim yok)</td><td class="sag">22.116.705</td>
       <td class="sag">22.116.705</td><td class="sag">%0,0</td></tr>
     </table>''')
     A('<p class="kucuk">Tek kurla çevirmek TR şirketlerinin cirosunu sistematik '
@@ -457,7 +457,7 @@ def main():
 
     A('''<h4>4. Excel ortadan kaldırılmıyor, üretiliyor</h4>
     <p>Amaç Excel'i öldürmek değil; Excel'e giden yoldaki <b>elle yapılan işi</b>
-    — pivot, VLOOKUP, kur çevirme, mutabakat — ortadan kaldırmak. Kapanış paketi
+, pivot, VLOOKUP, kur çevirme, mutabakat, ortadan kaldırmak. Kapanış paketi
     yine <code>.xlsx</code> olarak çıkar, çünkü onu imzalayacak, denetçiye
     gönderecek ve üzerine not alacak kişi orada çalışır. Fark şu: bu dosya elle
     değil, izlenebilir bir boru hattıyla üretilir.</p>''')
@@ -498,7 +498,7 @@ def main():
       <td>Excel'de <code>100</code> yazan hücre pandas'a <code>100.0</code> float
       gelir; <code>str()</code> onu <code>"100.0"</code> yapar. Eşleme tablosunda
       <code>"100"</code> arandığı için <b>1.359 hesabın tamamı</b> eşleşmeyen
-      çıkmıştı — ve tablo yine denk görünüyordu.</td>
+      çıkmıştı, ve tablo yine denk görünüyordu.</td>
       <td><code>kod_metni()</code>: tam sayı float'ların kuyruğunu atar,
       <code>770.01</code> gibi gerçek ondalıklı kodları korur.</td></tr>
     <tr><td><b>Sayı ayracı belirsizliği</b></td>
@@ -520,7 +520,7 @@ def main():
       <td>Her şirket grup içi alımını kendi cirosundan tahmin ediyordu, satıcının
       kestiği faturadan değil; eliminasyon 5,8M EUR açık veriyordu.</td>
       <td>İki geçişli üretim: satıcının faturası kaydedilir, alıcının maliyeti
-      ondan türetilir. Kalan ~%0,5 fark kur kaynaklı ve kasıtlıdır — K08'in
+      ondan türetilir. Kalan ~%0,5 fark kur kaynaklı ve kasıtlıdır. K08'in
       ölçtüğü şey budur.</td></tr>
     </table>''')
 
@@ -546,7 +546,7 @@ def main():
 
     A('<h3>Yol haritası</h3>')
     A('''<ul>
-    <li><b>IAS 29 enflasyon muhasebesi</b> — Türkiye 2022'den beri
+    <li><b>IAS 29 enflasyon muhasebesi</b>. Türkiye 2022'den beri
     hiperenflasyonist ekonomi sayılıyor; parasal / parasal olmayan ayrımı hesap
     planında zaten tanımlı</li>
     <li>TCMB ve TÜİK verilerinin canlı API'den çekilmesi (şu an sabit tablo)</li>
@@ -560,7 +560,7 @@ def main():
     güncellenmez. Üretim: {datetime.now().strftime("%d.%m.%Y %H:%M")}</p>''')
 
     html = (f'<!DOCTYPE html><html lang="tr"><head><meta charset="utf-8">'
-            f'<title>MizanKöprü — Proje Raporu</title><style>{STIL}</style>'
+            f'<title>MizanKöprü. Proje Raporu</title><style>{STIL}</style>'
             f'</head><body>{"".join(P)}</body></html>')
 
     gecici = CIKTI_DIZIN / "_rapor.html"

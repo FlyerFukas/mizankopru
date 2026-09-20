@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# MizanKöprü — çok şirketli, çok para birimli konsolidasyon ve iç kontrol motoru
+# MizanKöprü: çok şirketli, çok para birimli konsolidasyon ve iç kontrol motoru
 # Copyright (c) 2026 Furkan Akduman · https://github.com/FlyerFukas
 # SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 #
@@ -7,21 +7,21 @@
 # İşletmeler ve her türlü ticari kullanım ayrı, ücretli lisans gerektirir.
 # Ayrıntı ve iletişim: COMMERCIAL.md
 """
-MİZANKÖPRÜ — [2] EŞLE: yerel hesap planı → grup hesap planı köprüsü.
+MİZANKÖPRÜ [2] EŞLE: yerel hesap planı → grup hesap planı köprüsü.
 
 GÖREV
   Üç farklı yerel hesap planındaki (VUK Tek Düzen, SKR04, UK COA) kodları
-  tek bir IFRS sunum planına indirger. Eşleşmeyenleri ATMAZ — askı hesabına
+  tek bir IFRS sunum planına indirger. Eşleşmeyenleri ATMAZ, askı hesabına
   alır, çünkü atılan satır bilançoyu yine denk gösterir ve hata görünmez olur.
 
 NEDEN EN TEHLİKELİ ADIM
   Bir yerel hesap eşleşmezse ve satır düşürülürse: konsolide tablo denk çıkar,
   toplamlar makul görünür, ama o hesabın tutarı yok olmuştur. Ne bir hata mesajı
   vardır ne de bir denksizlik. Bu yüzden burada üç şey birden yapılır:
-    1. Eşleşmeyen satır askıya (9999) alınır — tutar kaybolmaz
+    1. Eşleşmeyen satır askıya (9999) alınır, tutar kaybolmaz
     2. Askıdaki tutar ve etkilediği dönem sayısı raporlanır
     3. Yapay zekâ katmanı açıksa her eşleşmeyen hesap için bir grup hesabı
-       ÖNERİLİR — öneri doğrudan uygulanmaz, insan onayına gider
+       ÖNERİLİR, öneri doğrudan uygulanmaz, insan onayına gider
 
 ÇALIŞTIRMA
   py src/esle.py
@@ -72,7 +72,7 @@ def eslestir(df: pd.DataFrame, y, g: Gunluk, etiket: str) -> pd.DataFrame:
 
 
 def eslesmeyen_ozeti(mizan: pd.DataFrame, y) -> pd.DataFrame:
-    """Eşleşmeyen hesapları hesap bazında özetler — insanın bakacağı liste."""
+    """Eşleşmeyen hesapları hesap bazında özetler, insanın bakacağı liste."""
     yok = mizan[~mizan["eslesti"]]
     if yok.empty:
         return pd.DataFrame(columns=["sirket_kod", "hesap_plani", "yerel_hesap_kod",
@@ -99,12 +99,12 @@ def eslesmeyen_ozeti(mizan: pd.DataFrame, y) -> pd.DataFrame:
 
 def oneri_uret(eslesmeyenler: pd.DataFrame, y, z: Zeka, g: Gunluk) -> pd.DataFrame | None:
     """Eşleşmeyen her hesap için grup hesabı önerisi ister.
-    Öneri UYGULANMAZ — csv'ye yazılır, insan onaylayıp
+    Öneri UYGULANMAZ, csv'ye yazılır, insan onaylayıp
     yapilandirma/hesap_eslesme.csv'ye taşır."""
     if eslesmeyenler.empty:
         return None
     if not z.aktif:
-        g.bilgi(f"Eşleme önerisi atlandı — {z.neden}")
+        g.bilgi(f"Eşleme önerisi atlandı, {z.neden}")
         g.bilgi("  Anahtar eklenirse bu hesaplar için otomatik öneri üretilir.")
         return None
 
@@ -117,7 +117,7 @@ def oneri_uret(eslesmeyenler: pd.DataFrame, y, z: Zeka, g: Gunluk) -> pd.DataFra
         return None
 
     df = pd.DataFrame(oneriler)
-    # Önerilen kodun gerçekten var olduğunu doğrula — LLM uydurmuş olabilir
+    # Önerilen kodun gerçekten var olduğunu doğrula. LLM uydurmuş olabilir
     df["gecerli_kod"] = df["onerilen_grup_kod"].isin(y.grup_hesaplari)
     uydurma = df[~df["gecerli_kod"]]
     if not uydurma.empty:
@@ -175,7 +175,7 @@ def main():
                          encoding="utf-8-sig")
 
     if not eslesmeyenler.empty:
-        tablo_yaz("Askıdaki hesaplar — kapanış imzalanmadan çözülmeli",
+        tablo_yaz("Askıdaki hesaplar, kapanış imzalanmadan çözülmeli",
                   [[r.sirket_kod, r.hesap_plani, r.yerel_hesap_kod,
                     str(r.yerel_hesap_ad)[:34], r.donem_sayisi,
                     f"{r.ilk_donem}→{r.son_donem}", para(r.bakiye_eur, 0)]
@@ -186,7 +186,7 @@ def main():
         if oneri is not None:
             yol = CIKTI_DIZIN / "hesap_eslesme_onerisi.csv"
             oneri.to_csv(yol, index=False, encoding="utf-8-sig")
-            tablo_yaz("Yapay zekâ eşleme önerisi (UYGULANMADI — insan onayı bekler)",
+            tablo_yaz("Yapay zekâ eşleme önerisi (UYGULANMADI, insan onayı bekler)",
                       [[r.yerel_kod, str(r.yerel_hesap_ad)[:26],
                         r.onerilen_grup_kod,
                         y.grup_hesaplari.get(r.onerilen_grup_kod, {}).get("ad", "?")[:26],

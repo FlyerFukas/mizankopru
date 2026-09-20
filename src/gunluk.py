@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# MizanKöprü — çok şirketli, çok para birimli konsolidasyon ve iç kontrol motoru
+# MizanKöprü: çok şirketli, çok para birimli konsolidasyon ve iç kontrol motoru
 # Copyright (c) 2026 Furkan Akduman · https://github.com/FlyerFukas
 # SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 #
@@ -7,7 +7,7 @@
 # İşletmeler ve her türlü ticari kullanım ayrı, ücretli lisans gerektirir.
 # Ayrıntı ve iletişim: COMMERCIAL.md
 """
-MİZANKÖPRÜ — Günlük ve denetim izi altyapısı.
+MİZANKÖPRÜ. Günlük ve denetim izi altyapısı.
 
 Neden ayrı bir modül: Regüle bir süreçte "sonuç doğru mu" sorusu kadar
 "bu sonuca nasıl varıldı" sorusu da denetlenir. Boru hattının her adımı
@@ -138,7 +138,7 @@ class Gunluk:
         }
         self.iz("adim_bitti", **sonuc)
         durum = "HATA" if self.hatalar else ("UYARI" if self.uyarilar else "TAMAM")
-        self._cikti("»", f"[{self.adim}] {durum} — {sure:.2f} sn"
+        self._cikti("»", f"[{self.adim}] {durum}, {sure:.2f} sn"
                          + (f" · {self.uyarilar} uyarı" if self.uyarilar else "")
                          + (f" · {self.hatalar} hata" if self.hatalar else ""))
         return sonuc

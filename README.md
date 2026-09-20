@@ -13,7 +13,7 @@ formatlı Excel konsolidasyon paketi.
 > control tests, and decomposes budget variance into price / mix / volume / FX.
 > Documentation is in Turkish.*
 
-> ### ⚖️ Lisans önce bunu okuyun
+> ### ⚖️ Lisans: önce bunu okuyun
 >
 > Kaynak kodu açıktır, **ticari kullanım serbest değildir.**
 >
@@ -27,8 +27,8 @@ formatlı Excel konsolidasyon paketi.
 > [PolyForm Noncommercial 1.0.0](LICENSE) + ticari lisans. Koşullar, kapsam ve
 > iletişim: **[COMMERCIAL.md](COMMERCIAL.md)**
 >
-> *Source-available, not open source. Commercial use requires a paid license
-> see [COMMERCIAL.md](COMMERCIAL.md).*
+> *Source-available, not open source. Commercial use requires a paid license.
+> See [COMMERCIAL.md](COMMERCIAL.md).*
 
 ---
 
@@ -49,8 +49,8 @@ Demo veride TR01 şirketi için 2025 yılı üç farklı şekilde okunur:
 | Ölçüt | Değişim |
 |---|---|
 | Satılan adet | **−%12,1** |
-| Ciro (TRY, yerel para) | **+%2,1** bütçenin üstünde |
-| Ciro (EUR, sunum para birimi) | **−%11,2** bütçenin altında |
+| Ciro (TRY, yerel para) | **+%2,1**, bütçenin üstünde |
+| Ciro (EUR, sunum para birimi) | **−%11,2**, bütçenin altında |
 
 Türkiye'deki müdür "TL'de bütçeyi tutturduk" der. Grup merkezi "EUR'da %11
 altındasınız" der. **İkisi de doğrudur.** Motorun işi kimin haklı olduğunu değil,
@@ -67,7 +67,7 @@ Bütçe (bütçe kuruyla)        77.035.451 EUR
 ```
 
 Fiyat artışı hacim kaybını neredeyse tam karşılamış. 6 milyon EUR'luk açığın
-tamamı kurdan geliyor bu bir performans sorunu değil, çeviri sorunudur.
+tamamı kurdan geliyor. Bu bir performans sorunu değil, çeviri sorunudur.
 Ayrıştırma yapılmadan bu iki şey birbirinden ayrılamaz.
 
 ---
@@ -75,7 +75,7 @@ Ayrıştırma yapılmadan bu iki şey birbirinden ayrılamaz.
 ## Boru hattı
 
 ```
-veri/girdi/   41 dağınık dosya farklı biçim, kolon adı, tarih ve sayı formatı
+veri/girdi/   41 dağınık dosya: farklı biçim, kolon adı, tarih ve sayı formatı
      │        (panelden sürükle-bırak ile de yüklenebilir)
      │
      ├─[1] topla.py    tek şemaya normalize et           44.000 satır
@@ -96,12 +96,12 @@ py src/panel.py
 Tarayıcıda açılan yerel bir arayüz. Terminale hiç dönmeden:
 
 - Her adımı tek tek ya da tüm boru hattını çalıştırma
-- **Canlı çıktı akışı** hangi adım nerede, ne kadar sürdü, kaç uyarı çıktı
+- **Canlı çıktı akışı**: hangi adım nerede, ne kadar sürdü, kaç uyarı çıktı
 - **Kendi Excel dosyalarınızı sürükle-bırak ile yükleme** (`.xlsx`, `.xls`, `.csv`)
 - Üretilen çıktıları açma ve indirme
 - Yapılandırma, anahtar ve bulgu durumunun tek bakışta görünmesi
 
-Panel yalnızca `127.0.0.1` üzerinde çalışır ağdan erişilemez. Windows'ta
+Panel yalnızca `127.0.0.1` üzerinde çalışır, ağdan erişilemez. Windows'ta
 `PANEL.bat` dosyasına çift tıklamak da yeterlidir.
 
 ## Belgeler
@@ -122,7 +122,7 @@ py src/boru.py --veri-uret
 ```
 
 Her adım tek başına da çalışır (`py src/topla.py`), durum `veri/ara/` altında
-taşınır. Bir adım hata verirse boru hattı **durur** yanlış veriyle devam etmek
+taşınır. Bir adım hata verirse boru hattı **durur**. Yanlış veriyle devam etmek
 hatayı görünmez kılar.
 
 ---

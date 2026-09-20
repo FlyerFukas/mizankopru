@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# MizanKöprü — çok şirketli, çok para birimli konsolidasyon ve iç kontrol motoru
+# MizanKöprü: çok şirketli, çok para birimli konsolidasyon ve iç kontrol motoru
 # Copyright (c) 2026 Furkan Akduman · https://github.com/FlyerFukas
 # SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 #
@@ -7,7 +7,7 @@
 # İşletmeler ve her türlü ticari kullanım ayrı, ücretli lisans gerektirir.
 # Ayrıntı ve iletişim: COMMERCIAL.md
 """
-MİZANKÖPRÜ — BORU HATTI: tüm adımları sırayla çalıştıran orkestratör.
+MİZANKÖPRÜ. BORU HATTI: tüm adımları sırayla çalıştıran orkestratör.
 
 KULLANIM
   py src/boru.py                  tüm boru hattı (mevcut veri/girdi ile)
@@ -17,7 +17,7 @@ KULLANIM
 
 TASARIM
   Her adım ayrı bir süreç olarak çalışır. Bir adım hata verirse boru hattı
-  DURUR — yanlış veriyle bir sonraki adıma geçmek, hatayı görünmez kılar.
+  DURUR, yanlış veriyle bir sonraki adıma geçmek, hatayı görünmez kılar.
   Adımlar arası durum veri/ara/ altındaki dosyalarda taşınır; her adım tek
   başına da çalıştırılabilir (yeniden üretilebilirlik).
 """
@@ -81,7 +81,7 @@ def main():
     if a.zeka_kapali:
         ortam["ANTHROPIC_API_KEY"] = ""
         ortam["MIZANKOPRU_ZEKA"] = "kapali"
-        g.uyari("Yapay zekâ katmanı KAPALI — yorum metinleri üretilmeyecek. "
+        g.uyari("Yapay zekâ katmanı KAPALI, yorum metinleri üretilmeyecek. "
                 "Boru hattının ürettiği rakamların hiçbiri değişmez.")
 
     plan = list(ADIMLAR)
@@ -110,7 +110,7 @@ def main():
         g.iz("boru_adim", adim=ad, basarili=tamam, sure_sn=round(sure, 2),
              uyari=uyari)
         if not tamam:
-            g.hata(f"[{ad}] başarısız — boru hattı durduruldu.\n{cikti}")
+            g.hata(f"[{ad}] başarısız, boru hattı durduruldu.\n{cikti}")
             tablo_yaz("Boru hattı (yarıda kesildi)", sonuclar,
                       ["Adım", "İş", "Durum", "Süre", "Uyarı"])
             g.bitir({"durum": "hata", "kirilan_adim": ad})
@@ -136,10 +136,10 @@ def main():
         kritik = int((b["onem"] == "kritik").sum())
         g.bilgi("")
         if kritik:
-            g.uyari(f"KAPANIŞ İMZALANAMAZ — {kritik} kritik bulgu açık "
+            g.uyari(f"KAPANIŞ İMZALANAMAZ, {kritik} kritik bulgu açık "
                     f"(toplam {len(b)} bulgu). Ayrıntı: cikti/pano.html")
         else:
-            g.iyi(f"Kritik bulgu yok — kapanış imzalanabilir "
+            g.iyi(f"Kritik bulgu yok, kapanış imzalanabilir "
                   f"({len(b)} bulgu toplam).")
 
     g.bilgi(f"\nToplam süre: {toplam:.1f} sn")

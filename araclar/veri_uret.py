@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# MizanKöprü — çok şirketli, çok para birimli konsolidasyon ve iç kontrol motoru
+# MizanKöprü: çok şirketli, çok para birimli konsolidasyon ve iç kontrol motoru
 # Copyright (c) 2026 Furkan Akduman · https://github.com/FlyerFukas
 # SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 #
@@ -7,7 +7,7 @@
 # İşletmeler ve her türlü ticari kullanım ayrı, ücretli lisans gerektirir.
 # Ayrıntı ve iletişim: COMMERCIAL.md
 """
-MİZANKÖPRÜ — Sentetik ERP veri üreteci.
+MİZANKÖPRÜ. Sentetik ERP veri üreteci.
 
 NE ÜRETİR
   veri/girdi/ altına, dört şirketin 2025 yılı ERP çıktılarını gerçek hayattaki
@@ -53,7 +53,7 @@ ORNEK.mkdir(parents=True, exist_ok=True)
 
 DONEMLER = [f"2025-{a:02d}" for a in range(1, 13)]
 
-# Bütçe yapılırken varsayılan kur — yıl başında sabitlenmiş.
+# Bütçe yapılırken varsayılan kur, yıl başında sabitlenmiş.
 # Gerçekleşen EUR/TRY yıl sonunda 50,60 oldu. Aradaki fark FP&A'nın
 # açıklamak zorunda olduğu en büyük sapma kalemi.
 BUTCE_KURU = {"TRY": 1 / 38.00, "EUR": 1.0, "GBP": 1.195}
@@ -64,7 +64,7 @@ BUTCE_KURU = {"TRY": 1 / 38.00, "EUR": 1.0, "GBP": 1.195}
 # ======================================================================
 
 URUN_KATALOGU = {
-    "TR01": [  # Üretici — ürettiğini hem yurt içinde hem gruba satar
+    "TR01": [  # Üretici, ürettiğini hem yurt içinde hem gruba satar
         ("UR-101", "Endüstriyel Vana DN50", "Vana", 14500, 820),
         ("UR-102", "Endüstriyel Vana DN80", "Vana", 21800, 460),
         ("UR-103", "Aktüatör Seti A", "Aktüatör", 38400, 310),
@@ -74,21 +74,21 @@ URUN_KATALOGU = {
         ("UR-301", "Sensör Modülü S1", "Elektronik", 9800, 980),
         ("UR-302", "Sensör Modülü S2", "Elektronik", 16200, 540),
     ],
-    "TR02": [  # Perakende — TR01'den alır, yurt içinde satar
+    "TR02": [  # Perakende. TR01'den alır, yurt içinde satar
         ("PR-101", "Vana Servis Paketi", "Servis", 19800, 640),
         ("PR-102", "Aktüatör Servis Paketi", "Servis", 46500, 240),
         ("PR-201", "Yedek Parça Kiti", "Yedek Parça", 5400, 1850),
         ("PR-202", "Bakım Sarf Seti", "Yedek Parça", 2100, 3100),
         ("PR-301", "Kurulum Hizmeti", "Hizmet", 28000, 190),
     ],
-    "DE01": [  # Distribütör — EUR
+    "DE01": [  # Distribütör. EUR
         ("DE-401", "Ventil DN50 (EU)", "Vana", 520, 780),
         ("DE-402", "Ventil DN80 (EU)", "Vana", 780, 430),
         ("DE-403", "Aktuator Set A (EU)", "Aktüatör", 1380, 295),
         ("DE-501", "Flansch 4\" (EU)", "Bağlantı", 118, 2250),
         ("DE-601", "Sensormodul S1 (EU)", "Elektronik", 352, 910),
     ],
-    "UK01": [  # Satış ofisi — GBP
+    "UK01": [  # Satış ofisi. GBP
         ("UK-701", "Valve DN50 (UK)", "Vana", 448, 410),
         ("UK-702", "Valve DN80 (UK)", "Vana", 672, 225),
         ("UK-703", "Actuator Set A (UK)", "Aktüatör", 1190, 150),
@@ -96,10 +96,10 @@ URUN_KATALOGU = {
     ],
 }
 
-# Aylık mevsimsellik çarpanı (Oca..Ara) — yaz durgunluğu, yıl sonu itişi
+# Aylık mevsimsellik çarpanı (Oca..Ara), yaz durgunluğu, yıl sonu itişi
 MEVSIMSELLIK = [0.86, 0.90, 1.04, 1.02, 1.06, 0.98, 0.82, 0.78, 1.08, 1.12, 1.10, 1.24]
 
-# İşletmenin GERÇEKLEŞEN seyri — projenin başlık bulgusu buradan doğar.
+# İşletmenin GERÇEKLEŞEN seyri, projenin başlık bulgusu buradan doğar.
 # TR şirketlerinde fiyat enflasyonla uçuyor (yıllık ~%68), miktar eriyor (~-%18).
 # Sonuç: TL cirosu bütçeyi AŞIYOR, ama aynı ciro EUR'ya çevrildiğinde
 # yerinde sayıyor. Ayrıştırma yapılmazsa bu "büyüme" diye raporlanır.
@@ -111,7 +111,7 @@ SIRKET_DINAMIGI = {
     "UK01": {"fiyat": 0.0028, "miktar": 0.0015, "smm": 0.705, "personel": 0.128},
 }
 
-# BÜTÇE varsayımları — yıl başında ne beklenmişti.
+# BÜTÇE varsayımları, yıl başında ne beklenmişti.
 # TR için yıllık %25 enflasyon ve hafif hacim büyümesi öngörülmüştü;
 # ikisi de tutmadı. Bütçe kuru da EUR/TRY 38'de sabitlenmişti (BUTCE_KURU).
 BUTCE_VARSAYIMI = {
@@ -122,14 +122,14 @@ BUTCE_VARSAYIMI = {
 }
 
 # Ortalama satış faturası tutarı (şirketin fonksiyonel para biriminde).
-# Fatura ADEDİ buradan türetilir — ciroyu tek kalemde yazmak yerine
+# Fatura ADEDİ buradan türetilir, ciroyu tek kalemde yazmak yerine
 # gerçek bir satış hacmi üretmek için. Benford ve mükerrer testleri
 # ancak yeterli gözlem varsa anlamlıdır.
 ORT_FATURA = {"TR01": 200_000, "TR02": 120_000, "DE01": 4_500, "UK01": 1_800}
 
 KULLANICILAR = {
     "TR01": ["a.yilmaz", "m.demir", "s.kaya", "e.ozturk", "SISTEM"],
-    "TR02": ["b.sahin", "SISTEM"],                 # tek kişi — görevler ayrılığı zayıf
+    "TR02": ["b.sahin", "SISTEM"],                 # tek kişi, görevler ayrılığı zayıf
     "DE01": ["k.mueller", "j.schmidt", "SYSTEM"],
     "UK01": ["j.smith", "r.patel", "SYSTEM"],
 }
@@ -157,7 +157,7 @@ def sayi_metni(deger: float, ondalik: str, binlik: str, basamak: int = 2) -> str
 
 class YerelPlan:
     """Grup hesap kodundan o şirketin yerel hesap koduna çevirir.
-    Bir grup hesabına birden çok yerel hesap eşliyse rastgele seçer —
+    Bir grup hesabına birden çok yerel hesap eşliyse rastgele seçer:
     gerçek mizanlarda da kayıtlar alt hesaplara dağılır."""
 
     def __init__(self, y, plan_kodu: str, rnd: random.Random):
@@ -284,7 +284,7 @@ class VeriUretici:
 
     def butce_uret(self, sirket: str, satis_butce: pd.DataFrame,
                    plan: YerelPlan) -> pd.DataFrame:
-        """Gelir tablosu bütçesi — satış bütçesinden türetilir."""
+        """Gelir tablosu bütçesi, satış bütçesinden türetilir."""
         din = SIRKET_DINAMIGI[sirket]
         satirlar = []
         aylik_ciro = satis_butce.groupby("donem")["tutar"].sum()
@@ -322,16 +322,16 @@ class VeriUretici:
         self.satislar[sirket] = pd.concat([fiili, butce_satis], ignore_index=True)
         self.butceler[sirket] = self.butce_uret(sirket, butce_satis, plan)
 
-        # Açılış kaydı — sermaye ve duran varlık
+        # Açılış kaydı, sermaye ve duran varlık
         acilis = fiili[fiili["donem"] == DONEMLER[0]]["tutar"].sum()
         self.fis_kaydet(sirket, DONEMLER[0], acilis * 2.4, "1010", "3010",
-                        "Açılış — sermaye", plan, gun=date(2025, 1, 1),
+                        "Açılış, sermaye", plan, gun=date(2025, 1, 1),
                         kullanici="SISTEM")
         self.fis_kaydet(sirket, DONEMLER[0], acilis * 1.8, "1510", "1010",
-                        "Açılış — duran varlık alımı", plan, gun=date(2025, 1, 2),
+                        "Açılış, duran varlık alımı", plan, gun=date(2025, 1, 2),
                         kullanici="SISTEM")
         self.fis_kaydet(sirket, DONEMLER[0], acilis * 0.9, "1030", "2010",
-                        "Açılış — stok", plan, gun=date(2025, 1, 3), kullanici="SISTEM")
+                        "Açılış, stok", plan, gun=date(2025, 1, 3), kullanici="SISTEM")
 
         for t, donem in enumerate(DONEMLER):
             ay_ciro = fiili[fiili["donem"] == donem]["tutar"].sum()
@@ -355,7 +355,7 @@ class VeriUretici:
                 adet = int(np.clip(round(tutar_toplam / ort_fatura), 2, 260))
                 for tutar in self._parcala(tutar_toplam, adet):
                     self.fis_kaydet(sirket, donem, tutar, "1020", grup_kod,
-                                    f"Satış faturası — {donem}", plan)
+                                    f"Satış faturası, {donem}", plan)
 
             # --- Grup içi satış: alıcı bazında ayrı ayrı ---
             # Kimin kime ne sattığı KAYDEDİLİR; alıcının maliyet kaydı
@@ -373,7 +373,7 @@ class VeriUretici:
                     adet = int(np.clip(round(pay_tutar / (ORT_FATURA[sirket] * 4.0)), 2, 40))
                     for tutar in self._parcala(pay_tutar, adet):
                         self.fis_kaydet(sirket, donem, tutar, "1025", "4025",
-                                        f"Grup içi satış — {i['alici']}", plan)
+                                        f"Grup içi satış, {i['alici']}", plan)
 
             # --- Faaliyet giderleri ---
             # Gider tabanı DIŞ cirodur: bir distribütöre toplu fatura keserken
@@ -431,7 +431,7 @@ class VeriUretici:
         """Tüm şirketler üretildikten SONRA çalışır.
 
         Alıcının grup içi alım maliyeti, satıcının ona kestiği faturadan
-        türetilir — kendi cirosundan tahmin edilmez. Kur çevrimi yüzünden
+        türetilir, kendi cirosundan tahmin edilmez. Kur çevrimi yüzünden
         iki taraf kuruşu kuruşuna tutmaz; işte K08 testinin ölçtüğü şey
         tam olarak bu farkın kabul edilebilir bantta kalıp kalmadığıdır."""
         pb = {k: s.fonksiyonel_para_birimi for k, s in self.y.sirketler.items()}
@@ -459,17 +459,17 @@ class VeriUretici:
                 dis_alim = max(smm_toplam - grup_ici_alim, ay_ciro * 0.05)
                 # ÖNCE stok girişi, SONRA satıldıkça maliyete geçiş.
                 # Sadece maliyet yazıp alım kaydetmemek stok hesabını
-                # yıl boyunca negatife sürükler — bilanço anlamsızlaşır.
+                # yıl boyunca negatife sürükler, bilanço anlamsızlaşır.
                 for tutar in self._parcala(dis_alim * 1.03, 6):
                     self.fis_kaydet(sirket, donem, tutar, "1030", "2010",
                                     "Stok alımı", plan)
                 for tutar in self._parcala(dis_alim, 4):
                     self.fis_kaydet(sirket, donem, tutar, "5010", "1030",
-                                    "SMM — stok çıkışı", plan)
+                                    "SMM, stok çıkışı", plan)
 
     # ---------------- grup içi mutabakat ----------------
     def grup_ici_uret(self):
-        """Mutabakat dosyaları — iki taraf da aynı işlemi kendi parasında bildirir.
+        """Mutabakat dosyaları, iki taraf da aynı işlemi kendi parasında bildirir.
 
         Tutarlar smm_yaz ile aynı kaynaktan (grup_ici_satis) gelir, böylece
         mutabakat dosyası muhasebe kayıtlarıyla tutarlıdır. T3 tuzağı bu
@@ -542,7 +542,7 @@ class VeriUretici:
         # --- T4: Hesap planı kayması (K09) -------------------------------
         # DE01 Temmuz'da yeni bir gider hesabı açtı (BT ve yazılım giderlerini
         # "diğer faaliyet giderleri"nden ayırmak için) ama grup merkezine
-        # haber vermedi. Hesap gerçek bir ad taşır — eşleme önerisi de zaten
+        # haber vermedi. Hesap gerçek bir ad taşır, eşleme önerisi de zaten
         # ancak hesabın adına bakarak yapılabilir.
         sayac = 0
         for f in self.fisler["DE01"]:
@@ -582,7 +582,7 @@ class VeriUretici:
         for donem, carpan in [("2025-05", 1.35), ("2025-09", 1.62)]:
             tutar = limit * carpan
             fis_no = self.fis_kaydet("TR01", donem, tutar, "6060", "2010",
-                                     "Danışmanlık — proje bedeli", plan,
+                                     "Danışmanlık, proje bedeli", plan,
                                      kullanici="m.demir")
             detaylar.append({"fis_no": fis_no, "donem": donem, "tutar": tutar,
                              "limit": limit})
@@ -596,11 +596,11 @@ class VeriUretici:
         for i in range(4):
             tutar = limit2 * self.rnd.uniform(0.88, 0.97)
             fis_no = self.fis_kaydet("TR02", "2025-08", tutar, "6040", "2010",
-                                     "Ofis tadilat işi — kısmi hakediş", plan2,
+                                     "Ofis tadilat işi, kısmi hakediş", plan2,
                                      gun=gun, kullanici="b.sahin")
             detaylar.append({"fis_no": fis_no, "tutar": round(tutar, 2)})
         self.tuzak_kaydet("T7", "K06",
-                          f"TR02'de aynı gün ({gun}) limitin hemen altında 4 fiş — limit {limit2:,.0f} TRY",
+                          f"TR02'de aynı gün ({gun}) limitin hemen altında 4 fiş, limit {limit2:,.0f} TRY",
                           detaylar)
 
         # --- T8: Benford sapması + yuvarlak tutar (K07, K12) -------------
@@ -614,7 +614,7 @@ class VeriUretici:
                 tutar = float(self.rnd.choice([1000, 2000, 3000, 5000, 8000,
                                                9000, 9500, 9800]))
                 self.fis_kaydet("UK01", donem, tutar, "6040", "2010",
-                                "Office costs — sundry", plan3, kullanici="r.patel",
+                                "Office costs, sundry", plan3, kullanici="r.patel",
                                 masraf_merkezi="MM-IDARI")
                 detaylar.append({"donem": donem, "tutar": tutar})
         self.tuzak_kaydet("T8", "K07/K12",
@@ -622,7 +622,7 @@ class VeriUretici:
                           [{"adet": len(detaylar), "hesap_rolu": "6040 → UK 7500"}])
 
         # --- T9: Bilanço denkliği bozuk (K01) ----------------------------
-        # UK01 Eylül'de tek taraflı bir kayıt — mizan denk gelmiyor.
+        # UK01 Eylül'de tek taraflı bir kayıt, mizan denk gelmiyor.
         tek_taraf = sorted(
             (f for f in self.fisler["UK01"]
              if f["donem"] == "2025-09" and f["alacak"] > 0),
@@ -632,7 +632,7 @@ class VeriUretici:
         kurban = self.rnd.choice(tek_taraf)
         self.fisler["UK01"].remove(kurban)
         self.tuzak_kaydet("T9", "K01",
-                          "UK01 Eylül mizanında tek taraflı kayıt — borç/alacak denkliği bozuk",
+                          "UK01 Eylül mizanında tek taraflı kayıt, borç/alacak denkliği bozuk",
                           [{"donem": "2025-09", "fis_no": kurban["fis_no"],
                             "kayip_alacak": kurban["alacak"]}])
 
@@ -651,7 +651,7 @@ class VeriUretici:
                           & (ay_ciro["donem"] == "2025-02")]["tutar"].sum()
         tutar = ay_ciro * 0.78
         fis_no = self.fis_kaydet("TR01", "2025-02", tutar, "4010", "1020",
-                                 "Toplu satış iadesi — kalite reddi", plan4,
+                                 "Toplu satış iadesi, kalite reddi", plan4,
                                  kullanici="a.yilmaz")
         self.tuzak_kaydet("T11", "K11",
                           "TR01 Şubat'ta yurt içi satış hesabı iade nedeniyle borç bakiye verdi",
@@ -680,7 +680,7 @@ class VeriUretici:
         g.iyi(f"{len(self.tuzaklar)} tuzak enjekte edildi.")
 
     # ==================================================================
-    # MİZAN — yevmiyeden topla
+    # MİZAN, yevmiyeden topla
     # ==================================================================
     def mizan_uret(self, sirket: str) -> pd.DataFrame:
         """Mizan = YILBAŞINDAN İTİBAREN KÜMÜLATİF (YTD) borç/alacak toplamı.
@@ -690,7 +690,7 @@ class VeriUretici:
           - Bilanço kalemi zaten kümülatif bakiyedir, doğrudan kullanılır.
           - Gelir tablosu kalemi ise AYLIK tutara çevrilmelidir
             (YTD(t) - YTD(t-1)), çünkü IAS 21'de her ayın geliri o ayın
-            ortalama kuruyla çevrilir — yıllık YTD'yi tek kurla çevirmek
+            ortalama kuruyla çevrilir, yıllık YTD'yi tek kurla çevirmek
             enflasyonist bir para biriminde büyük hata üretir.
         """
         df = pd.DataFrame(self.fisler[sirket])
@@ -721,7 +721,7 @@ class VeriUretici:
 
 
 # ======================================================================
-# DOSYA YAZIMI — her şirket kendi biçiminde
+# DOSYA YAZIMI, her şirket kendi biçiminde
 # ======================================================================
 
 def yaz_tr(u: VeriUretici, sirket: str, mizan: pd.DataFrame, g: Gunluk) -> int:
@@ -871,7 +871,7 @@ def main():
     y = yukle()
     g.bilgi(y.ozet())
 
-    # Eski girdileri temizle — üretim tekrar edilebilir olmalı
+    # Eski girdileri temizle, üretim tekrar edilebilir olmalı
     for eski in GIRDI.glob("*"):
         eski.unlink()
     g.bilgi(f"Girdi dizini temizlendi: {GIRDI}")

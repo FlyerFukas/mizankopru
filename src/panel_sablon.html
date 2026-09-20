@@ -1,13 +1,13 @@
 <!--
-  MizanKöprü — konsolidasyon ve iç kontrol motoru
+  MizanKöprü, konsolidasyon ve iç kontrol motoru
   Copyright (c) 2026 Furkan Akduman · https://github.com/FlyerFukas
   SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
-  Ticari kullanım ayrı lisans gerektirir — bkz. COMMERCIAL.md
+  Ticari kullanım ayrı lisans gerektirir, bkz. COMMERCIAL.md
 -->
 <!DOCTYPE html>
 <html lang="tr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MizanKöprü — Panel</title>
+<title>MizanKöprü. Panel</title>
 <style>
 :root {
   --arka:#0d1117; --kart:#161b22; --kart2:#1c2230; --kenar:#30363d;
@@ -198,13 +198,13 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:12px;
 </div>
 
 <footer>
-  Panel yalnızca <code>127.0.0.1</code> üzerinde çalışır — ağdan erişilemez.
+  Panel yalnızca <code>127.0.0.1</code> üzerinde çalışır, ağdan erişilemez.
   Yüklenen dosyalar <code>veri/girdi/</code> dizinine yazılır.
   Kapatmak için panelin açıldığı terminalde <code>Ctrl+C</code>.
   <br><br>
   © 2026 Furkan Akduman · Ticari olmayan kullanım serbesttir
   (PolyForm Noncommercial 1.0.0). İşletmeler ve ticari kullanım için
-  ayrı lisans gerekir — <code>COMMERCIAL.md</code>.
+  ayrı lisans gerekir, <code>COMMERCIAL.md</code>.
 </footer>
 </div>
 
@@ -269,7 +269,7 @@ function akisBaslat() {
     }
     else if (o.tur === 'zincir_bitti') {
       CALISIYOR = false; butonlariGuncelle();
-      yaz(`\n✓ Bitti — toplam ${o.sure} sn`, 'baslik');
+      yaz(`\n✓ Bitti, toplam ${o.sure} sn`, 'baslik');
       $('#ilerleme').style.width = '100%';
       setTimeout(() => { $('#ilerleme').style.width = '0'; }, 1600);
       durumYenile();
@@ -308,7 +308,7 @@ function rozetleriCiz() {
     : rozet('girdi yok', 'uyari'));
   if (d.bulgu) {
     r.push(d.bulgu.kritik
-      ? rozet(`${d.bulgu.kritik} kritik bulgu — kapanış imzalanamaz`, 'kotu')
+      ? rozet(`${d.bulgu.kritik} kritik bulgu, kapanış imzalanamaz`, 'kotu')
       : rozet(`${d.bulgu.toplam} bulgu · kritik yok`, 'iyi'));
   }
   $('#rozetler').innerHTML = r.join('');
@@ -331,7 +331,7 @@ function adimlariCiz() {
     const olcum = aktif ? '<span class="donuyor"></span>'
       : g ? `${g.sure} sn<br><span style="opacity:.75">${g.zaman}`
             + (g.uyari ? ` · ${g.uyari} uyarı` : '') + '</span>'
-      : '—';
+      : '-';
     return `<div class="adim ${sinif}">
       <div class="govde">
         <div class="ad">${kacis(a.baslik)}</div>
@@ -379,7 +379,7 @@ function girdiCiz() {
 
   $('#girdiUyari').innerHTML = (g.dosya && !g.demo_mu)
     ? `<div class="uyari-kutu"><b>Kendi verileriniz yüklü.</b>
-       "Demo veri üret" düğmesi girdi dizinini <b>temizler</b> — bu dosyalar silinir.
+       "Demo veri üret" düğmesi girdi dizinini <b>temizler</b>, bu dosyalar silinir.
        Kolon adlarınız tanınmıyorsa <code>yapilandirma/kolon_eslesme.yaml</code>
        dosyasına ekleyin.</div>`
     : '';

@@ -5,7 +5,7 @@
 # yon      : 1 = normalde borç bakiye, -1 = normalde alacak bakiye
 #            (Bakiye hep "borç - alacak" olarak tutulur; yon sadece
 #             sunumda işaretin doğru okunması için.)
-# parasal  : IAS 29 (enflasyon muhasebesi) için parasal/parasal olmayan ayrımı — v2
+# parasal  : IAS 29 (enflasyon muhasebesi) için parasal/parasal olmayan ayrımı, v2
 # elimine  : Konsolidasyonda grup içi eliminasyona tabi
 # cevrim   : IAS 21 → B kalemleri KAPANIŞ kuru, G kalemleri ORTALAMA kur
 # ============================================================
@@ -57,12 +57,12 @@ hesaplar:
   # --- ASKI ---
   # Grup planına eşlenemeyen yerel hesaplar buraya düşer. Satırı ATMAK yerine
   # askıya almak, tutarın kaybolmamasını ve bilançonun denk kalmasını sağlar.
-  # Askıda bakiye varken kapanış imzalanmaz — K09 kritik önemde.
+  # Askıda bakiye varken kapanış imzalanmaz. K09 kritik önemde.
   # tur: B seçildi, yani kapanış kuruyla çevrilir; eşlenmemiş hesabın gerçek
   # türü bilinmediği için bu muhafazakâr bir varsayımdır, düzeltilmesi gerekir.
-  - {kod: "9999", ad: "ASKIDA — grup planına eşlenmemiş", tur: B, yon: 1,  parasal: true, kalem: "Askı", aski: true}
+  - {kod: "9999", ad: "ASKIDA, grup planına eşlenmemiş", tur: B, yon: 1,  parasal: true, kalem: "Askı", aski: true}
 
-# Gelir tablosu sunum düzeni — pano ve Excel bu sırayı kullanır.
+# Gelir tablosu sunum düzeni, pano ve Excel bu sırayı kullanır.
 # Bakiyeler "borç - alacak" olduğu için gelir hesapları negatif gelir;
 # sunumda işaret ters çevrilir (bkz. src/sema.py → sunum_isareti).
 gelir_tablosu_duzeni:

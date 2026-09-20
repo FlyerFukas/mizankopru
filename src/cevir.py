@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# MizanKöprü — çok şirketli, çok para birimli konsolidasyon ve iç kontrol motoru
+# MizanKöprü: çok şirketli, çok para birimli konsolidasyon ve iç kontrol motoru
 # Copyright (c) 2026 Furkan Akduman · https://github.com/FlyerFukas
 # SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 #
@@ -7,7 +7,7 @@
 # İşletmeler ve her türlü ticari kullanım ayrı, ücretli lisans gerektirir.
 # Ayrıntı ve iletişim: COMMERCIAL.md
 """
-MİZANKÖPRÜ — [3] ÇEVİR: IAS 21 kur çevrimi ve konsolidasyon.
+MİZANKÖPRÜ [3] ÇEVİR: IAS 21 kur çevrimi ve konsolidasyon.
 
 IAS 21 KURALI
   Bilanço kalemleri   → dönem sonu (KAPANIŞ) kuru
@@ -17,7 +17,7 @@ IAS 21 KURALI
 NEDEN AYLIK ÇEVİRMEK ZORUNLU
   Mizan YTD gelir. Gelir tablosu kalemini YTD hâliyle tek bir kurla çevirmek,
   EUR/TRY'nin 36,80'den 50,60'a gittiği bir yılda Ocak'ta kazanılan geliri de
-  Aralık kuruyla çevirir — ciroyu sistematik olarak küçültür. Doğrusu:
+  Aralık kuruyla çevirir, ciroyu sistematik olarak küçültür. Doğrusu:
   her ayın kendi hareketini o ayın ortalama kuruyla çevirip biriktirmek.
   Bu modül YTD'den aylık hareketi türetip öyle çevirir.
 
@@ -56,7 +56,7 @@ def aylik_harekete_cevir(mizan: pd.DataFrame, y, g: Gunluk) -> pd.DataFrame:
     Grup hesabı bazında toplar (bir grup hesabına birden çok yerel hesap
     eşlenebilir), sonra dönem sırasına göre fark alır. Bir dönem hiç
     gelmemişse (TR02 Kasım gibi) o dönem atlanır ve hareket bir sonraki
-    döneme birikir — bu doğru davranıştır, YTD kümülatiftir; ama o ayın
+    döneme birikir, bu doğru davranıştır, YTD kümülatiftir; ama o ayın
     ayrı analizi yapılamaz, K10 bunu bulgu olarak yazar."""
     donemler = y.donemler()
     ozet = (mizan.groupby(["sirket_kod", "donem", "grup_kod"], as_index=False)
@@ -84,7 +84,7 @@ def aylik_harekete_cevir(mizan: pd.DataFrame, y, g: Gunluk) -> pd.DataFrame:
 
 
 def cevir(df: pd.DataFrame, y, g: Gunluk) -> pd.DataFrame:
-    """IAS 21 çevrimi — üç senaryo birden."""
+    """IAS 21 çevrimi, üç senaryo birden."""
     pb = {k: s.fonksiyonel_para_birimi for k, s in y.sirketler.items()}
     df = df.copy()
     df["para_birimi"] = df["sirket_kod"].map(pb)
@@ -129,7 +129,7 @@ def cevrim_farki_ekle(df: pd.DataFrame, y, g: Gunluk) -> tuple[pd.DataFrame, pd.
     """Çevrim sonrası bilanço denk gelmez; fark özkaynağa yazılır.
 
     ÖNEMLİ: yerel mizan zaten denk değilse (UK01'de olduğu gibi) o denksizlik
-    çevrim farkıyla karışır. Burada ikisi ayrıştırılır — aksi hâlde bir veri
+    çevrim farkıyla karışır. Burada ikisi ayrıştırılır, aksi hâlde bir veri
     hatası 'kur çevrim farkı' adı altında özkaynağa gömülür ve kaybolur."""
     satirlar, rapor = [], []
     for (sirket, donem), alt in df.groupby(["sirket_kod", "donem"]):
@@ -192,7 +192,7 @@ def konsolide_et(df: pd.DataFrame, y, g: Gunluk) -> pd.DataFrame:
         })
     k = pd.DataFrame(satirlar)
 
-    # Azınlık payı — tam konsolide edilen ama %100 sahip olunmayan şirketler
+    # Azınlık payı, tam konsolide edilen ama %100 sahip olunmayan şirketler
     nci = []
     for kod, s in y.sirketler.items():
         if s.sahiplik_orani >= 1.0:
@@ -255,7 +255,7 @@ def main():
         yanlis = yerel_ytd * y.kur(y.donemler()[-1], pb, "ortalama")
         kanit.append([kod, pb, para(yerel_ytd, 0), para(dogru, 0), para(yanlis, 0),
                       f"{(yanlis/dogru - 1)*100:+.1f}%" if dogru else "-"])
-    tablo_yaz("Aylık çevrim neden şart — yıllık hasılat (2025 YTD)", kanit,
+    tablo_yaz("Aylık çevrim neden şart, yıllık hasılat (2025 YTD)", kanit,
               ["Şirket", "PB", "Yerel YTD", "DOĞRU (aylık kur)",
                "YANLIŞ (tek kur)", "Hata"])
 
@@ -268,7 +268,7 @@ def main():
               ["Şirket", "Yerel denksizlik", "Veri hatası EUR", "Saf çevrim farkı EUR"])
     hatali = son[son["yerel_denksizlik"].abs() > 0.01]
     if not hatali.empty:
-        g.uyari(f"{len(hatali)} şirkette yerel mizan denk değil — "
+        g.uyari(f"{len(hatali)} şirkette yerel mizan denk değil, "
                 f"bu bir VERİ HATASI, kur farkı değil. K01 bulgu yazacak: "
                 f"{list(hatali['sirket_kod'])}")
 
@@ -289,8 +289,8 @@ def main():
     hasilat_k = -ks[ks["kalem"] == "Hasılat"]["eur_konsolide"].sum()
     smm_k = -ks[ks["kalem"] == "Satışların maliyeti"]["eur_konsolide"].sum()
     fg_k = -ks[ks["kalem"] == "Faaliyet giderleri"]["eur_konsolide"].sum()
-    satirlar.append(["— BRÜT KÂR", "", para(hasilat_k + smm_k, 0), ""])
-    satirlar.append(["— FAALİYET KÂRI", "", para(hasilat_k + smm_k + fg_k, 0), ""])
+    satirlar.append([" BRÜT KÂR", "", para(hasilat_k + smm_k, 0), ""])
+    satirlar.append([" FAALİYET KÂRI", "", para(hasilat_k + smm_k + fg_k, 0), ""])
     tablo_yaz(f"Konsolide gelir tablosu {son_donem} YTD (EUR)", satirlar,
               ["Kalem", "Şirketler toplamı", "Konsolide", "Eliminasyon"])
 

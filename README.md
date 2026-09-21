@@ -3,7 +3,7 @@
 **Çok şirketli, çok para birimli ay sonu konsolidasyon ve iç kontrol motoru.**
 
 Dağınık ERP çıktılarını tek şemaya indirir, grup hesap planına eşler, IAS 21'e göre
-çevirir, 14 iç kontrol testinden geçirir ve bütçe sapmasını **fiyat / karışım /
+çevirir, iç kontrol testlerinden geçirir ve bütçe sapmasını **fiyat / karışım /
 hacim / kur** bileşenlerine ayırır. Çıktı: tek dosyalık HTML kapanış panosu ve
 formatlı Excel konsolidasyon paketi.
 
@@ -81,7 +81,8 @@ veri/girdi/   41 dağınık dosya: farklı biçim, kolon adı, tarih ve sayı fo
      ├─[1] topla.py    tek şemaya normalize et           44.000 satır
      ├─[2] esle.py     yerel hesap → grup hesap planı    eşleşmeyen = askıya
      ├─[3] cevir.py    IAS 21 çevrim + eliminasyon + NCI
-     ├─[4] kontrol.py  14 iç kontrol testi               130 bulgu
+     ├─[4] kontrol.py  24 iç kontrol testi               130 bulgu
+     ├─[5a] oran.py   18 finansal oran + dikey analiz
      ├─[5] sapma.py    fiyat/karışım/hacim/kur ayrıştırması
      └─[6] pano.py + excel.py
              cikti/pano.html · cikti/konsolidasyon_paketi.xlsx

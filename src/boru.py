@@ -38,8 +38,9 @@ ADIMLAR = [
     ("topla",   "src/topla.py",   "[1] Çok formatlı okuma ve normalizasyon"),
     ("esle",    "src/esle.py",    "[2] Yerel hesap planı → grup planı köprüsü"),
     ("cevir",   "src/cevir.py",   "[3] IAS 21 çevrim, eliminasyon, azınlık payı"),
-    ("kontrol", "src/kontrol.py", "[4] 14 iç kontrol testi"),
-    ("sapma",   "src/sapma.py",   "[5] Bütçe-fiili köprüsü ve ayrıştırma"),
+    ("kontrol", "src/kontrol.py", "[4] İç kontrol testleri"),
+    ("oran",    "src/oran.py",    "[5a] Finansal oranlar ve dikey analiz"),
+    ("sapma",   "src/sapma.py",   "[5b] Bütçe-fiili köprüsü ve ayrıştırma"),
     ("pano",    "src/pano.py",    "[6a] HTML kapanış panosu"),
     ("excel",   "src/excel.py",   "[6b] Excel konsolidasyon paketi"),
     # Son adım kasıtlı olarak bir SINAMA: ham dosyayı boru hattından

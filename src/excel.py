@@ -144,6 +144,10 @@ def main():
     kopru = oku_varsa(CIKTI_DIZIN / "sapma_koprusu.csv")
     eslesmeyenler = oku_varsa(ARA_DIZIN / "eslesmeyenler.csv",
                               yerel_hesap_kod=str)
+    oranlar = oku_varsa(CIKTI_DIZIN / "oranlar.csv")
+    dikey = oku_varsa(CIKTI_DIZIN / "dikey_analiz.csv")
+    atlanan_analiz = json.loads(
+        (CIKTI_DIZIN / "atlanan_analizler.json").read_text(encoding="utf-8"))         if (CIKTI_DIZIN / "atlanan_analizler.json").exists() else []
     if bulgular.empty:
         bulgular = pd.DataFrame(columns=["test_kod", "onem", "sirket_kod",
                                          "donem", "nesne", "tutar_eur",
@@ -356,6 +360,65 @@ def main():
     fark = varlik - (kaynak + float(net))
     s.write(r, 0, "Denklik farkı (0 olmalı)", B["metin"])
     s.write_number(r, 1, fark, B["sayi"] if abs(fark) < 1 else B["kritik"])
+
+    # ================= 3b. ORANLAR VE DİKEY ANALİZ =================
+    if not oranlar.empty:
+        s, r = P.sayfa("Oranlar", [26, 14, 18, 18, 62],
+                       f"FİNANSAL ORANLAR VE DİKEY ANALİZ, {son}",
+                       "Her oranın payı ve paydası yanında yazılıdır: bir "
+                       "oranı sorgulayan kişi hangi hesaplardan geldiğini "
+                       "görmeden ona güvenemez. Boş değer, oranın "
+                       "hesaplanamadığını gösterir, sıfır olduğunu değil.")
+        simdiki = None
+        for x in oranlar.itertuples():
+            if x.grup != simdiki:
+                simdiki = x.grup
+                s.write(r, 0, str(x.grup).upper(), B["bolum"]); r += 1
+                r = P.tablo_basligi(s, r, ["Oran", "Değer", f"Pay ({PB})",
+                                           f"Payda ({PB})", "Ne anlama gelir"])
+            s.write(r, 0, str(x.oran), B["metin"])
+            if pd.isna(x.deger):
+                s.write(r, 1, "hesaplanamadı", B["metin_kucuk"])
+            elif x.bicim == "yuzde":
+                s.write_number(r, 1, float(x.deger), B["yuzde"])
+            elif x.bicim == "tutar":
+                s.write_number(r, 1, float(x.deger), B["sayi"])
+            else:
+                s.write_number(r, 1, float(x.deger), B["sayi2"])
+            if x.payda:
+                s.write_number(r, 2, float(x.pay), B["sayi"])
+                s.write_number(r, 3, float(x.payda), B["sayi"])
+            s.write(r, 4, str(x.yorum), B["metin_kucuk"])
+            r += 1
+        r += 1
+
+        if atlanan_analiz:
+            s.write(r, 0, "ÜRETİLEMEYEN ANALİZLER", B["bolum"]); r += 1
+            for a in atlanan_analiz:
+                s.write(r, 0, a.get("analiz", ""), B["kritik"])
+                s.write(r, 1, a.get("sebep", ""), B["metin"])
+                s.write(r, 4, a.get("sonuc", ""), B["metin_kucuk"])
+                r += 1
+            r += 1
+
+        if not dikey.empty:
+            bolum = None
+            for x in dikey.itertuples():
+                if x.bolum != bolum:
+                    bolum = x.bolum
+                    s.write(r, 0, f"DİKEY ANALİZ, {str(bolum).upper()}",
+                            B["bolum"]); r += 1
+                    r = P.tablo_basligi(s, r, ["Kalem", f"Tutar ({PB})",
+                                               "Oran", "", ""])
+                kalin = str(x.kalem).isupper()
+                s.write(r, 0, str(x.kalem),
+                        B["toplam_metin"] if kalin else B["metin"])
+                s.write_number(r, 1, float(x.tutar),
+                               B["toplam"] if kalin else B["sayi"])
+                if not pd.isna(x.oran):
+                    s.write_number(r, 2, float(x.oran),
+                                   B["toplam"] if kalin else B["yuzde"])
+                r += 1
 
     # ================= 4. SAPMA KÖPRÜSÜ =================
     if kopru.empty:
@@ -623,9 +686,9 @@ def main():
 
     P.kapat()
     boyut = hedef.stat().st_size / 1024
-    g.iyi(f"Excel paketi üretildi: {hedef}  ({boyut:.0f} KB, 9 sayfa)")
-    g.iz("excel_uretildi", dosya=str(hedef), sayfa=9, bulgu=len(bulgular))
-    g.bitir({"sayfa": 9, "boyut_kb": round(boyut)})
+    g.iyi(f"Excel paketi üretildi: {hedef}  ({boyut:.0f} KB, {len(P.kitap.worksheets())} sayfa)")
+    g.iz("excel_uretildi", dosya=str(hedef), sayfa=10, bulgu=len(bulgular))
+    g.bitir({"sayfa": 10, "boyut_kb": round(boyut)})
 
 
 if __name__ == "__main__":

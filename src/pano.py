@@ -203,6 +203,20 @@ code {{ font-family:ui-monospace,"Cascadia Code",Consolas,monospace; font-size:1
 </div></body></html>"""
 
 
+# Oran biçimleyicileri. src/oran.py ile aynı kuralı uygular: hesaplanamayan
+# oran "-" yazılır, sıfır yazılmaz.
+ORAN_BICIM = {
+    "kat": lambda x: "-" if x is None or pd.isna(x) else f"{x:,.2f}".replace(
+        ",", "X").replace(".", ",").replace("X", "."),
+    "yuzde": lambda x: "-" if x is None or pd.isna(x) else
+        f"%{x*100:,.1f}".replace(",", "."),
+    "gun": lambda x: "-" if x is None or pd.isna(x) else
+        f"{x:,.0f} gün".replace(",", "."),
+    "tutar": lambda x: "-" if x is None or pd.isna(x) else
+        f"{x:,.0f}".replace(",", "."),
+}
+
+
 def main():
     g = Gunluk("pano")
     y = yukle()
@@ -234,6 +248,11 @@ def main():
     yorum_yolu = CIKTI_DIZIN / "sapma_yorumu.md"
     yorum = yorum_yolu.read_text(encoding="utf-8") if yorum_yolu.exists() else ""
 
+    oranlar = oku_varsa(CIKTI_DIZIN / "oranlar.csv")
+    dikey = oku_varsa(CIKTI_DIZIN / "dikey_analiz.csv")
+    atlanan_analiz = json.loads(
+        (CIKTI_DIZIN / "atlanan_analizler.json").read_text(encoding="utf-8")) \
+        if (CIKTI_DIZIN / "atlanan_analizler.json").exists() else []
     koken = json.loads((ARA_DIZIN / "koken.json").read_text(encoding="utf-8")) \
         if (ARA_DIZIN / "koken.json").exists() else {}
     kapsam = y.kapsam()
@@ -450,6 +469,77 @@ def main():
     p.append('<div class="not">Grup içi alım-satım konsolide tabloda '
              'sıfırlanır. İki tarafın beyanı tutmuyorsa fark K08 bulgusu olur.</div>')
     p.append('</div></div>')
+
+
+    # --- Finansal oranlar ve dikey analiz ---
+    # Kontrol testleri "bir şey yanlış mı" diye sorar, oranlar "işler
+    # nasıl gidiyor" diye. Kapanış panosunun iki yarısı budur.
+    if not oranlar.empty:
+        p.append('<h2>Finansal oranlar</h2>')
+        p.append('<div class="izgara2">')
+        for sutun in (["Likidite", "Kaldıraç"], ["Kârlılık",
+                                                 "Faaliyet döngüsü"]):
+            p.append('<div>')
+            for grup in sutun:
+                alt = oranlar[oranlar["grup"] == grup]
+                if alt.empty:
+                    continue
+                p.append(f'<h3>{kacis(grup)}</h3><div class="tablo-sarmal">'
+                         f'<table><thead><tr><th>Oran</th>'
+                         f'<th class="sag">Değer</th>'
+                         f'<th class="sag">Pay</th>'
+                         f'<th class="sag">Payda</th></tr></thead><tbody>')
+                for r in alt.itertuples():
+                    deger = ORAN_BICIM.get(r.bicim, str)(r.deger)
+                    p.append(f'<tr><td title="{kacis(str(r.yorum))}">'
+                             f'{kacis(str(r.oran))}</td>'
+                             f'<td class="sag"><b>{kacis(deger)}</b></td>'
+                             f'<td class="sag" style="color:var(--sonuk)">'
+                             f'{k(r.pay) if r.payda else ""}</td>'
+                             f'<td class="sag" style="color:var(--sonuk)">'
+                             f'{k(r.payda) if r.payda else ""}</td></tr>')
+                p.append('</tbody></table></div>')
+            p.append('</div>')
+        p.append('</div>')
+        p.append('<div class="not">Her oranın payı ve paydası yanında '
+                 'yazılıdır: bir oranı sorgulayan kişi hangi hesaplardan '
+                 'geldiğini görmeden ona güvenemez. "-" işareti oranın '
+                 'hesaplanamadığını gösterir (payda sıfır ya da anlamsız), '
+                 'sıfır olduğunu değil.')
+        if atlanan_analiz:
+            p.append('<b> Üretilemeyen analizler:</b> '
+                     + "; ".join(f"{kacis(a['analiz'])} ({kacis(a['sebep'])})"
+                                 for a in atlanan_analiz) + '.')
+        p.append('</div>')
+
+    if not dikey.empty:
+        p.append('<h2>Dikey analiz</h2>')
+        p.append('<div class="izgara2">')
+        for bolumler in (["Bilanço, aktif", "Bilanço, pasif"],
+                         ["Gelir tablosu"]):
+            p.append('<div>')
+            for bolum in bolumler:
+                alt = dikey[dikey["bolum"] == bolum]
+                if alt.empty:
+                    continue
+                p.append(f'<h3>{kacis(bolum)}</h3><div class="tablo-sarmal">'
+                         f'<table><thead><tr><th>Kalem</th>'
+                         f'<th class="sag">{PB}</th>'
+                         f'<th class="sag">Oran</th></tr></thead><tbody>')
+                for r in alt.itertuples():
+                    kalin = str(r.kalem).isupper()
+                    p.append(f'<tr class="{"toplam" if kalin else ""}">'
+                             f'<td>{kacis(str(r.kalem))}</td>'
+                             f'<td class="sag">{k(r.tutar)}</td>'
+                             f'<td class="sag">'
+                             f'{ORAN_BICIM["yuzde"](r.oran)}</td></tr>')
+                p.append('</tbody></table></div>')
+            p.append('</div>')
+        p.append('</div>')
+        p.append('<div class="not">Bilanço kalemleri aktif toplamına, gelir '
+                 'tablosu kalemleri hasılata oranlanmıştır. Tek bir dönemde '
+                 'bile yapıyı görünür kılar: hangi varlık ağırlıkta, kâr '
+                 'nerede eriyor.</div>')
 
     # --- Kontrol bulguları ---
     p.append(f'<h2>İç kontrol bulguları, {len(bulgular)} bulgu, {len(y.kontroller)} test</h2>')

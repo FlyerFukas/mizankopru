@@ -74,7 +74,13 @@ def aylik_harekete_cevir(mizan: pd.DataFrame, y, g: Gunluk) -> pd.DataFrame:
     gelmemişse (TR02 Kasım gibi) o dönem atlanır ve hareket bir sonraki
     döneme birikir, bu doğru davranıştır, YTD kümülatiftir; ama o ayın
     ayrı analizi yapılamaz, K10 bunu bulgu olarak yazar."""
-    donemler = y.donemler()
+    # Dönemler YÜKLENEN VERİDEN alınır, yapılandırmadan değil.
+    # Yapılandırmadaki dönem listesi bir takvimdir, bir veri beyanı
+    # değil. Onu kullanmak, yüklenmemiş her dönem için satır üretip
+    # ffill ile bir önceki dönemin bakiyesini kopyalamak demekti:
+    # tek bir 2018-12 mizanı yükleyen kullanıcının konsolide
+    # tablosunda 12 tane uydurma 2025 dönemi oluşuyordu.
+    donemler = sorted(mizan["donem"].dropna().unique())
     ozet = (mizan.groupby(["sirket_kod", "donem", "grup_kod"], as_index=False)
                  .agg(borc=("borc", "sum"), alacak=("alacak", "sum"),
                       bakiye=("bakiye", "sum")))

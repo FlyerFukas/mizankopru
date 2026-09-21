@@ -46,6 +46,11 @@ from gunluk import Gunluk, para, tablo_yaz                    # noqa: E402
 from sema import ARA_DIZIN, BULGU_KOLONLARI, CIKTI_DIZIN, ONEM_SIRASI, yukle  # noqa: E402
 from zeka import Zeka                                          # noqa: E402
 
+# Bulgu metinlerinde kullanılan sunum para birimi. Gerçek değeri main()
+# içinde yapılandırmadan alınır; sabit "EUR" yazmak, TRY mizanı işlerken
+# rakamın yanına yanlış para birimi basmaktı.
+PB = "?"
+
 # Benford yasası, ilk rakamın beklenen dağılımı
 BENFORD = {d: np.log10(1 + 1 / d) for d in range(1, 10)}
 
@@ -77,9 +82,20 @@ class Kontrolcu:
         })
 
     def aktif(self, kod: str) -> bool:
+        """Test çalışabilir mi? Kapalıysa ya da dayandığı veri
+        yüklenmemişse çalışmaz. Atlanan her test SEBEBİYLE kaydedilir:
+        çalışmamış bir testin raporda hiç görünmemesi, o riskin
+        denetlenmiş olduğu izlenimini verir."""
         t = self.y.kontroller.get(kod)
-        if not t or not t.get("aktif", True):
+        if not t:
+            self.atlanan.append((kod, "tanımsız test"))
+            return False
+        if not t.get("aktif", True):
             self.atlanan.append((kod, "yapılandırmada kapalı"))
+            return False
+        veri = t.get("gerekli_veri")
+        if veri and veri != "mizan" and not self.y.veri_var(veri):
+            self.atlanan.append((kod, f"{veri} verisi yüklenmedi"))
             return False
         return True
 
@@ -241,7 +257,7 @@ class Kontrolcu:
             if mesai_disi:
                 neden.append(f"saat {z.hour:02d}:{z.minute:02d}")
             self.bulgu("K04", r.sirket_kod, r.donem, f"fiş {r.fis_no}", eur,
-                       f"{para(eur, 0)} EUR tutarındaki fiş {' ve '.join(neden)} "
+                       f"{para(eur, 0)} {PB} tutarındaki fiş {' ve '.join(neden)} "
                        f"girilmiş. Kaydeden: {r.kullanici}.",
                        {"fis_no": r.fis_no, "kayit_zamani": str(z),
                         "kullanici": r.kullanici, "tutar_yerel": round(r.borc, 2),
@@ -383,7 +399,7 @@ class Kontrolcu:
         tol_mutlak = self.esik("K08", "tolerans_mutlak", 1000)
         tol_oran = self.esik("K08", "tolerans_oran", 0.005)
 
-        # Her (A,B,dönem) çifti için iki tarafın beyanını EUR'da karşılaştır
+        # Her (A,B,dönem) çifti için iki tarafın beyanını sunum PB'de karşılaştır
         kayit = {}
         for r in grup_ici.itertuples():
             if r.sirket_kod not in self.y.sirketler or r.karsi_sirket not in self.y.sirketler:
@@ -402,7 +418,7 @@ class Kontrolcu:
             karsi = kayit.get((b, a, donem, "borc"))
             if karsi is None:
                 self.bulgu("K08", a, donem, f"{a} → {b}", eur_a,
-                           f"{a}, {b}'den {para(eur_a, 0)} EUR alacak bildiriyor ama "
+                           f"{a}, {b}'den {para(eur_a, 0)} {PB} alacak bildiriyor ama "
                            f"{b} tarafında karşılık bir borç kaydı YOK.",
                            {"satici": a, "alici": b, "alacak_eur": round(eur_a, 2),
                             "borc_eur": None})
@@ -413,8 +429,8 @@ class Kontrolcu:
             if abs(fark) <= tol_mutlak and abs(fark) / taban <= tol_oran:
                 continue
             self.bulgu("K08", a, donem, f"{a} ↔ {b}", abs(fark),
-                       f"{a}'nın alacağı {para(eur_a, 0)} EUR, {b}'nin borcu "
-                       f"{para(eur_b, 0)} EUR, {para(abs(fark), 0)} EUR "
+                       f"{a}'nın alacağı {para(eur_a, 0)} {PB}, {b}'nin borcu "
+                       f"{para(eur_b, 0)} {PB}, {para(abs(fark), 0)} {PB} "
                        f"(%{abs(fark)/taban*100:.1f}) fark. Konsolide bilanço bu kadar "
                        f"şişer ya da eksilir.",
                        {"satici": a, "alici": b,
@@ -435,7 +451,7 @@ class Kontrolcu:
                        abs(r.bakiye_eur),
                        f"\"{r.yerel_hesap_ad}\" grup hesap planına eşlenmiyor; "
                        f"{r.donem_sayisi} dönemdir ({r.ilk_donem}→{r.son_donem}) "
-                       f"askıda ve {para(abs(r.bakiye_eur), 0)} EUR taşıyor. "
+                       f"askıda ve {para(abs(r.bakiye_eur), 0)} {PB} taşıyor. "
                        f"Eşleşmeyen hesap konsolidasyondan sessizce düşer, tablo "
                        f"yine denk görünür.",
                        {"yerel_kod": r.yerel_hesap_kod, "ad": r.yerel_hesap_ad,
@@ -447,9 +463,24 @@ class Kontrolcu:
     # K10 · Eksik dönem
     # =================================================================
     def k10(self, mizan: pd.DataFrame, yevmiye: pd.DataFrame):
+        """Eksik dönem yalnızca KAPSAM İÇİNDE aranır.
+
+        Yapılandırmada tanımlı ama bu çalıştırmaya hiç veri göndermemiş bir
+        şirket "eksik dönem" değildir, kapsam dışıdır. Aksi hâlde tek bir
+        mizan yüklendiğinde diğer bütün şirket-dönemler kritik bulgu olarak
+        listelenir ve gerçek bulgular bu gürültüde kaybolur."""
         if not self.aktif("K10"):
             return
-        beklenen = {(s, d) for s in self.y.sirketler for d in self.y.donemler()}
+        kapsam = self.y.kapsam()
+        kapsam_sirket = set(kapsam.get("sirketler") or [])
+        kapsam_donem = sorted(kapsam.get("donemler") or [])
+        if not kapsam_sirket or len(kapsam_donem) < 2:
+            # Tek dönemlik veride "eksik ara dönem" kavramı yoktur
+            self.calisan.append("K10")
+            return
+        aralik = [d for d in self.y.donemler()
+                  if kapsam_donem[0] <= d <= kapsam_donem[-1]]
+        beklenen = {(s, d) for s in kapsam_sirket for d in aralik}
         gelen = set(zip(mizan["sirket_kod"], mizan["donem"]))
         for sirket, donem in sorted(beklenen - gelen):
             jk = yevmiye[(yevmiye["sirket_kod"] == sirket)
@@ -458,7 +489,7 @@ class Kontrolcu:
             hacim = self.eur(jk["borc"].sum(), donem, sirket) if islem else 0.0
             self.bulgu("K10", sirket, donem, "mizan dosyası", hacim,
                        f"{sirket} şirketinin {donem} mizanı hiç gelmedi"
-                       + (f", ama yevmiyesinde {islem:,} satır ve {para(hacim, 0)} EUR "
+                       + (f", ama yevmiyesinde {islem:,} satır ve {para(hacim, 0)} {PB} "
                           f"işlem hacmi var. Sadece mizana bakan bir konsolidasyon "
                           f"bu ayı yok sayar." if islem else "."),
                        {"yevmiye_satir": islem, "hacim_eur": round(hacim, 2)})
@@ -489,7 +520,7 @@ class Kontrolcu:
             self.bulgu("K11", r.sirket_kod, r.donem,
                        f"{r.grup_kod} {h['ad']}", eur,
                        f"Normalde {beklenen} bakiye veren hesap bu dönem ters yönde "
-                       f"{para(eur, 0)} EUR hareket etti. Yanlış hesaba kayıt, "
+                       f"{para(eur, 0)} {PB} hareket etti. Yanlış hesaba kayıt, "
                        f"büyük bir iade ya da sınıflandırma hatası olabilir.",
                        {"grup_kod": r.grup_kod, "beklenen_yon": beklenen,
                         "hareket_yerel": round(hareket, 2)})
@@ -569,7 +600,7 @@ class Kontrolcu:
             return
         oran_esik = self.esik("K14", "oran_esigi", 0.10)
         mutlak_esik = self.esik("K14", "mutlak_esik", 100000)
-        son = self.y.donemler()[-1]
+        son = self.y.son_donem()
 
         fiili = (cevrilmis[(cevrilmis["donem"] == son) & (cevrilmis["tur"] == "G")]
                  .groupby(["sirket_kod", "grup_kod"], as_index=False)["eur_gercek"].sum())
@@ -598,8 +629,8 @@ class Kontrolcu:
             yon = "üstünde" if sapma > 0 else "altında"
             self.bulgu("K14", r.sirket_kod, son, f"{r.grup_kod} {h['ad']}",
                        abs(sapma),
-                       f"Fiili {para(f, 0)} EUR, bütçe {para(bt, 0)} EUR, "
-                       f"%{abs(oran)*100:.0f} {yon} ({para(abs(sapma), 0)} EUR). "
+                       f"Fiili {para(f, 0)} {PB}, bütçe {para(bt, 0)} {PB}, "
+                       f"%{abs(oran)*100:.0f} {yon} ({para(abs(sapma), 0)} {PB}). "
                        f"Açıklama gerekiyor.",
                        {"grup_kod": r.grup_kod, "fiili_eur": round(f, 2),
                         "butce_eur": round(bt, 2), "sapma_eur": round(sapma, 2),
@@ -609,8 +640,10 @@ class Kontrolcu:
 
 # ======================================================================
 def main():
+    global PB
     g = Gunluk("kontrol")
     y = yukle()
+    PB = y.sunum_para_birimi
     z = Zeka(y=y, g=g)
     g.bilgi(y.ozet())
     g.bilgi(z.ozet())
@@ -621,14 +654,38 @@ def main():
         g.bitir({"durum": "girdi_yok"})
         return
 
-    oku = lambda ad, **k: pd.read_csv(ARA_DIZIN / ad, dtype={"donem": str, **k})
+    def oku(ad, kolonlar=None, **k):
+        """Var olmayan ya da boş dosyayı çökmeden okur; eksik veri
+        normal bir durumdur (tek mizan yüklenmiş olabilir)."""
+        yol = ARA_DIZIN / ad
+        if not yol.exists():
+            return pd.DataFrame(columns=kolonlar or [])
+        try:
+            d = pd.read_csv(yol, dtype={"donem": str, **k})
+        except pd.errors.EmptyDataError:
+            return pd.DataFrame(columns=kolonlar or [])
+        return d
+
     mizan = oku("mizan.csv", yerel_hesap_kod=str)
-    yevmiye = oku("yevmiye.csv", yerel_hesap_kod=str, fis_no=str)
+    yevmiye = oku("yevmiye.csv", ["sirket_kod", "donem", "fis_no", "borc",
+                                  "alacak", "kullanici", "yerel_hesap_kod",
+                                  "fis_tarihi", "belge_tarihi", "aciklama",
+                                  "kayit_zamani", "masraf_merkezi"],
+                  yerel_hesap_kod=str, fis_no=str)
     cevrilmis = oku("cevrilmis.csv", grup_kod=str)
-    butce = oku("butce_eslenmis.csv", grup_kod=str, yerel_hesap_kod=str)
-    grup_ici = oku("grup_ici.csv")
-    eslesmeyenler = pd.read_csv(ARA_DIZIN / "eslesmeyenler.csv",
-                                dtype={"yerel_hesap_kod": str}, encoding="utf-8-sig")
+    butce = oku("butce_eslenmis.csv", ["sirket_kod", "donem", "grup_kod", "tutar"],
+                grup_kod=str, yerel_hesap_kod=str)
+    grup_ici = oku("grup_ici.csv", ["sirket_kod", "karsi_sirket", "donem",
+                                    "tur", "yon", "tutar"])
+    try:
+        eslesmeyenler = pd.read_csv(ARA_DIZIN / "eslesmeyenler.csv",
+                                    dtype={"yerel_hesap_kod": str},
+                                    encoding="utf-8-sig")
+    except (FileNotFoundError, pd.errors.EmptyDataError):
+        eslesmeyenler = pd.DataFrame(columns=["sirket_kod", "hesap_plani",
+                                              "yerel_hesap_kod", "yerel_hesap_ad",
+                                              "donem_sayisi", "ilk_donem",
+                                              "son_donem", "bakiye", "bakiye_eur"])
     yevmiye["kullanici"] = yevmiye["kullanici"].fillna("").astype(str)
     g.bilgi(f"{len(yevmiye):,} yevmiye · {len(mizan):,} mizan · "
             f"{len(cevrilmis):,} çevrilmiş satır okundu")
@@ -659,12 +716,26 @@ def main():
 
     # ---- Test çalıştırma özeti ----
     sayim = bulgular["test_kod"].value_counts().to_dict() if not bulgular.empty else {}
+    atlama_sebebi = dict(k.atlanan)
     tablo_yaz("Kontrol testleri",
-              [[kod, y.kontroller[kod]["ad"], y.kontroller[kod]["onem"],
+              [[kod, y.kontroller[kod]["ad"][:34], y.kontroller[kod]["onem"],
                 "çalıştı" if kod in k.calisan else "ATLANDI",
-                f"{sayim.get(kod, 0):,}"]
+                f"{sayim.get(kod, 0):,}" if kod in k.calisan else "-",
+                "" if kod in k.calisan else atlama_sebebi.get(kod, "")]
                for kod in sorted(y.kontroller)],
-              ["Kod", "Test", "Önem", "Durum", "Bulgu"])
+              ["Kod", "Test", "Önem", "Durum", "Bulgu", "Atlama sebebi"])
+
+    if k.atlanan:
+        g.uyari(f"{len(k.atlanan)} test çalıştırılamadı. Bu testlerin kapsadığı "
+                f"riskler DENETLENMEMİŞTİR; raporda 'bulgu yok' diye okunmamalıdır.")
+        for kod, sebep in k.atlanan:
+            g.bilgi(f"    {kod} {y.kontroller[kod]['ad']}: {sebep}")
+        import json as _json
+        (CIKTI_DIZIN / "atlanan_testler.json").write_text(
+            _json.dumps([{"kod": kod, "ad": y.kontroller[kod]["ad"],
+                          "onem": y.kontroller[kod]["onem"], "sebep": sebep}
+                         for kod, sebep in k.atlanan],
+                        ensure_ascii=False, indent=2), encoding="utf-8")
 
     if bulgular.empty:
         g.iyi("Hiçbir testte bulgu çıkmadı.")
@@ -681,7 +752,7 @@ def main():
               [[r.test_kod, r.onem[:6], r.sirket_kod, r.donem,
                 str(r.nesne)[:30], para(r.tutar_eur, 0), str(r.aciklama)[:58]]
                for r in bulgular.head(18).itertuples()],
-              ["Test", "Önem", "Şirket", "Dönem", "Nesne", "Tutar EUR", "Açıklama"])
+              ["Test", "Önem", "Şirket", "Dönem", "Nesne", f"Tutar {PB}", "Açıklama"])
 
     # ---- Yapay zekâ triyajı ----
     if z.aktif and y.kontroller and z.ayar.get("gorevler", {}).get("bulgu_triyaj", True):

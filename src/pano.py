@@ -206,34 +206,97 @@ code {{ font-family:ui-monospace,"Cascadia Code",Consolas,monospace; font-size:1
 def main():
     g = Gunluk("pano")
     y = yukle()
-    son = y.donemler()[-1]
+    son = y.son_donem()
 
     oku = lambda p, **kw: pd.read_csv(p, dtype={"donem": str, **kw})
     konsolide = oku(ARA_DIZIN / "konsolide.csv", grup_kod=str)
     cevrilmis = oku(ARA_DIZIN / "cevrilmis.csv", grup_kod=str)
-    bulgular = pd.read_csv(CIKTI_DIZIN / "bulgular.csv", encoding="utf-8-sig")
-    kopru = pd.read_csv(CIKTI_DIZIN / "sapma_koprusu.csv", encoding="utf-8-sig",
-                        dtype={"donem": str})
+
+    def oku_varsa(yol, **kw):
+        """Yüklenmemiş veri panoyu çökertmemeli, bölümü atlanmalı.
+
+        Eski bir dosyayı okumak, kullanıcının yüklemediği veriden üretilmiş
+        rakam göstermek demektir; bu sistemin en tehlikeli hatasıdır."""
+        if not Path(yol).exists():
+            return pd.DataFrame()
+        try:
+            return pd.read_csv(yol, encoding="utf-8-sig",
+                               dtype={"donem": str, **kw})
+        except pd.errors.EmptyDataError:
+            return pd.DataFrame()
+
+    bulgular = oku_varsa(CIKTI_DIZIN / "bulgular.csv")
+    if bulgular.empty:
+        bulgular = pd.DataFrame(columns=["test_kod", "onem", "sirket_kod",
+                                         "donem", "nesne", "tutar_eur",
+                                         "aciklama", "baslik"])
+    kopru = oku_varsa(CIKTI_DIZIN / "sapma_koprusu.csv")
     yorum_yolu = CIKTI_DIZIN / "sapma_yorumu.md"
     yorum = yorum_yolu.read_text(encoding="utf-8") if yorum_yolu.exists() else ""
+
+    koken = json.loads((ARA_DIZIN / "koken.json").read_text(encoding="utf-8")) \
+        if (ARA_DIZIN / "koken.json").exists() else {}
+    kapsam = y.kapsam()
+    kapsam_sirket = kapsam.get("sirketler") or sorted(y.sirketler)
+    kapsam_disi = kapsam.get("kapsam_disi") or []
+    atlanan = json.loads(
+        (CIKTI_DIZIN / "atlanan_testler.json").read_text(encoding="utf-8")) \
+        if (CIKTI_DIZIN / "atlanan_testler.json").exists() else []
+    PB = y.sunum_para_birimi
 
     ks = konsolide[konsolide["donem"] == son]
     kal = lambda ad: -ks[ks["kalem"] == ad]["eur_konsolide"].sum()
     hasilat, smm = kal("Hasılat"), kal("Satışların maliyeti")
     opex, fin, vergi = kal("Faaliyet giderleri"), kal("Finansal gelir/gider"), kal("Vergi")
+    diger = kal("Diğer gelir/gider")
+    maliyet_7a = kal("Maliyet muhasebesi")    # 7/A yansıtmalı, net sıfır olmalı
     brut, faaliyet = hasilat + smm, hasilat + smm + opex
-    net = faaliyet + fin + vergi
+    net = faaliyet + fin + diger + vergi
 
     kritik = int((bulgular["onem"] == "kritik").sum())
-    t = kopru[["butce_eur", "fiyat_eur", "karisim_eur", "hacim_eur",
-               "kur_etkisi_eur", "fiili_eur"]].sum()
+    sapma_var = not kopru.empty
+    t = (kopru[["butce_eur", "fiyat_eur", "karisim_eur", "hacim_eur",
+                "kur_etkisi_eur", "fiili_eur"]].sum() if sapma_var else None)
 
     p = []
     p.append(f'<h1>MizanKöprü. Kapanış Panosu</h1>')
     p.append(f'<div class="ustbilgi">{kacis(y.grup["ad"])} · konsolide dönem '
-             f'<b>{son}</b> · sunum para birimi {y.sunum_para_birimi} · '
-             f'{len(y.sirketler)} tüzel kişilik · üretim '
+             f'<b>{son}</b> · sunum para birimi {PB} · '
+             f'{len(kapsam_sirket)} tüzel kişilik · üretim '
              f'{datetime.now().strftime("%d.%m.%Y %H:%M")}</div>')
+
+    # --- Köken bandı: bu sayfadaki her rakam hangi dosyadan geldi ---
+    if koken.get("dosyalar"):
+        dlist = " · ".join(
+            f'{kacis(d.get("ad", ""))} ({d.get("kb", 0)} KB)'
+            for d in koken["dosyalar"])
+        gercek = koken.get("veri_seti") == "kullanici"
+        p.append(f'<div class="not" style="border-left:3px solid var(--vurgu);'
+                 f'padding-left:10px;margin:10px 0">'
+                 f'<b>Bu panodaki her rakam şu dosyalardan üretildi:</b> {dlist}'
+                 f'{"" if gercek else " <b>(" + kacis(str(koken.get("veri_seti"))).upper() + " VERİSİ)</b>"}</div>')
+    else:
+        p.append('<div class="not" style="border-left:3px solid var(--kotu);'
+                 'padding-left:10px;margin:10px 0"><b>Köken kaydı yok.</b> '
+                 'Bu panonun hangi dosyalardan üretildiği doğrulanamıyor.</div>')
+
+    if kapsam_disi:
+        p.append(f'<div class="not" style="border-left:3px solid var(--kotu);'
+                 f'padding-left:10px;margin:10px 0"><b>Kapsam dışı:</b> '
+                 f'{kacis(", ".join(kapsam_disi))}. Yapılandırmada tanımlı, '
+                 f'ancak bu çalıştırmada verisi yüklenmedi; aşağıdaki rakamlar '
+                 f'bu şirketleri İÇERMEZ.</div>')
+
+    if atlanan:
+        satirlar = "".join(
+            f'<li><b>{kacis(a.get("kod",""))}</b> {kacis(a.get("ad",""))} — '
+            f'{kacis(a.get("sebep",""))}</li>' for a in atlanan)
+        p.append(f'<div class="not" style="border-left:3px solid var(--kotu);'
+                 f'padding-left:10px;margin:10px 0">'
+                 f'<b>Çalıştırılamayan kontrol testleri ({len(atlanan)}):</b>'
+                 f'<ul style="margin:6px 0 0 16px">{satirlar}</ul>'
+                 f'Bu testlerin kapsadığı riskler <b>denetlenmemiştir</b>; '
+                 f'bulgu çıkmaması risk yok anlamına gelmez.</div>')
 
     # --- Karar bandı ---
     if kritik:
@@ -245,6 +308,16 @@ def main():
                  f'Kritik bulgular konsolide rakamı doğrudan değiştirebilir ya da '
                  f'yetki ihlaline işaret eder; çözülmeden imza atılmamalıdır.</div>'
                  f'</div></div>')
+    elif atlanan:
+        p.append(f'<div class="karar engel" style="border-color:var(--uyari)">'
+                 f'<div class="isaret">!</div><div>'
+                 f'<b>KOŞULLU: çalıştırılan testlerde kritik bulgu yok, '
+                 f'ancak {len(atlanan)} test çalıştırılamadı</b>'
+                 f'<div class="ayrinti">Kapanış, yalnızca yüklenen verinin '
+                 f'kapsadığı riskler için temizdir. Yevmiye, bütçe ve grup içi '
+                 f'dosyaları yüklenmeden mükerrer fiş, yetki aşımı, dönem '
+                 f'kayması ve grup içi mutabakat riskleri DENETLENMEMİŞ '
+                 f'kalır.</div></div></div>')
     else:
         p.append('<div class="karar tamam"><div class="isaret">✓</div><div>'
                  '<b>Kritik bulgu yok, kapanış imzalanabilir</b></div></div>')
@@ -255,79 +328,96 @@ def main():
                 f'<div class="deger {sinif}">{deger}</div>'
                 f'<div class="alt">{alt}</div></div>')
 
-    sapma_yuzde = (t["fiili_eur"] / t["butce_eur"] - 1) * 100
+    oran = lambda pay: (pay / hasilat * 100) if hasilat else 0.0
     p.append('<div class="kartlar">')
-    p.append(kart("Konsolide hasılat", k(hasilat), f"{son} YTD · EUR"))
+    p.append(kart("Konsolide hasılat", k(hasilat), f"{son} YTD · {PB}"))
     p.append(kart("Faaliyet kârı", k(faaliyet),
-                  f"marj %{faaliyet/hasilat*100:.1f}",
+                  f"marj %{oran(faaliyet):.1f}",
                   "iyi" if faaliyet > 0 else "kotu"))
-    p.append(kart("Net kâr", k(net), f"marj %{net/hasilat*100:.1f}",
+    p.append(kart("Net kâr", k(net), f"marj %{oran(net):.1f}",
                   "iyi" if net > 0 else "kotu"))
-    p.append(kart("Bütçe sapması", f"{sapma_yuzde:+.1f}%",
-                  f"{k(t['fiili_eur'] - t['butce_eur'])} EUR",
-                  "kotu" if sapma_yuzde < 0 else "iyi"))
+    if sapma_var:
+        sapma_yuzde = (t["fiili_eur"] / t["butce_eur"] - 1) * 100
+        p.append(kart("Bütçe sapması", f"{sapma_yuzde:+.1f}%",
+                      f"{k(t['fiili_eur'] - t['butce_eur'])} {PB}",
+                      "kotu" if sapma_yuzde < 0 else "iyi"))
+    else:
+        p.append(kart("Bütçe sapması", "—", "bütçe/satış verisi yüklenmedi"))
     p.append(kart("Kontrol bulgusu", f"{len(bulgular)}",
                   f"{kritik} kritik", "kotu" if kritik else "iyi"))
     p.append('</div>')
 
     # --- Sapma köprüsü ---
-    p.append('<h2>Hasılat sapma köprüsü, bütçeden fiiliye</h2>')
-    p.append('<div class="tablo-sarmal" style="padding:10px 6px 2px">')
-    p.append(kopru_svg([
-        ("Bütçe", float(t["butce_eur"]), "temel"),
-        ("Fiyat\netkisi", float(t["fiyat_eur"]), "artı" if t["fiyat_eur"] >= 0 else "eksi"),
-        ("Karışım\netkisi", float(t["karisim_eur"]), "artı" if t["karisim_eur"] >= 0 else "eksi"),
-        ("Hacim\netkisi", float(t["hacim_eur"]), "artı" if t["hacim_eur"] >= 0 else "eksi"),
-        ("Kur\netkisi", float(t["kur_etkisi_eur"]), "artı" if t["kur_etkisi_eur"] >= 0 else "eksi"),
-        ("Fiili", float(t["fiili_eur"]), "toplam"),
-    ]))
-    p.append('</div>')
-    p.append(f'<div class="not">Ayrıştırma matematiksel olarak tamdır; '
-             f'fiyat + karışım + hacim toplamı yerel para sapmasına birebir eşittir '
-             f'(artık terim 0,0000). Kur etkisi = fiili yerel tutar × '
-             f'(gerçekleşen kur − bütçe kuru). Bütçe kuru EUR/TRY 38,00\'de '
-             f'sabitlenmişti; gerçekleşen yıl sonu 50,60.</div>')
+    # Ürün bazında miktar ve fiyat olmadan fiyat/karışım/hacim ayrıştırması
+    # matematiksel olarak yapılamaz; uydurmak yerine neden yazılır.
+    if not sapma_var:
+        p.append('<h2>Hasılat sapma köprüsü</h2>')
+        p.append('<div class="not" style="border-left:3px solid var(--kotu);'
+                 'padding-left:10px"><b>Üretilemedi.</b> Fiyat / karışım / '
+                 'hacim ayrıştırması için ürün kodu, miktar ve birim fiyat '
+                 'içeren fiili ve bütçe satış dosyaları gerekir; bu '
+                 'çalıştırmada yüklenmedi. Miktar bilinmeden fiyat etkisi ile '
+                 'hacim etkisi birbirinden ayrılamaz, bu yüzden tahmin '
+                 'üretilmedi.</div>')
+    else:
+        # --- Sapma köprüsü ---
+        p.append('<h2>Hasılat sapma köprüsü, bütçeden fiiliye</h2>')
+        p.append('<div class="tablo-sarmal" style="padding:10px 6px 2px">')
+        p.append(kopru_svg([
+            ("Bütçe", float(t["butce_eur"]), "temel"),
+            ("Fiyat\netkisi", float(t["fiyat_eur"]), "artı" if t["fiyat_eur"] >= 0 else "eksi"),
+            ("Karışım\netkisi", float(t["karisim_eur"]), "artı" if t["karisim_eur"] >= 0 else "eksi"),
+            ("Hacim\netkisi", float(t["hacim_eur"]), "artı" if t["hacim_eur"] >= 0 else "eksi"),
+            ("Kur\netkisi", float(t["kur_etkisi_eur"]), "artı" if t["kur_etkisi_eur"] >= 0 else "eksi"),
+            ("Fiili", float(t["fiili_eur"]), "toplam"),
+        ]))
+        p.append('</div>')
+        p.append(f'<div class="not">Ayrıştırma matematiksel olarak tamdır; '
+                 f'fiyat + karışım + hacim toplamı yerel para sapmasına birebir eşittir '
+                 f'(artık terim 0,0000). Kur etkisi = fiili yerel tutar × '
+                 f'(gerçekleşen kur − bütçe kuru). Bütçe kuru EUR/TRY 38,00\'de '
+                 f'sabitlenmişti; gerçekleşen yıl sonu 50,60.</div>')
 
-    # --- Şirket bazında köprü + para birimi çelişkisi ---
-    ozet = kopru.groupby("sirket_kod", as_index=False).agg(
-        butce=("butce_eur", "sum"), fiili=("fiili_eur", "sum"),
-        fiyat=("fiyat_eur", "sum"), karisim=("karisim_eur", "sum"),
-        hacim=("hacim_eur", "sum"), kur=("kur_etkisi_eur", "sum"),
-        mb=("miktar_butce", "sum"), mf=("miktar_fiili", "sum"),
-        fy=("fiili_yerel", "sum"), by=("butce_yerel", "sum"))
-    p.append('<h2>Şirket bazında, aynı yıl, üç farklı okuma</h2>')
-    p.append('<div class="tablo-sarmal"><table><thead><tr>'
-             '<th>Şirket</th><th>PB</th><th class="sag">Miktar Δ</th>'
-             '<th class="sag">Yerel ciro Δ</th><th class="sag">EUR ciro Δ</th>'
-             '<th class="sag">Fiyat</th><th class="sag">Hacim</th>'
-             '<th class="sag">Kur</th><th></th></tr></thead><tbody>')
-    for r in ozet.itertuples():
-        s = y.sirketler[r.sirket_kod]
-        dm = (r.mf / r.mb - 1) * 100 if r.mb else 0
-        dy = (r.fy / r.by - 1) * 100 if r.by else 0
-        de = (r.fiili / r.butce - 1) * 100 if r.butce else 0
-        celiski = ('<span class="rozet kritik">ÇELİŞKİ</span>'
-                   if dy > 0 > de else "")
-        p.append(f'<tr><td><b>{r.sirket_kod}</b><br>'
-                 f'<span class="alt" style="font-size:11.5px;color:var(--sonuk)">'
-                 f'{kacis(s.ad)}</span></td><td>{s.fonksiyonel_para_birimi}</td>'
-                 f'<td class="sag {"kotu" if dm<0 else "iyi"}">{dm:+.1f}%</td>'
-                 f'<td class="sag {"kotu" if dy<0 else "iyi"}">{dy:+.1f}%</td>'
-                 f'<td class="sag {"kotu" if de<0 else "iyi"}">{de:+.1f}%</td>'
-                 f'<td class="sag">{k(r.fiyat)}</td>'
-                 f'<td class="sag">{k(r.hacim)}</td>'
-                 f'<td class="sag">{k(r.kur)}</td>'
-                 f'<td>{celiski}</td></tr>')
-    p.append('</tbody></table></div>')
-    p.append('<div class="not">"ÇELİŞKİ" işareti, şirketin yerel para biriminde '
-             'bütçeyi aştığı hâlde sunum para biriminde hedefin altında kaldığı '
-             'durumu gösterir. İki rakam da doğrudur; fark kur çevriminden doğar '
-             've bir performans sorunu değildir.</div>')
+        # --- Şirket bazında köprü + para birimi çelişkisi ---
+        ozet = kopru.groupby("sirket_kod", as_index=False).agg(
+            butce=("butce_eur", "sum"), fiili=("fiili_eur", "sum"),
+            fiyat=("fiyat_eur", "sum"), karisim=("karisim_eur", "sum"),
+            hacim=("hacim_eur", "sum"), kur=("kur_etkisi_eur", "sum"),
+            mb=("miktar_butce", "sum"), mf=("miktar_fiili", "sum"),
+            fy=("fiili_yerel", "sum"), by=("butce_yerel", "sum"))
+        p.append('<h2>Şirket bazında, aynı yıl, üç farklı okuma</h2>')
+        p.append('<div class="tablo-sarmal"><table><thead><tr>'
+                 '<th>Şirket</th><th>PB</th><th class="sag">Miktar Δ</th>'
+                 f'<th class="sag">Yerel ciro Δ</th><th class="sag">{PB} ciro Δ</th>'
+                 '<th class="sag">Fiyat</th><th class="sag">Hacim</th>'
+                 '<th class="sag">Kur</th><th></th></tr></thead><tbody>')
+        for r in ozet.itertuples():
+            s = y.sirketler[r.sirket_kod]
+            dm = (r.mf / r.mb - 1) * 100 if r.mb else 0
+            dy = (r.fy / r.by - 1) * 100 if r.by else 0
+            de = (r.fiili / r.butce - 1) * 100 if r.butce else 0
+            celiski = ('<span class="rozet kritik">ÇELİŞKİ</span>'
+                       if dy > 0 > de else "")
+            p.append(f'<tr><td><b>{r.sirket_kod}</b><br>'
+                     f'<span class="alt" style="font-size:11.5px;color:var(--sonuk)">'
+                     f'{kacis(s.ad)}</span></td><td>{s.fonksiyonel_para_birimi}</td>'
+                     f'<td class="sag {"kotu" if dm<0 else "iyi"}">{dm:+.1f}%</td>'
+                     f'<td class="sag {"kotu" if dy<0 else "iyi"}">{dy:+.1f}%</td>'
+                     f'<td class="sag {"kotu" if de<0 else "iyi"}">{de:+.1f}%</td>'
+                     f'<td class="sag">{k(r.fiyat)}</td>'
+                     f'<td class="sag">{k(r.hacim)}</td>'
+                     f'<td class="sag">{k(r.kur)}</td>'
+                     f'<td>{celiski}</td></tr>')
+        p.append('</tbody></table></div>')
+        p.append('<div class="not">"ÇELİŞKİ" işareti, şirketin yerel para biriminde '
+                 'bütçeyi aştığı hâlde sunum para biriminde hedefin altında kaldığı '
+                 'durumu gösterir. İki rakam da doğrudur; fark kur çevriminden doğar '
+                 've bir performans sorunu değildir.</div>')
 
     # --- Konsolide gelir tablosu ---
     p.append('<div class="izgara2">')
     p.append('<div><h3>Konsolide gelir tablosu</h3><div class="tablo-sarmal">'
-             '<table><thead><tr><th>Kalem</th><th class="sag">EUR</th>'
+             f'<table><thead><tr><th>Kalem</th><th class="sag">{PB}</th>'
              '<th class="sag">%</th></tr></thead><tbody>')
     for ad, deger, kalin in [("Hasılat", hasilat, False),
                              ("Satışların maliyeti", smm, False),
@@ -335,12 +425,13 @@ def main():
                              ("Faaliyet giderleri", opex, False),
                              ("FAALİYET KÂRI", faaliyet, True),
                              ("Finansal gelir/gider", fin, False),
+                             ("Diğer gelir/gider", diger, False),
                              ("Vergi", vergi, False),
                              ("NET KÂR", net, True)]:
         p.append(f'<tr class="{"toplam" if kalin else ""}"><td>{ad}</td>'
                  f'<td class="sag">{k(deger)}</td>'
                  f'<td class="sag" style="color:var(--sonuk)">'
-                 f'{deger/hasilat*100:.1f}%</td></tr>')
+                 f'{oran(deger):.1f}%</td></tr>')
     p.append('</tbody></table></div></div>')
 
     # --- Eliminasyon ---
@@ -365,7 +456,7 @@ def main():
     sayim = bulgular.groupby(["test_kod", "onem"]).size().reset_index(name="adet")
     p.append('<div class="tablo-sarmal"><table><thead><tr><th>Test</th>'
              '<th>Ne arar</th><th>Önem</th><th class="sag">Bulgu</th>'
-             '<th class="sag">Toplam tutar EUR</th></tr></thead><tbody>')
+             f'<th class="sag">Toplam tutar {PB}</th></tr></thead><tbody>')
     tavan = bulgular.groupby("test_kod")["tutar_eur"].sum().max()
     for kod in sorted(y.kontroller):
         test = y.kontroller[kod]
@@ -383,7 +474,7 @@ def main():
     p.append('<h3>Kapanış öncesi çözülmesi gerekenler</h3>')
     p.append('<div class="tablo-sarmal"><table><thead><tr><th>Test</th>'
              '<th>Şirket</th><th>Dönem</th><th>Nesne</th>'
-             '<th class="sag">EUR</th><th>Açıklama</th></tr></thead><tbody>')
+             f'<th class="sag">{PB}</th><th>Açıklama</th></tr></thead><tbody>')
     for r in bulgular[bulgular["onem"] == "kritik"].head(12).itertuples():
         p.append(f'<tr><td><span class="rozet kritik">{r.test_kod}</span></td>'
                  f'<td>{r.sirket_kod}</td><td>{r.donem}</td>'

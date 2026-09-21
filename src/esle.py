@@ -43,6 +43,22 @@ from sema import ARA_DIZIN, CIKTI_DIZIN, yukle        # noqa: E402
 from zeka import Zeka                                  # noqa: E402
 
 
+
+def _oku_ara(ad: str, kolonlar=None, **tip):
+    """veri/ara/ altındaki bir dosyayı çökmeden okur.
+
+    Eksik veri normal bir durumdur: kullanıcı yalnızca mizan yüklemiş
+    olabilir. Dosyanın yokluğunda boş bir çerçeve dönmek, eski bir dosyayı
+    okumaktan da çökmekten de iyidir."""
+    import pandas as _pd
+    yol = ARA_DIZIN / ad
+    if not yol.exists():
+        return _pd.DataFrame(columns=kolonlar or [])
+    try:
+        return _pd.read_csv(yol, dtype={"donem": str, **tip})
+    except _pd.errors.EmptyDataError:
+        return _pd.DataFrame(columns=kolonlar or [])
+
 def eslestir(df: pd.DataFrame, y, g: Gunluk, etiket: str) -> pd.DataFrame:
     """Her satıra grup_kod, grup_ad, tur, kalem ekler.
     Eşleşmeyenler askı hesabına alınır ve işaretlenir."""
@@ -145,11 +161,19 @@ def main():
 
     mizan = pd.read_csv(ARA_DIZIN / "mizan.csv",
                         dtype={"donem": str, "yerel_hesap_kod": str})
-    butce = pd.read_csv(ARA_DIZIN / "butce.csv",
-                        dtype={"donem": str, "yerel_hesap_kod": str})
+    butce = _oku_ara("butce.csv",
+                     ["sirket_kod", "donem", "yerel_hesap_kod", "tutar",
+                      "masraf_merkezi", "para_birimi", "kaynak_dosya"],
+                     yerel_hesap_kod=str)
 
     mizan = eslestir(mizan, y, g, "mizan")
-    butce = eslestir(butce, y, g, "bütçe")
+    if butce.empty:
+        g.bilgi("Bütçe verisi yüklenmedi; eşleme yapılacak bütçe satırı yok.")
+        butce = pd.DataFrame(columns=list(butce.columns) +
+                             ["hesap_plani", "grup_kod", "eslesti", "grup_ad",
+                              "tur", "kalem", "elimine"])
+    else:
+        butce = eslestir(butce, y, g, "bütçe")
 
     mizan.to_csv(ARA_DIZIN / "mizan_eslenmis.csv", index=False, encoding="utf-8")
     butce.to_csv(ARA_DIZIN / "butce_eslenmis.csv", index=False, encoding="utf-8")

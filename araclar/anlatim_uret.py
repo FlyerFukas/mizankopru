@@ -120,7 +120,7 @@ pre { background: #0d2b4e; color: #e8eef6; padding: 9pt 11pt; border-radius: 3pt
 def main():
     g = Gunluk("anlatim")
     y = yukle()
-    son = y.donemler()[-1]
+    son = y.son_donem()
 
     konsolide = pd.read_csv(ARA_DIZIN / "konsolide.csv",
                             dtype={"donem": str, "grup_kod": str})

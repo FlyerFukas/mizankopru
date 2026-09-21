@@ -102,7 +102,7 @@ footer { position: fixed; bottom: 0; font-size: 7.5pt; color: #8b949e; }
 def main():
     g = Gunluk("rapor")
     y = yukle()
-    son = y.donemler()[-1]
+    son = y.son_donem()
 
     # ---- Gerçek çıktılardan oku ----
     konsolide = pd.read_csv(ARA_DIZIN / "konsolide.csv", dtype={"donem": str, "grup_kod": str})

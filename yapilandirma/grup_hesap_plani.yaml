@@ -20,6 +20,7 @@ hesaplar:
   - {kod: "1510", ad: "Maddi duran varlıklar",         tur: B, yon: 1,  parasal: false, kalem: "Duran varlıklar"}
   - {kod: "1520", ad: "Birikmiş amortisman",           tur: B, yon: -1, parasal: false, kalem: "Duran varlıklar"}
   - {kod: "1530", ad: "Maddi olmayan duran varlıklar", tur: B, yon: 1,  parasal: false, kalem: "Duran varlıklar"}
+  - {kod: "1550", ad: "Diğer duran varlıklar",         tur: B, yon: 1,  parasal: false, kalem: "Duran varlıklar"}
 
   # --- YÜKÜMLÜLÜKLER ---
   - {kod: "2010", ad: "Ticari borçlar",                tur: B, yon: -1, parasal: true,  kalem: "Kısa vadeli yükümlülükler"}
@@ -27,12 +28,15 @@ hesaplar:
   - {kod: "2020", ad: "Finansal borçlar",              tur: B, yon: -1, parasal: true,  kalem: "Kısa vadeli yükümlülükler"}
   - {kod: "2030", ad: "Personel borçları",             tur: B, yon: -1, parasal: true,  kalem: "Kısa vadeli yükümlülükler"}
   - {kod: "2040", ad: "Vergi yükümlülükleri",          tur: B, yon: -1, parasal: true,  kalem: "Kısa vadeli yükümlülükler"}
+  - {kod: "2050", ad: "Alınan avanslar",               tur: B, yon: -1, parasal: true,  kalem: "Kısa vadeli yükümlülükler"}
   - {kod: "2510", ad: "Uzun vadeli finansal borçlar",  tur: B, yon: -1, parasal: true,  kalem: "Uzun vadeli yükümlülükler"}
   - {kod: "2520", ad: "Kıdem tazminatı karşılığı",     tur: B, yon: -1, parasal: false, kalem: "Uzun vadeli yükümlülükler"}
+  - {kod: "2530", ad: "Ortaklara borçlar",             tur: B, yon: -1, parasal: true,  kalem: "Uzun vadeli yükümlülükler"}
 
   # --- ÖZKAYNAK ---
   - {kod: "3010", ad: "Ödenmiş sermaye",               tur: B, yon: -1, parasal: false, kalem: "Özkaynaklar"}
   - {kod: "3020", ad: "Sermaye yedekleri",             tur: B, yon: -1, parasal: false, kalem: "Özkaynaklar"}
+  - {kod: "3025", ad: "Kâr yedekleri",                 tur: B, yon: -1, parasal: false, kalem: "Özkaynaklar"}
   - {kod: "3030", ad: "Geçmiş yıl kârları",            tur: B, yon: -1, parasal: false, kalem: "Özkaynaklar"}
   - {kod: "3090", ad: "Yabancı para çevrim farkları",  tur: B, yon: -1, parasal: false, kalem: "Özkaynaklar", hesaplanan: true}
 
@@ -52,7 +56,17 @@ hesaplar:
   - {kod: "7010", ad: "Faiz geliri",                   tur: G, yon: -1, kalem: "Finansal gelir/gider"}
   - {kod: "7020", ad: "Faiz gideri",                   tur: G, yon: 1,  kalem: "Finansal gelir/gider"}
   - {kod: "7030", ad: "Kur farkı geliri/gideri, net",  tur: G, yon: 1,  kalem: "Finansal gelir/gider"}
+  - {kod: "7040", ad: "Diğer gelir ve kârlar",         tur: G, yon: -1, kalem: "Diğer gelir/gider"}
+  - {kod: "7050", ad: "Diğer gider ve zararlar",       tur: G, yon: 1,  kalem: "Diğer gelir/gider"}
   - {kod: "8010", ad: "Kurumlar vergisi gideri",       tur: G, yon: 1,  kalem: "Vergi"}
+
+  # --- 7/A MALİYET HESAPLARI ---
+  # Gider yerleri (710-798) ve yansıtma hesapları. Yıl sonunda yansıtma
+  # hesabı gider hesabını kapatır, NET BAKİYE SIFIR olmalıdır. Gerçek gider
+  # zaten 6xx'te sunulur; bu kalem çift sayım olmasın diye ayrı tutulur.
+  # Net sıfır değilse maliyet aktarımı eksik demektir, K09 bunu yakalar.
+  - {kod: "7900", ad: "Maliyet hesapları ve yansıtmaları (7/A), net",
+     tur: G, yon: 1,  kalem: "Maliyet muhasebesi"}
 
   # --- ASKI ---
   # Grup planına eşlenemeyen yerel hesaplar buraya düşer. Satırı ATMAK yerine
@@ -73,9 +87,12 @@ gelir_tablosu_duzeni:
   - {ad: "FAALİYET KÂRI",        tip: ara_toplam, bilesenler: ["BRÜT KÂR", "Faaliyet giderleri"]}
   - {ad: "FAVÖK",                tip: ozel,    aciklama: "Faaliyet kârı + amortisman"}
   - {ad: "Finansal gelir/gider", tip: toplam,  kalemler: ["Finansal gelir/gider"]}
-  - {ad: "VERGİ ÖNCESİ KÂR",     tip: ara_toplam, bilesenler: ["FAALİYET KÂRI", "Finansal gelir/gider"]}
+  - {ad: "Diğer gelir/gider",    tip: toplam,  kalemler: ["Diğer gelir/gider"]}
+  - {ad: "VERGİ ÖNCESİ KÂR",     tip: ara_toplam, bilesenler: ["FAALİYET KÂRI", "Finansal gelir/gider", "Diğer gelir/gider"]}
   - {ad: "Vergi",                tip: toplam,  kalemler: ["Vergi"]}
   - {ad: "NET KÂR",              tip: ara_toplam, bilesenler: ["VERGİ ÖNCESİ KÂR", "Vergi"]}
+  - {ad: "Maliyet muhasebesi",   tip: toplam,  kalemler: ["Maliyet muhasebesi"],
+     uyari: "7/A yansıtmalı sistemde sıfır olmalı; sıfır değilse maliyet aktarımı eksik"}
 
 bilanco_duzeni:
   - {ad: "Dönen varlıklar",              kalemler: ["Dönen varlıklar"]}

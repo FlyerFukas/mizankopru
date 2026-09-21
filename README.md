@@ -130,7 +130,14 @@ hatayı görünmez kılar.
 ## Kurulum
 
 ```bash
-pip install pandas numpy openpyxl xlsxwriter pyyaml anthropic
+pip install pandas numpy openpyxl xlsxwriter pyyaml anthropic xlrd
+```
+
+Yapılandırmayı örnekten oluşturun. `sirketler.yaml` depoya dahil değildir,
+çünkü gerçek şirket adlarını ve mizan kolon düzenlerini içerir:
+
+```bash
+cp yapilandirma/sirketler.ornek.yaml yapilandirma/sirketler.yaml
 ```
 
 Python 3.11+. Yapay zekâ katmanı isteğe bağlıdır:
@@ -141,6 +148,52 @@ cp .env.ornek .env     # içine ANTHROPIC_API_KEY=... yaz
 
 Anahtar yoksa motor **tam çalışır**, sadece yorum metinleri üretilmez.
 Ürettiği rakamların hiçbiri değişmez.
+
+---
+
+## Yanlış veriyle çalışmaya karşı üç katman
+
+Bir konsolidasyon motorunun en tehlikeli hatası çökmek değil, **yanlış
+veriden eksiksiz görünen bir rapor üretmektir**. Bu proje o hatayı bir kez
+yaptı: kullanıcı kendi mizanını yükledi, dosya adı tanınmadığı için sessizce
+atlandı, boru hattı elindeki demo veriyle devam etti ve rapor baştan sona
+başka bir şirketin rakamlarını gösterdi. Tablo denkti, bulgular tutarlıydı,
+tek sorun verinin kullanıcıya ait olmamasıydı.
+
+Üç katman bunu engeller:
+
+**1. Kaynak doğrulaması (`src/kaynak.py`).** Boru hattı başlamadan önce
+`veri/girdi/` taranır. Tanınmayan bir dosya varsa ya da demo ile kullanıcı
+dosyaları karışıksa **boru hattı başlamaz**; ekrana ne yapılacağı yazılır.
+Bilerek devam etmek isteyen `--kaynak-zorla` kullanır, o zaman bütün
+çıktılara damga basılır. Geçersiz bir çalıştırmada önceki çıktılar
+`cikti/bayat/` altına taşınır, böylece eski bir pano güncel sanılmaz.
+
+**2. Köken ve kapsam damgası.** Her çalıştırma `veri/ara/koken.json` yazar:
+hangi dosya, kaç KB, SHA-256 parmak izi. Pano ve Excel paketi bu listeyi
+en üstte gösterir. Yapılandırmada tanımlı ama verisi yüklenmemiş şirketler
+"kapsam dışı" olarak ayrıca yazılır. Veri yokluğundan çalıştırılamayan
+kontrol testleri tek tek listelenir ve kapanış hükmü `KOŞULLU` olur:
+temiz sonuç ile denetlenmemiş risk birbirine karışmaz.
+
+**3. Çapraz doğrulama (`araclar/capraz_dogrula.py`).** Boru hattının son
+adımı bir sınamadır: ham Excel dosyası, boru hattının kodu **kullanılmadan**
+sıfırdan yeniden okunur ve çıktılardaki her ana rakamla karşılaştırılır.
+Hesap sayısı, toplam borç, toplam alacak, mizan denkliği, hesap bazında
+bakiye, hasılat, satışların maliyeti, faaliyet giderleri ve askıda kalan
+tutar. Bir sınama bile tutmazsa boru hattı hata verir.
+
+```
+Çapraz doğrulama: ham dosya ↔ boru hattı çıktısı
+  Sınama                                       Ham dosya      Boru hattı     Sonuç
+  Ham dosyadaki ana hesap sayısı               65             65             GEÇTİ
+  Toplam borç                                  97.019.382,88  97.019.382,88  GEÇTİ
+  Toplam alacak                                97.019.382,88  97.019.382,88  GEÇTİ
+  Mizan denkliği (borç − alacak)               0,00           0,00           GEÇTİ
+  Bakiyesi boru hattında değişen hesap sayısı  0              0              GEÇTİ
+  Hasılat (ham 60x + 61x)                      11.451.042,54  11.451.042,54  GEÇTİ
+  Askıda kalan tutar (9999)                    0,00           0,00           GEÇTİ
+```
 
 ---
 

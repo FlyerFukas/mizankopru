@@ -417,3 +417,74 @@ SPDX başlığı, README uyarısı, pano/panel/PDF altbilgileri,
 - Hesap adı tespiti: `mrFurkan33333` ve `FlyerFukas` aynı hesap (id 250136320).
 - Panel yazıldı: yerel web arayüzü, canlı SSE log akışı, sürükle-bırak yükleme.
 - **Lisans MIT'ten PolyForm Noncommercial + ticari lisansa geçirildi** (§18).
+
+---
+
+## §19. Gerçek mizanla ilk çalıştırma ve bulunan kritik hata
+
+**Olay.** Kullanıcı `mizan 2018 nilsan son.xls` dosyasını panelden yükledi.
+Bütün çıktılar üretildi, tablo denkti, 20 bulgu çıktı. Bağımsız denetçi
+incelemesi: bulguların **0'ı** yüklenen dosyayla ilgiliydi, 20'si de demo
+veriden üretilmişti. Kullanıcının kendi verisi hiç işlenmemişti.
+
+**Kök neden zinciri.** Tek bir hata değil, birbirini gizleyen altı hata:
+
+1. `topla.py` dosya adında şirket kodu bulamayınca satırı **sessizce atladı**
+   ve devam etti. Uyarı bir satırdı, boru hattı durmadı.
+2. `veri/ara/*.csv` önceki demo çalıştırmasından kalmıştı. Kullanıcı tek bir
+   mizan yüklemişken `kontrol.py` 42.637 satırlık eski bir yevmiyeyi okudu.
+3. Kapsam yapılandırmadan okunuyordu, yüklenen veriden değil: verisi olmayan
+   4 şirket rapora "eksik dönem" bulgusu olarak girdi (K10, 64 sahte bulgu).
+4. Çıktılarda dönem `2025-12` ve para birimi `EUR` sabit yazılıydı; veri
+   2018-12 ve TRY idi.
+5. Eşleme tablosu demo veriye göre yazılmıştı: gerçek bir TDHP mizanının
+   65 ana hesabından **36'sı** askıya düştü, ciro ve özkaynak eksik çıktı.
+6. Tek şirketlik veride grup içi eliminasyon yine de uygulanıyordu.
+
+**Yapılan düzeltmeler.**
+
+- `src/kaynak.py` **yeni**: boru hattı başlamadan kaynak doğrulaması. Tanınmayan
+  dosya ya da karışık kaynak varsa hard stop (çıkış kodu 2), ne yapılacağı
+  ekrana yazılır. `--kaynak-zorla` ile geçilirse çıktılara damga basılır.
+- `araclar/profil_olustur.py` **yeni**: tanınmayan bir mizanın yapısını ölçer
+  (başlık satırı, kolonlar, ana hesap deseni, hesap planı), `sirketler.yaml`
+  kaydını üretir ve dosyayı tanınacak şekilde adlandırır.
+- `araclar/capraz_dogrula.py` **yeni**: ham dosyayı boru hattının kodunu
+  kullanmadan yeniden okur, 9 sınamayla çıktıları karşılaştırır. Boru hattının
+  **8. adımı** olarak eklendi; her çalıştırmada koşar.
+- `topla.py`: ara dosyalar çalıştırma başında silinir (sıra önemli: temizlik
+  köken kaydından ÖNCE, aksi hâlde köken kendi temizliğinde siliniyordu).
+  Kapsam yüklenen veriden türetilir (`kapsam.json`). Geçersiz çalıştırmada
+  eski çıktılar `cikti/bayat/<zaman>/` altına taşınır, `NEDEN_BAYAT.txt` yazılır.
+- `esle.py`, `cevir.py`, `sapma.py`, `kontrol.py`, `pano.py`, `excel.py`:
+  yüklenmemiş veriye dayanıklı. Eksik dosya çökme değil, **atlanan adım**.
+- `sapma.py`: ürün miktarı/fiyatı yokken fiyat-karışım-hacim ayrıştırması
+  YAPILMAZ, `sapma_atlandi.json` yazılır ve neden yapılamadığı açıklanır.
+  Önceki çalıştırmadan kalan köprü dosyaları silinir.
+- `kontrol.py`: her testin `gerekli_veri` alanı var; veri yoksa test atlanır
+  ve `cikti/atlanan_testler.json`'a yazılır. Bulgu metinlerindeki sabit "EUR"
+  sunum para birimine bağlandı.
+- Kapanış hükmü: atlanan test varken "imzalanabilir" yerine **KOŞULLU**.
+  Temiz sonuç ile denetlenmemiş risk artık birbirine karışmıyor.
+- `hesap_eslesme.csv`: **tam TDHP ana hesap seti** (185 yeni eşleme, 100-798).
+  `grup_hesap_plani.yaml`: 7 yeni grup hesabı (diğer duran varlıklar, alınan
+  avanslar, ortaklara borçlar, kâr yedekleri, diğer gelir/gider, 7/A maliyet).
+- `sema.py`: `kapsam()`, `son_donem()`, `veri_var()` eklendi; CSV okuyucu `#`
+  yorum satırlarını atlıyor.
+- `sirketler.yaml` depodan çıkarıldı (gerçek şirket adları içerir),
+  `sirketler.ornek.yaml` eklendi. Dosya yoksa hata mesajı ne yapılacağını söyler.
+
+**Sonuç (NILSAN 2018-12, 65 ana hesap, 97.019.382,88 TL denk mizan).**
+
+| Ölçü | Önce | Sonra |
+|---|---|---|
+| İşlenen dosya | demo veri | kullanıcının dosyası (parmak izi kayıtlı) |
+| Eşleşen hesap | 29/65 | **65/65** |
+| Askıda kalan tutar | 7.598.982 TL | **0,00** |
+| Bilanço denklik farkı | ölçülmüyordu | **0,00** |
+| Çapraz doğrulama | yoktu | **9/9 GEÇTİ** |
+| Kapanış hükmü | "imzalanabilir" | **KOŞULLU** (10 test veri yokluğundan atlandı) |
+
+**Negatif test.** `veri/girdi/` içine tanınmayan bir dosya konup çalıştırıldı:
+`topla.py` çıkış kodu 2, `boru.py` çıkış kodu 1, önceki çıktılar
+`cikti/bayat/20260921_102526/` altına taşındı. Hata sınıfı artık yakalanıyor.

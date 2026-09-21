@@ -91,6 +91,11 @@ ADIMLAR = [
      "Tek dosyalık HTML kapanış panosu."),
     ("excel", "src/excel.py", "[6b] Excel",
      "9 sayfalık konsolidasyon paketi."),
+    ("capraz", "araclar/capraz_dogrula.py", "[7] Çapraz doğrulama",
+     "Ham dosyayı boru hattının kodunu KULLANMADAN yeniden okur ve "
+     "çıktılardaki her ana rakamla karşılaştırır: hesap sayısı, toplam borç "
+     "ve alacak, mizan denkliği, hasılat, maliyet, askıda kalan tutar. "
+     "Bir sınama bile tutmazsa çıktılar kullanılmamalıdır."),
     ("rapor", "araclar/rapor_uret.py", "Teknik rapor (PDF)",
      "12 sayfalık teknik rapor: mimari, ölçümler, tasarım kararları. "
      "Rakamlar güncel çıktı dosyalarından okunur."),

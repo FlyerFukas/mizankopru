@@ -95,6 +95,14 @@ ADIMLAR = [
      "Tek dosyalık HTML kapanış panosu."),
     ("excel", "src/excel.py", "[6b] Excel",
      "9 sayfalık konsolidasyon paketi."),
+    ("esleme_egit", "src/esleme_modeli.py", "Eşleme modelini eğit",
+     "Hesap adından grup kodunu tahmin eden sınıflandırıcıyı eğitir ve "
+     "ölçer. İç içe çapraz doğrulama ile hiperparametre seçimindeki "
+     "sızıntıyı ayıklar; taban çizgiyi geçemeyen model kaydedilmez. "
+     "Yaklaşık 90 saniye sürer, her çalıştırmada gerekmez."),
+    ("oneri", "src/esleme_modeli.py --oner", "[6c] Model önerisi",
+     "Askıda kalan hesaplar için ilk üç grup kodu önerisini güvenleriyle "
+     "yazar. Hiçbir şeyi yapılandırmaya uygulamaz, insan onayı gerekir."),
     ("capraz", "araclar/capraz_dogrula.py", "[7] Çapraz doğrulama",
      "Ham dosyayı boru hattının kodunu KULLANMADAN yeniden okur ve "
      "çıktılardaki her ana rakamla karşılaştırır: hesap sayısı, toplam borç "
@@ -112,6 +120,8 @@ ADIM_SOZLUK = {a[0]: a for a in ADIMLAR}
 CIKTI_DOSYALARI = [
     ("pano.html", "Kapanış panosu", "HTML"),
     ("oranlar.csv", "Finansal oranlar", "CSV"),
+    ("esleme_model_onerisi.csv", "Model eşleme önerisi", "CSV"),
+    ("model_raporu.json", "Model başarı raporu", "JSON"),
     ("dikey_analiz.csv", "Dikey analiz", "CSV"),
     ("oran_notu.md", "Finansal analiz notu", "Markdown"),
     ("konsolidasyon_paketi.xlsx", "Konsolidasyon paketi", "Excel · 9 sayfa"),
@@ -216,8 +226,9 @@ class Calistirici:
         ortam["PYTHONIOENCODING"] = "utf-8"
         ortam["PYTHONUNBUFFERED"] = "1"
         try:
+            parcalar = betik.split()
             self.surec = subprocess.Popen(
-                [sys.executable, "-u", str(KOK / betik)],
+                [sys.executable, "-u", str(KOK / parcalar[0])] + parcalar[1:],
                 cwd=str(KOK), env=ortam, stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT, text=True, encoding="utf-8",
                 errors="replace", bufsize=1,

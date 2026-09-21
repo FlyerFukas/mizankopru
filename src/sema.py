@@ -82,6 +82,10 @@ class Sirket:
     faaliyet: str
     hiperenflasyon: bool
     bicim: dict = field(default_factory=dict)
+    # Kolon adlarıyla eşleştirilemeyen mizanlar için ölçülmüş yerleşim:
+    # sekme, başlık satırı, kolon numaraları, ana hesap deseni, sabit dönem.
+    # profil_olustur.py üretir; boş ise kolon adı eşleştirmesi kullanılır.
+    mizan_bicimi: dict = field(default_factory=dict)
 
 
 class YapilandirmaHatasi(Exception):
@@ -100,6 +104,17 @@ class Yapilandirma:
     def _yaml(self, ad: str) -> dict:
         yol = self.dizin / ad
         if not yol.exists():
+            # sirketler.yaml depoya girmez (gerçek şirket adları içerir),
+            # yeni bir klonda yoktur. Hata mesajı ne yapılacağını söylemeli.
+            ornek = self.dizin / (yol.stem + ".ornek" + yol.suffix)
+            if ornek.exists():
+                raise YapilandirmaHatasi(
+                    f"Ayar dosyası bulunamadı: {yol}\n\n"
+                    f"Bu dosya depoya dahil değildir (kendi şirket adlarınızı\n"
+                    f"içerir). Örnekten başlayın:\n\n"
+                    f"    cp {ornek} {yol}\n\n"
+                    f"Ardından kendi mizanınız için şirket profilini üretin:\n\n"
+                    f'    py araclar/profil_olustur.py "veri/girdi/DOSYA_ADI"')
             raise YapilandirmaHatasi(f"Ayar dosyası bulunamadı: {yol}")
         with open(yol, encoding="utf-8") as f:
             return yaml.safe_load(f)
@@ -108,7 +123,10 @@ class Yapilandirma:
         yol = self.dizin / ad
         if not yol.exists():
             raise YapilandirmaHatasi(f"Ayar dosyası bulunamadı: {yol}")
-        return pd.read_csv(yol, dtype=str, encoding="utf-8-sig").fillna("")
+        # comment="#": ayar dosyalarında bölüm başlığı yazılabilsin.
+        # Eşleme tablosu elle bakımı yapılan bir dosya, açıklanabilir olmalı.
+        return pd.read_csv(yol, dtype=str, encoding="utf-8-sig",
+                           comment="#").fillna("")
 
     def _yukle(self):
         s = self._yaml("sirketler.yaml")
@@ -123,6 +141,7 @@ class Yapilandirma:
                 faaliyet=x.get("faaliyet", ""),
                 hiperenflasyon=bool(x.get("hiperenflasyon", False)),
                 bicim=x.get("bicim", {}),
+                mizan_bicimi=x.get("mizan_bicimi", {}) or {},
             )
             for x in s["sirketler"]
         }
@@ -247,7 +266,38 @@ class Yapilandirma:
         return -1 if (h and h["yon"] == -1) else 1
 
     def donemler(self) -> list[str]:
+        """Kur tablosunda tanımlı BÜTÜN dönemler. Bu, yapılandırmanın
+        kapsamıdır; işlenen verinin kapsamı değil. Rapor başlıklarında
+        bunu kullanmayın, kapsam() kullanın."""
         return sorted(self.kurlar["donem"].unique())
+
+    def kapsam(self) -> dict:
+        """Bu çalıştırmada GERÇEKTEN işlenen veri: topla.py yazar.
+
+        Rapor başlıkları, dönem seçimleri ve özetler bunu kullanmalıdır.
+        Yapılandırmadaki son döneme bakmak, yüklenen veri 2018'e aitken
+        raporun başlığına 2025 yazılmasına yol açar; bu, çıktının hangi
+        veriden üretildiğini yanlış gösterir."""
+        import json
+        y = ARA_DIZIN / "kapsam.json"
+        if y.exists():
+            try:
+                return json.loads(y.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                pass
+        return {"sirketler": list(self.sirketler), "donemler": self.donemler(),
+                "kapsam_disi": [], "veri_tipleri": [], "eksik_donem": []}
+
+    def son_donem(self) -> str:
+        """İşlenen verinin son dönemi. Raporlar bunu kullanır."""
+        d = self.kapsam().get("donemler") or self.donemler()
+        return d[-1]
+
+    def veri_var(self, tip: str) -> bool:
+        """Belirtilen veri tipi (yevmiye, butce, satis, grup_ici) yüklendi mi?
+        Testler ve adımlar buna göre atlanır; eksik veriyle üretilen sonuç
+        eksik olduğunu SÖYLEMELİDİR."""
+        return tip in (self.kapsam().get("veri_tipleri") or [])
 
     def elimine_hesaplar(self) -> set[str]:
         return {k for k, h in self.grup_hesaplari.items() if h.get("elimine")}

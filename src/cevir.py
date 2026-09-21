@@ -50,6 +50,22 @@ from sema import ARA_DIZIN, yukle                    # noqa: E402
 CEVRIM_FARKI_HESABI = "3090"
 
 
+
+def _oku_ara(ad: str, kolonlar=None, **tip):
+    """veri/ara/ altındaki bir dosyayı çökmeden okur.
+
+    Eksik veri normal bir durumdur: kullanıcı yalnızca mizan yüklemiş
+    olabilir. Dosyanın yokluğunda boş bir çerçeve dönmek, eski bir dosyayı
+    okumaktan da çökmekten de iyidir."""
+    import pandas as _pd
+    yol = ARA_DIZIN / ad
+    if not yol.exists():
+        return _pd.DataFrame(columns=kolonlar or [])
+    try:
+        return _pd.read_csv(yol, dtype={"donem": str, **tip})
+    except _pd.errors.EmptyDataError:
+        return _pd.DataFrame(columns=kolonlar or [])
+
 def aylik_harekete_cevir(mizan: pd.DataFrame, y, g: Gunluk) -> pd.DataFrame:
     """YTD mizandan aylık hareketi türetir.
 
@@ -174,11 +190,23 @@ def cevrim_farki_ekle(df: pd.DataFrame, y, g: Gunluk) -> tuple[pd.DataFrame, pd.
 
 def konsolide_et(df: pd.DataFrame, y, g: Gunluk) -> pd.DataFrame:
     """Grup konsolidesi: şirketleri topla, grup içi kalemleri elimine et,
-    azınlık payını (NCI) ayrı göster."""
+    azınlık payını (NCI) ayrı göster.
+
+    TEK ŞİRKET VARSA ELİMİNASYON YAPILMAZ. Grup içi alacak/borç hesapları
+    (VUK'ta 133, 333 gibi) bir holdingde başka bir grup şirketini gösterir
+    ve konsolidede karşılıklı silinir. Ama işlenen veride tek bir tüzel
+    kişilik varsa o bakiyeler gruba değil, GRUP DIŞI bir tarafa aittir;
+    silinmeleri bilançoyu haksız yere küçültür."""
+    kapsam_sirket = sorted(df["sirket_kod"].unique())
+    tek_sirket = len(kapsam_sirket) < 2
+    if tek_sirket:
+        g.bilgi(f"Tek tüzel kişilik ({kapsam_sirket[0]}) işleniyor: "
+                f"grup içi eliminasyon UYGULANMAYACAK. Grup içi işaretli "
+                f"hesaplar konsolidede olduğu gibi kalır.")
     satirlar = []
     for (donem, grup_kod), alt in df.groupby(["donem", "grup_kod"]):
         h = y.grup_hesaplari[grup_kod]
-        elimine = bool(h.get("elimine"))
+        elimine = bool(h.get("elimine")) and not tek_sirket
         toplam = alt["eur_gercek"].sum()
         toplam_sabit = alt["eur_sabit"].sum()
         satirlar.append({
@@ -243,7 +271,7 @@ def main():
     # ---- Neden aylık çevirmek gerektiğinin kanıtı ----
     g.bilgi("")
     hasilat = cevrilmis[(cevrilmis["kalem"] == "Hasılat")
-                        & (cevrilmis["donem"] == y.donemler()[-1])]
+                        & (cevrilmis["donem"] == y.son_donem())]
     kanit = []
     for kod, s in y.sirketler.items():
         alt = hasilat[hasilat["sirket_kod"] == kod]
@@ -252,20 +280,22 @@ def main():
         yerel_ytd = -alt["bakiye_ytd"].sum()
         dogru = -alt["eur_gercek"].sum()
         pb = s.fonksiyonel_para_birimi
-        yanlis = yerel_ytd * y.kur(y.donemler()[-1], pb, "ortalama")
+        yanlis = yerel_ytd * y.kur(y.son_donem(), pb, "ortalama")
         kanit.append([kod, pb, para(yerel_ytd, 0), para(dogru, 0), para(yanlis, 0),
                       f"{(yanlis/dogru - 1)*100:+.1f}%" if dogru else "-"])
-    tablo_yaz("Aylık çevrim neden şart, yıllık hasılat (2025 YTD)", kanit,
+    tablo_yaz(f"Aylık çevrim neden şart ({y.son_donem()} YTD)", kanit,
               ["Şirket", "PB", "Yerel YTD", "DOĞRU (aylık kur)",
                "YANLIŞ (tek kur)", "Hata"])
 
     # ---- Çevrim farkı ve veri hatası ayrımı ----
-    son = fark_raporu[fark_raporu["donem"] == y.donemler()[-1]]
+    son = fark_raporu[fark_raporu["donem"] == y.son_donem()]
     tablo_yaz("Çevrim farkı vs veri hatası (yıl sonu)",
               [[r.sirket_kod, para(r.yerel_denksizlik, 2),
                 para(r.veri_hatasi_eur, 2), para(r.cevrim_farki_eur, 0)]
                for r in son.itertuples()],
-              ["Şirket", "Yerel denksizlik", "Veri hatası EUR", "Saf çevrim farkı EUR"])
+              ["Şirket", "Yerel denksizlik",
+               f"Veri hatası {y.sunum_para_birimi}",
+               f"Saf çevrim farkı {y.sunum_para_birimi}"])
     hatali = son[son["yerel_denksizlik"].abs() > 0.01]
     if not hatali.empty:
         g.uyari(f"{len(hatali)} şirkette yerel mizan denk değil, "
@@ -276,7 +306,7 @@ def main():
     konsolide.to_csv(ARA_DIZIN / "konsolide.csv", index=False, encoding="utf-8")
 
     # ---- Konsolide gelir tablosu (yıl sonu) ----
-    son_donem = y.donemler()[-1]
+    son_donem = y.son_donem()
     ks = konsolide[konsolide["donem"] == son_donem]
     satirlar = []
     for kalem in ["Hasılat", "Satışların maliyeti", "Faaliyet giderleri",
@@ -291,13 +321,17 @@ def main():
     fg_k = -ks[ks["kalem"] == "Faaliyet giderleri"]["eur_konsolide"].sum()
     satirlar.append([" BRÜT KÂR", "", para(hasilat_k + smm_k, 0), ""])
     satirlar.append([" FAALİYET KÂRI", "", para(hasilat_k + smm_k + fg_k, 0), ""])
-    tablo_yaz(f"Konsolide gelir tablosu {son_donem} YTD (EUR)", satirlar,
+    tablo_yaz(f"Konsolide gelir tablosu {son_donem} YTD ({y.sunum_para_birimi})", satirlar,
               ["Kalem", "Şirketler toplamı", "Konsolide", "Eliminasyon"])
 
     elimine_toplam = -ks[ks["elimine"]]["eur_brut"].sum()
-    g.bilgi(f"\nGrup içi eliminasyon: {para(abs(elimine_toplam), 0)} EUR "
-            f"({len(y.elimine_hesaplar())} hesap)")
-    g.bilgi(f"Konsolide hasılat {son_donem}: {para(hasilat_k, 0)} EUR")
+    if ks["elimine"].any():
+        g.bilgi(f"\nGrup içi eliminasyon: {para(abs(elimine_toplam), 0)} "
+                f"{y.sunum_para_birimi} ({int(ks['elimine'].sum())} hesap)")
+    else:
+        g.bilgi("\nGrup içi eliminasyon uygulanmadı: işlenen veride tek "
+                "tüzel kişilik var, grup içi işlem tanımsız.")
+    g.bilgi(f"Konsolide hasılat {son_donem}: {para(hasilat_k, 0)} {y.sunum_para_birimi}")
 
     g.bitir({"cevrilmis_satir": len(cevrilmis), "konsolide_satir": len(konsolide),
              "cevrim_farki_kayit": len(fark_raporu)})

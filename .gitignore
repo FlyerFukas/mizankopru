@@ -2,9 +2,16 @@
 .env
 *.key
 
+# Yerel kurulum: gerçek şirket adları, mizan kolon düzenleri ve kurlar
+# kullanıcının kendi verisidir, depoya girmez. Depo örnek dosyayla gelir;
+# ilk kurulumda kopyalanır:
+#     cp yapilandirma/sirketler.ornek.yaml yapilandirma/sirketler.yaml
+yapilandirma/sirketler.yaml
+
 # Üretilen veriler ve çıktılar
 veri/girdi/*
 veri/ara/*
+veri/demo_arsiv/*
 cikti/*
 gunluk/*
 !veri/girdi/.gitkeep

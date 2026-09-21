@@ -23,6 +23,9 @@ testler:
     ad: "Bilanço denkliği"
     aciklama: "Her şirket-dönem için borç toplamı alacak toplamına eşit olmalı."
     neden_onemli: "Eşit değilse mizan eksik ya da bozuk gelmiştir; üstüne kurulan her rakam yanlıştır."
+    # Bu test olmadan çalışamaz; veri yüklenmemişse ATLANIR
+    # ve raporda "veri yok" diye gösterilir, sessizce geçilmez.
+    gerekli_veri: "mizan"
     aktif: true
     onem: kritik
     esikler:
@@ -32,6 +35,9 @@ testler:
     ad: "Mükerrer fiş"
     aciklama: "Aynı tarih, tutar ve hesap ikilisine sahip birden çok fiş."
     neden_onemli: "Çift ödeme ve çift gider kaydının klasik göstergesi."
+    # Bu test olmadan çalışamaz; veri yüklenmemişse ATLANIR
+    # ve raporda "veri yok" diye gösterilir, sessizce geçilmez.
+    gerekli_veri: "yevmiye"
     aktif: true
     onem: yuksek
     esikler:
@@ -42,6 +48,9 @@ testler:
     ad: "Dönem kayması (cut-off)"
     aciklama: "Belge tarihi dönem dışında olduğu hâlde o döneme kaydedilmiş fişler."
     neden_onemli: "Dönemsellik ilkesi ihlali; kârı dönemler arası kaydırmanın en yaygın yolu."
+    # Bu test olmadan çalışamaz; veri yüklenmemişse ATLANIR
+    # ve raporda "veri yok" diye gösterilir, sessizce geçilmez.
+    gerekli_veri: "yevmiye"
     aktif: true
     onem: yuksek
     esikler:
@@ -52,6 +61,9 @@ testler:
     ad: "Mesai dışı kayıt"
     aciklama: "Hafta sonu veya mesai saatleri dışında girilmiş yüksek tutarlı fişler."
     neden_onemli: "Gözetimin en zayıf olduğu anlar; usulsüzlük literatüründe kırmızı bayrak."
+    # Bu test olmadan çalışamaz; veri yüklenmemişse ATLANIR
+    # ve raporda "veri yok" diye gösterilir, sessizce geçilmez.
+    gerekli_veri: "yevmiye"
     aktif: true
     onem: orta
     esikler:
@@ -61,6 +73,9 @@ testler:
     ad: "Yetki limiti aşımı"
     aciklama: "Tek bir fişin şirketin onay limitini aşması."
     neden_onemli: "Yetkilendirme kontrolünün atlanması; SOX/iç kontrol bulgusu."
+    # Bu test olmadan çalışamaz; veri yüklenmemişse ATLANIR
+    # ve raporda "veri yok" diye gösterilir, sessizce geçilmez.
+    gerekli_veri: "yevmiye"
     aktif: true
     onem: kritik
     esikler:
@@ -80,6 +95,9 @@ testler:
     ad: "Limit parçalama (splitting)"
     aciklama: "Aynı gün, aynı kullanıcı ve hesapta, onay limitinin hemen altında birden çok fiş."
     neden_onemli: "Limit aşımından kaçınmak için işlemi bölmek, aşımın kendisinden daha ciddi bir sinyal."
+    # Bu test olmadan çalışamaz; veri yüklenmemişse ATLANIR
+    # ve raporda "veri yok" diye gösterilir, sessizce geçilmez.
+    gerekli_veri: "yevmiye"
     aktif: true
     onem: kritik
     esikler:
@@ -90,6 +108,9 @@ testler:
     ad: "Benford ilk rakam testi"
     aciklama: "Tutarların ilk rakam dağılımının Benford yasasından ki-kare sapması."
     neden_onemli: "Elle uydurulmuş tutarlar doğal dağılımı bozar; toplu veride hızlı tarama aracı."
+    # Bu test olmadan çalışamaz; veri yüklenmemişse ATLANIR
+    # ve raporda "veri yok" diye gösterilir, sessizce geçilmez.
+    gerekli_veri: "yevmiye"
     aktif: true
     onem: orta
     esikler:
@@ -100,6 +121,9 @@ testler:
     ad: "Grup içi eliminasyon farkı"
     aciklama: "A şirketinin B'den alacağı ile B'nin A'ya borcunun tutmaması."
     neden_onemli: "Konsolide bilançoyu doğrudan şişirir; kapanışın en çok vakit alan kalemi."
+    # Bu test olmadan çalışamaz; veri yüklenmemişse ATLANIR
+    # ve raporda "veri yok" diye gösterilir, sessizce geçilmez.
+    gerekli_veri: "grup_ici"
     aktif: true
     onem: kritik
     esikler:
@@ -110,6 +134,9 @@ testler:
     ad: "Eşleşmeyen hesap"
     aciklama: "Yerel mizanda olup grup hesap planı eşleme tablosunda karşılığı bulunmayan hesap."
     neden_onemli: "Eşleşmeyen hesap sessizce konsolidasyon dışı kalır, en tehlikeli hata türü, çünkü tablo yine de denk görünür."
+    # Bu test olmadan çalışamaz; veri yüklenmemişse ATLANIR
+    # ve raporda "veri yok" diye gösterilir, sessizce geçilmez.
+    gerekli_veri: "mizan"
     aktif: true
     onem: kritik
     esikler: {}
@@ -118,6 +145,9 @@ testler:
     ad: "Eksik dönem"
     aciklama: "Bir şirketin bir döneminin hiç gelmemiş olması."
     neden_onemli: "Geç kapanış; konsolide tabloda o şirket o ay yok sayılır."
+    # Bu test olmadan çalışamaz; veri yüklenmemişse ATLANIR
+    # ve raporda "veri yok" diye gösterilir, sessizce geçilmez.
+    gerekli_veri: "mizan"
     aktif: true
     onem: kritik
     esikler: {}
@@ -126,6 +156,9 @@ testler:
     ad: "Ters bakiye"
     aciklama: "Hesabın normal yönünün tersine bakiye vermesi (ör. gelir hesabında borç bakiye)."
     neden_onemli: "Yanlış hesaba kayıt, eksik iade ya da sınıflandırma hatası göstergesi."
+    # Bu test olmadan çalışamaz; veri yüklenmemişse ATLANIR
+    # ve raporda "veri yok" diye gösterilir, sessizce geçilmez.
+    gerekli_veri: "mizan"
     aktif: true
     onem: orta
     esikler:
@@ -135,6 +168,9 @@ testler:
     ad: "Yuvarlak tutar yoğunluğu"
     aciklama: "Belirli bir hesap/masraf merkezinde aşırı yuvarlak tutarların payı."
     neden_onemli: "Gerçek ticari işlemler nadiren tam yuvarlaktır; tahmini/uydurma kayıt sinyali."
+    # Bu test olmadan çalışamaz; veri yüklenmemişse ATLANIR
+    # ve raporda "veri yok" diye gösterilir, sessizce geçilmez.
+    gerekli_veri: "yevmiye"
     aktif: true
     onem: dusuk
     esikler:
@@ -146,6 +182,9 @@ testler:
     ad: "Görevler ayrılığı, tek kullanıcı yoğunluğu"
     aciklama: "Bir hesaptaki kayıtların büyük bölümünün tek kullanıcı tarafından girilmiş olması."
     neden_onemli: "Görevler ayrılığı ilkesinin zayıflaması; kontrol ortamı bulgusu."
+    # Bu test olmadan çalışamaz; veri yüklenmemişse ATLANIR
+    # ve raporda "veri yok" diye gösterilir, sessizce geçilmez.
+    gerekli_veri: "yevmiye"
     aktif: true
     onem: orta
     esikler:
@@ -156,6 +195,9 @@ testler:
     ad: "Büyük bütçe sapması"
     aciklama: "Bütçe-fiili sapmasının hem oransal hem mutlak eşiği aşması."
     neden_onemli: "FP&A'nın açıklama borcu doğduğu eşik; ikisi birden aranır ki küçük kalemler gürültü yapmasın."
+    # Bu test olmadan çalışamaz; veri yüklenmemişse ATLANIR
+    # ve raporda "veri yok" diye gösterilir, sessizce geçilmez.
+    gerekli_veri: "butce"
     aktif: true
     onem: yuksek
     esikler:

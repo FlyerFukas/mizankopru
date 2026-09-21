@@ -131,7 +131,7 @@ def koprü_kur_dogrula(df: pd.DataFrame, g: Gunluk) -> bool:
 
 def kalem_sapmasi(y, cevrilmis: pd.DataFrame, butce: pd.DataFrame) -> pd.DataFrame:
     """Gelir tablosu kalemi bazında bütçe-fiili, kur etkisi ayrıştırılmış."""
-    son = y.donemler()[-1]
+    son = y.son_donem()
     gt = cevrilmis[(cevrilmis["tur"] == "G")].copy()
 
     fiili = (gt.groupby(["sirket_kod", "donem", "grup_kod"], as_index=False)
@@ -174,10 +174,30 @@ def main():
     z = Zeka(y=y, g=g)
     g.bilgi(y.ozet())
 
+    # Sapma köprüsü ürün bazında miktar ve fiyat ister. Bunlar yoksa
+    # fiyat/karışım/hacim ayrıştırması MATEMATİKSEL OLARAK yapılamaz;
+    # tahmin edilmez, adım açıkça atlanır ve sebebi yazılır.
     kaynak = ARA_DIZIN / "satis.csv"
-    if not kaynak.exists():
-        g.hata(f"{kaynak} yok. Önce: py src/topla.py")
-        g.bitir({"durum": "girdi_yok"})
+    if not kaynak.exists() or not y.veri_var("satis"):
+        g.uyari("Satış detayı (ürün, miktar, birim fiyat) yüklenmedi.")
+        g.uyari("Fiyat / karışım / hacim ayrıştırması bu veriyle YAPILAMAZ; "
+                "adım atlandı.")
+        g.bilgi("Köprü için gereken: ürün kodu, miktar ve birim fiyat içeren "
+                "fiili ve bütçe satış dosyaları.")
+        import json as _json
+        (CIKTI_DIZIN / "sapma_atlandi.json").write_text(_json.dumps({
+            "sebep": "satış detayı (miktar/fiyat) yüklenmedi",
+            "gereken": ["urun_kod", "miktar", "birim_fiyat", "senaryo=fiili",
+                        "senaryo=butce"],
+            "sonuc": "fiyat/karışım/hacim/kur ayrıştırması üretilmedi",
+        }, ensure_ascii=False, indent=2), encoding="utf-8")
+        # Eski köprü dosyaları yanlışlıkla güncel sanılmasın
+        for eski in ("sapma_koprusu.csv", "sapma_kalem.csv", "sapma_yorumu.md"):
+            y_ = CIKTI_DIZIN / eski
+            if y_.exists():
+                y_.unlink()
+                g.bilgi(f"Önceki çalıştırmadan kalan {eski} silindi")
+        g.bitir({"durum": "atlandi", "sebep": "satis_verisi_yok"})
         return
 
     satis = pd.read_csv(kaynak, dtype={"donem": str, "urun_kod": str})

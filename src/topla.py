@@ -30,6 +30,7 @@ EN TEHLİKELİ HATA
 from __future__ import annotations
 
 import re
+import os
 import sys
 from collections import defaultdict
 from datetime import datetime
@@ -40,8 +41,8 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from gunluk import Gunluk, dosya_parmak_izi, para, tablo_yaz      # noqa: E402
-from sema import (ARA_DIZIN, VERI_DIZIN, BUTCE_KOLONLARI,          # noqa: E402
-                  GRUP_ICI_KOLONLARI, MIZAN_KOLONLARI,
+from sema import (ARA_DIZIN, CIKTI_DIZIN, VERI_DIZIN,             # noqa: E402
+                  BUTCE_KOLONLARI, GRUP_ICI_KOLONLARI, MIZAN_KOLONLARI,
                   SATIS_KOLONLARI, YEVMIYE_KOLONLARI, yukle)
 
 GIRDI = VERI_DIZIN / "girdi"
@@ -295,9 +296,81 @@ def sayfalari_oku(yol: Path) -> list[tuple[str, pd.DataFrame]]:
 # OKUYUCULAR
 # ======================================================================
 
+def _oku_mizan_olculmus(y, yol: Path, sirket: str, g: Gunluk) -> list[dict]:
+    """Kolon ADLARIYLA eşleştirilemeyen mizanları, profil_olustur.py'nin
+    ÖLÇTÜĞÜ yerleşimle okur.
+
+    Hiyerarşik mizanlarda (1 → 10 → 100 → 100.01 → 100.01.001) her seviye
+    bir altındakilerin toplamıdır. Hepsi alınırsa aynı tutar birkaç kez
+    sayılır; bu yüzden yalnızca ana_hesap_deseni'ne uyan satırlar alınır."""
+    s = y.sirketler[sirket]
+    b = s.mizan_bicimi
+    ay = SayiAyristirici(s.bicim.get("ondalik_ayrac", ","),
+                         s.bicim.get("binlik_ayrac", "."))
+    sekme = b.get("sekme", 0)
+    try:
+        df = pd.read_excel(yol, sheet_name=sekme, header=None, dtype=object)
+    except Exception as e:
+        g.hata(f"{yol.name}: okunamadı ({type(e).__name__}: {e})")
+        return []
+
+    bas = int(b.get("baslik_satiri", 0))
+    k_kod = int(b["kolon_kod"]); k_ad = int(b["kolon_ad"])
+    k_borc = int(b["kolon_borc"]); k_alacak = int(b["kolon_alacak"])
+    desen = re.compile(b.get("ana_hesap_deseni", r"^\d+$"))
+    sabit_donem = b.get("sabit_donem")
+    donem_kolonu = b.get("kolon_donem")
+
+    satirlar, atlanan, toplanan = [], 0, 0
+    for i in range(bas + 1, len(df)):
+        try:
+            kod = kod_metni(df.iat[i, k_kod])
+        except IndexError:
+            continue
+        if not kod:
+            continue
+        if not desen.match(kod):
+            atlanan += 1            # gruplama ya da alt kırılım satırı
+            continue
+        donem = (donem_normalize(df.iat[i, int(donem_kolonu)])
+                 if donem_kolonu is not None else None) or sabit_donem
+        if donem is None:
+            continue
+        borc = ay(df.iat[i, k_borc])
+        alacak = ay(df.iat[i, k_alacak])
+        if abs(borc) + abs(alacak) < 0.005:
+            continue
+        satirlar.append({
+            "sirket_kod": sirket, "donem": donem, "yerel_hesap_kod": kod,
+            "yerel_hesap_ad": str(df.iat[i, k_ad]).strip(),
+            "borc": borc, "alacak": alacak, "bakiye": borc - alacak,
+            "para_birimi": s.fonksiyonel_para_birimi, "kaynak_dosya": yol.name,
+        })
+        toplanan += 1
+
+    g.bilgi(f"{yol.name}: ölçülmüş yerleşimle okundu · sekme '{sekme}', "
+            f"başlık satırı {bas} · {toplanan} ana hesap alındı, "
+            f"{atlanan} gruplama/kırılım satırı atlandı (mükerrer sayımı önlemek için)")
+    _ayristirici_raporu(ay, yol.name, g)
+
+    # Denklik hemen burada sınanır: yanlış kolon seçilmişse en erken belirti budur
+    for donem in sorted({x["donem"] for x in satirlar}):
+        alt = [x for x in satirlar if x["donem"] == donem]
+        fark = sum(x["borc"] for x in alt) - sum(x["alacak"] for x in alt)
+        if abs(fark) > 1.0:
+            g.uyari(f"{yol.name} [{donem}]: borç-alacak farkı {para(fark, 2)} "
+                    f"{s.fonksiyonel_para_birimi}. Kolon seçimi yanlış olabilir "
+                    f"(yapilandirma/sirketler.yaml → {sirket} → mizan_bicimi).")
+    return satirlar
+
+
 def oku_mizan(y, dosyalar, g: Gunluk) -> pd.DataFrame:
     satirlar = []
     for yol, sirket in dosyalar:
+        # Ölçülmüş yerleşim tanımlıysa onu kullan
+        if y.sirketler[sirket].mizan_bicimi:
+            satirlar += _oku_mizan_olculmus(y, yol, sirket, g)
+            continue
         s = y.sirketler[sirket]
         harita = y.kolon_eslesme["mizan"].get(s.hesap_plani) or \
             y.kolon_eslesme["mizan"].get("*")
@@ -495,6 +568,39 @@ def _ayristirici_raporu(ay: SayiAyristirici, dosya: str, g: Gunluk):
 
 
 # ======================================================================
+def bayatlat(g) -> int:
+    """Geçersiz çalıştırma sonrası eski çıktıları arşive taşır.
+
+    Silmez: oradaki rakamlar bir zamanlar doğruydu ve denetim izinin
+    parçası. Ama cikti/ kökünde bırakılırsa güncel sanılır; bu sistemin
+    tek ciddi hata sınıfı tam olarak budur."""
+    hedef = CIKTI_DIZIN / "bayat"
+    tasinacak = [f for f in CIKTI_DIZIN.glob("*")
+                 if f.is_file()
+                 and f.name not in ("NEDEN_BAYAT.txt", ".gitkeep")]
+    if not tasinacak:
+        return 0
+    hedef.mkdir(parents=True, exist_ok=True)
+    damga = datetime.now().strftime("%Y%m%d_%H%M%S")
+    klasor = hedef / damga
+    klasor.mkdir(exist_ok=True)
+    for f in tasinacak:
+        f.replace(klasor / f.name)
+    (CIKTI_DIZIN / "NEDEN_BAYAT.txt").write_text(f"""\
+Bu klasördeki çıktılar, kaynak doğrulaması BAŞARISIZ olan bir
+çalıştırma sırasında bayatladı ve cikti/bayat/{damga}/ altına taşındı.
+
+Onlar önceki bir çalıştırmanın sonucudur; ŞU ANDA veri/girdi/ içinde
+duran dosyaları YANSITMAZ.
+
+Güncel çıktı üretmek için önce kaynak sorununu giderin:
+    py araclar/profil_olustur.py "veri/girdi/DOSYA_ADI"
+sonra:
+    py src/boru.py
+""", encoding="utf-8")
+    return len(tasinacak)
+
+
 def main():
     g = Gunluk("topla")
     y = yukle()
@@ -505,6 +611,58 @@ def main():
         g.bilgi("Önce demo veriyi üret:  py araclar/veri_uret.py")
         g.bitir({"durum": "girdi_yok"})
         return
+
+    # ---- KAYNAK DOĞRULAMASI ----
+    # Tanınmayan bir dosya varken devam etmek, kullanıcının verisini
+    # içermeyen ama eksiksiz görünen bir rapor üretir. Bu yüzden burada
+    # durulur; --kaynak-zorla ile geçilirse çıktılara damga basılır.
+    import kaynak as K
+    zorla = ("--kaynak-zorla" in sys.argv
+             or os.environ.get("MIZANKOPRU_KAYNAK_ZORLA") == "1")
+    rapor = K.tara(y, dosya_tipi, sirket_bul)
+    K.rapor_yaz(rapor, g)
+    try:
+        K.dogrula(rapor, zorla=zorla, g=g)
+    except K.KaynakHatasi as e:
+        print(e)
+        K.koken_yaz(rapor, zorlandi=False)
+        # Önceki çalıştırmanın çıktıları yerinde kalırsa, hata mesajını
+        # kaçıran bir kullanıcı panoyu açıp GÜNCEL sanır. Bunlar arşive
+        # taşınır: silmek de yanlış olur, oradaki rakamlar bir zamanlar
+        # doğruydu ve hâlâ okunabilir olmalı.
+        tasinan = bayatlat(g)
+        if tasinan:
+            g.uyari(f"Önceki çalıştırmanın {tasinan} çıktısı "
+                    f"cikti/bayat/ altına taşındı; yanlışlıkla güncel "
+                    f"sanılmasın diye.")
+        g.hata("Boru hattı durduruldu: veri kaynağı doğrulanamadı.")
+        g.bitir({"durum": "kaynak_gecersiz",
+                 "taninmayan": len(rapor.taninmayan)})
+        raise SystemExit(2)
+    # Önceki çalıştırmanın ara dosyaları silinir. Silinmezse, bu sefer
+    # yüklenmemiş bir veri tipinin ESKİ dosyası yerinde kalır ve sonraki
+    # adımlar onu bu çalıştırmanın verisi sanar. Kullanıcı tek bir mizan
+    # yüklemişken 42.000 satırlık eski bir yevmiyenin işlenmesi tam olarak
+    # böyle olur.
+    # SIRA ÖNEMLİ: temizlik köken kaydından ÖNCE yapılır, aksi hâlde bu
+    # çalıştırmanın köken kaydı kendi temizliğinde siliniyor.
+    eski = list(ARA_DIZIN.glob("*.csv")) + [ARA_DIZIN / "kapsam.json",
+                                            ARA_DIZIN / "koken.json"]
+    silinen = 0
+    for f in eski:
+        if f.exists():
+            f.unlink(); silinen += 1
+    if silinen:
+        g.bilgi(f"Önceki çalıştırmadan kalan {silinen} ara dosya silindi "
+                f"(eski verinin yenisine karışmaması için)")
+
+    # Doğrulama geçildi: önceki başarısız çalıştırmanın bayat damgası kalkar.
+    bayat_damga = CIKTI_DIZIN / "NEDEN_BAYAT.txt"
+    if bayat_damga.exists():
+        bayat_damga.unlink()
+
+    koken = K.koken_yaz(rapor, zorlandi=zorla)
+    g.iz("koken", **{k: v for k, v in koken.items() if k != "dosyalar"})
 
     dosyalar = dosyalari_kesfet(y, g)
     g.iyi(f"{sum(len(v) for v in dosyalar.values())} dosya keşfedildi: "
@@ -530,16 +688,49 @@ def main():
     tablo_yaz("Normalize edilen veri", ozet,
               ["Tip", "Satır", "Şirket", "Dönem", "Toplam (yerel, karışık pb)"])
 
-    # --- Kapsama kontrolü: hangi şirket-dönem hiç gelmemiş? ---
+    # --- Kapsam ve eksiklik ---
+    # Bu çalıştırmanın kapsamı YÜKLENEN VERİDİR, yapılandırma değil.
+    # Yapılandırmada tanımlı ama hiç dosyası gelmemiş bir şirket "eksik"
+    # değil, bu çalıştırmada "kapsam dışı"dır. Eksiklik yalnızca kapsam
+    # içindeki şirketlerin ara dönemlerinde anlamlıdır: veri yollayan bir
+    # şirketin bir ayının atlanması gerçek bir bulgudur (K10).
     mizan = pd.read_csv(ARA_DIZIN / "mizan.csv", dtype={"donem": str})
-    beklenen = {(s, d) for s in y.sirketler for d in y.donemler()}
-    gelen = set(zip(mizan["sirket_kod"], mizan["donem"]))
-    eksik = sorted(beklenen - gelen)
+    kapsam_sirket = sorted(mizan["sirket_kod"].unique())
+    kapsam_donem = sorted(mizan["donem"].unique())
+    kapsam_disi = sorted(set(y.sirketler) - set(kapsam_sirket))
+
+    g.bilgi("")
+    g.iyi(f"Bu çalıştırmanın kapsamı: {len(kapsam_sirket)} şirket "
+          f"({', '.join(kapsam_sirket)}) · {len(kapsam_donem)} dönem "
+          f"({kapsam_donem[0]}"
+          + (f" → {kapsam_donem[-1]}" if len(kapsam_donem) > 1 else "") + ")")
+    if kapsam_disi:
+        g.bilgi(f"Kapsam dışı (yapılandırmada var, verisi yüklenmedi): "
+                f"{', '.join(kapsam_disi)}")
+
+    # Kapsam içi şirketlerin ARA dönemlerindeki boşluklar gerçek eksikliktir
+    eksik = []
+    for s in kapsam_sirket:
+        donemler = sorted(mizan[mizan["sirket_kod"] == s]["donem"].unique())
+        if len(donemler) < 2:
+            continue
+        tum = [d for d in y.donemler() if donemler[0] <= d <= donemler[-1]]
+        eksik += [(s, d) for d in tum if d not in donemler]
     if eksik:
-        g.uyari(f"Mizanı hiç gelmeyen {len(eksik)} şirket-dönem: {eksik}")
+        g.uyari(f"Kapsam içinde mizanı gelmeyen {len(eksik)} şirket-dönem: "
+                f"{eksik[:12]}" + (" ..." if len(eksik) > 12 else ""))
         g.iz("eksik_donem", liste=[f"{s}/{d}" for s, d in eksik])
     else:
-        g.iyi("Tüm şirket-dönem kombinasyonlarının mizanı geldi.")
+        g.iyi("Kapsam içindeki her şirket-dönem için mizan var.")
+
+    # Kapsamı sonraki adımlar için kaydet
+    import json as _json
+    (ARA_DIZIN / "kapsam.json").write_text(_json.dumps({
+        "sirketler": kapsam_sirket, "donemler": kapsam_donem,
+        "kapsam_disi": kapsam_disi,
+        "veri_tipleri": [t for t in okuyucular if dosyalar.get(t)],
+        "eksik_donem": [f"{s}/{d}" for s, d in eksik],
+    }, ensure_ascii=False, indent=2), encoding="utf-8")
 
     g.bitir({"tip": len(ozet), "eksik_donem": len(eksik)})
 

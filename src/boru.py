@@ -42,6 +42,12 @@ ADIMLAR = [
     ("sapma",   "src/sapma.py",   "[5] Bütçe-fiili köprüsü ve ayrıştırma"),
     ("pano",    "src/pano.py",    "[6a] HTML kapanış panosu"),
     ("excel",   "src/excel.py",   "[6b] Excel konsolidasyon paketi"),
+    # Son adım kasıtlı olarak bir SINAMA: ham dosyayı boru hattından
+    # bağımsız yeniden okur ve çıktılardaki rakamlarla karşılaştırır.
+    # Çökmeden yanlış sonuç üreten bir boru hattı, çöken bir boru
+    # hattından daha tehlikelidir; bu adım onu yakalamak için var.
+    ("capraz",  "araclar/capraz_dogrula.py",
+     "[7] Çapraz doğrulama: ham dosya ↔ çıktı"),
 ]
 
 
@@ -68,6 +74,10 @@ def main():
                              help="önce sentetik demo veriyi üret")
     ayrıstirici.add_argument("--baslangic", default=None,
                              help="bu adımdan itibaren çalıştır")
+    ayrıstirici.add_argument("--kaynak-zorla", action="store_true",
+                             help="Kaynak doğrulama uyarılarını görmezden gel "
+                                  "(demo ve kullanıcı verisi karışıksa bile "
+                                  "devam et). Sonuçlar güvenilmezdir.")
     ayrıstirici.add_argument("--zeka-kapali", action="store_true",
                              help="yapay zekâ katmanını atla")
     a = ayrıstirici.parse_args()
@@ -81,6 +91,8 @@ def main():
     if a.zeka_kapali:
         ortam["ANTHROPIC_API_KEY"] = ""
         ortam["MIZANKOPRU_ZEKA"] = "kapali"
+    if getattr(a, "kaynak_zorla", False):
+        ortam["MIZANKOPRU_KAYNAK_ZORLA"] = "1"
         g.uyari("Yapay zekâ katmanı KAPALI, yorum metinleri üretilmeyecek. "
                 "Boru hattının ürettiği rakamların hiçbiri değişmez.")
 
@@ -128,6 +140,47 @@ def main():
             ciktilar.append([ad, f"{yol.stat().st_size/1024:.0f} KB"])
     tablo_yaz("Çıktılar (cikti/)", ciktilar, ["Dosya", "Boyut"])
 
+    # ---- Bu çalıştırma neyi işledi ----
+    # En sık ve en pahalı hata sınıfı, kullanıcının yüklediği dosya yerine
+    # başka bir veriden üretilmiş çıktıya bakmaktır. Boru hattı bittiğinde
+    # köken ve kapsam ekranda tekrar yazılır.
+    import json as _json
+    koken_yolu = KOK / "veri" / "ara" / "koken.json"
+    if koken_yolu.exists():
+        kk = _json.loads(koken_yolu.read_text(encoding="utf-8"))
+        g.bilgi("")
+        g.bilgi("Bu çıktılar ŞU dosyalardan üretildi:")
+        for dd in kk.get("dosyalar", []):
+            g.bilgi(f"    {dd.get('ad')}  ({dd.get('tip')}, "
+                    f"{dd.get('sirket') or '-'}, {dd.get('kb', 0)} KB, "
+                    f"parmak {dd.get('parmak', '')[:12]})")
+        vs = kk.get("veri_seti")
+        if vs == "demo":
+            g.uyari("Bu bir DEMO VERİ çalıştırmasıdır, gerçek kapanış değildir.")
+        elif vs == "KARISIK":
+            g.uyari("KARIŞIK kaynak: demo ve kullanıcı dosyaları bir arada "
+                    "işlendi. Rakamlar güvenilir DEĞİLDİR.")
+        if not kk.get("guvenilir", True):
+            g.uyari("Kaynak doğrulaması zorlanarak geçildi; sonuçlara "
+                    "güvenilemez.")
+    kapsam_yolu = KOK / "veri" / "ara" / "kapsam.json"
+    if kapsam_yolu.exists():
+        kp = _json.loads(kapsam_yolu.read_text(encoding="utf-8"))
+        g.bilgi(f"Kapsam: {', '.join(kp.get('sirketler', []))} · "
+                f"{', '.join(kp.get('donemler', []))}")
+        if kp.get("kapsam_disi"):
+            g.uyari("Kapsam dışı (verisi yüklenmedi, çıktılarda YOK): "
+                    + ", ".join(kp["kapsam_disi"]))
+    atlanan_sayisi = 0
+    atl_yolu = CIKTI_DIZIN / "atlanan_testler.json"
+    if atl_yolu.exists():
+        at = _json.loads(atl_yolu.read_text(encoding="utf-8"))
+        atlanan_sayisi = len(at)
+        if at:
+            g.uyari(f"{len(at)} kontrol testi veri yokluğundan çalıştırılamadı: "
+                    + ", ".join(a.get("kod", "") for a in at))
+            g.uyari("Bu testlerin kapsadığı riskler DENETLENMEMİŞTİR.")
+
     # ---- Kapanış durumu ----
     import pandas as pd
     bulgu_yolu = CIKTI_DIZIN / "bulgular.csv"
@@ -138,6 +191,11 @@ def main():
         if kritik:
             g.uyari(f"KAPANIŞ İMZALANAMAZ, {kritik} kritik bulgu açık "
                     f"(toplam {len(b)} bulgu). Ayrıntı: cikti/pano.html")
+        elif atlanan_sayisi:
+            g.uyari(f"KOŞULLU: çalıştırılan testlerde kritik bulgu yok "
+                    f"({len(b)} bulgu toplam), ancak {atlanan_sayisi} test "
+                    f"veri eksikliğinden çalıştırılamadı. Kapanış yalnızca "
+                    f"yüklenen verinin kapsadığı riskler için temizdir.")
         else:
             g.iyi(f"Kritik bulgu yok, kapanış imzalanabilir "
                   f"({len(b)} bulgu toplam).")

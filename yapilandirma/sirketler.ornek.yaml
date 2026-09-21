@@ -1,3 +1,11 @@
+# ÖRNEK YAPILANDIRMA. Bunu kopyalayıp kendi kurulumunuzu yapın:
+#     cp yapilandirma/sirketler.ornek.yaml yapilandirma/sirketler.yaml
+# Kendi mizanınız için şirket kaydını elle yazmanız gerekmez:
+#     py araclar/profil_olustur.py "veri/girdi/DOSYA_ADI"
+# dosyayı açar, biçimini ölçer ve kaydı sirketler.yaml'a ekler.
+# sirketler.yaml depoya GİRMEZ (.gitignore): gerçek şirket adları ve
+# kolon düzenleri kullanıcının kendi verisidir.
+#
 # ============================================================
 # GRUP YAPISI
 # Yeni bir tüzel kişilik eklemek için buraya bir blok ekleyip

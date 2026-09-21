@@ -10,7 +10,7 @@
 MİZANKÖPRÜ [4] KONTROL: iç kontrol testleri.
 
 GÖREV
-  Konsolidasyona giren veriyi 14 testten geçirir ve bulgu listesi üretir.
+  Konsolidasyona giren veriyi yapılandırmadaki testlerden geçirir ve bulgu listesi üretir.
   Testlerin eşikleri yapilandirma/kontroller.yaml'da; kod değişmeden
   şirket politikasına göre ayarlanır.
 
@@ -72,10 +72,17 @@ class Kontrolcu:
 
     # ---------------------------------------------------------------
     def bulgu(self, kod: str, sirket: str, donem: str, nesne: str,
-              tutar_eur: float, aciklama: str, kanit=None):
+              tutar_eur: float, aciklama: str, kanit=None, onem: str = ""):
+        """onem verilirse yapılandırmadaki önemi ezer.
+
+        Aynı test, kanıtın gücüne göre farklı ağırlık taşıyabilir: bir
+        bulgunun kesin bir hata mı yoksa açıklama isteyen bir durum mu
+        olduğunu ayırt etmeyen sistem, yanlış pozitifle gerçek bulguyu
+        aynı satıra yazar ve ikisini birden değersizleştirir."""
         test = self.y.kontroller[kod]
         self.bulgular.append({
-            "test_kod": kod, "test_ad": test["ad"], "onem": test["onem"],
+            "test_kod": kod, "test_ad": test["ad"],
+            "onem": onem or test["onem"],
             "sirket_kod": sirket, "donem": donem, "nesne": nesne,
             "tutar_eur": round(float(tutar_eur), 2), "aciklama": aciklama,
             "kanit": json.dumps(kanit, ensure_ascii=False, default=str) if kanit else "",
@@ -637,6 +644,391 @@ class Kontrolcu:
                         "oran": round(oran, 4)})
         self.calisan.append("K14")
 
+    # =================================================================
+    # MİZAN TABANLI TESTLER (K15-K24)
+    #
+    # Kapanışta elde çoğu zaman yalnızca mizan olur. Yevmiye isteyen
+    # testler atlandığında denetimin tamamen durmaması için, mizanın
+    # kendisinden çıkarılabilecek kontroller burada toplandı. Hepsi
+    # Türkiye'de fiilen uygulanan kontrollerdir ve yalnızca Tek Düzen
+    # Hesap Planı (VUK_TDHP) kullanan şirketlerde çalışır.
+    # =================================================================
+
+    def _tdhp_kapsami(self, mizan: pd.DataFrame, kod: str):
+        """(sirket, donem, bakiye_sozlugu) üçlüleri üretir.
+
+        TDHP dışı bir plan kullanan şirket sessizce atlanmaz: hesap
+        kodları farklı olduğu için test o şirkette anlamsızdır, ama bu
+        raporda görünmelidir."""
+        if mizan.empty:
+            return
+        disi = set()
+        for sirket, alt in mizan.groupby("sirket_kod"):
+            s = self.y.sirketler.get(sirket)
+            if not s or s.hesap_plani != "VUK_TDHP":
+                disi.add(sirket)
+                continue
+            for donem, d in alt.groupby("donem"):
+                bak = (d.groupby("yerel_hesap_kod")["bakiye"].sum().to_dict())
+                yield sirket, donem, bak
+        if disi:
+            self.g.bilgi(f"    {kod}: TDHP dışı plan kullandığı için "
+                         f"kapsam dışı: {', '.join(sorted(disi))}")
+
+    @staticmethod
+    def _top(bak: dict, *onekler: str) -> float:
+        """Verilen ön eklerle başlayan hesapların bakiye toplamı."""
+        return sum(v for k, v in bak.items() if k.startswith(onekler))
+
+    @staticmethod
+    def _hesap(bak: dict, *kodlar: str) -> float:
+        return sum(bak.get(k, 0.0) for k in kodlar)
+
+    # --- K15 · Düzenleyici hesap yönü --------------------------------
+    # Aktifi düzenleyenler alacak bakiyeli (negatif), pasifi ve
+    # özkaynağı düzenleyenler borç bakiyeli (pozitif) olmalıdır.
+    AKTIF_DUZENLEYICI = ["103", "119", "122", "129", "137", "139", "158",
+                         "257", "268", "298", "299"]
+    PASIF_DUZENLEYICI = ["322", "337", "371", "501"]
+
+    def k15(self, mizan: pd.DataFrame):
+        if not self.aktif("K15"):
+            return
+        asgari = self.esik("K15", "asgari_tutar", 1000)
+        for sirket, donem, bak in self._tdhp_kapsami(mizan, "K15"):
+            for kod in self.AKTIF_DUZENLEYICI + self.PASIF_DUZENLEYICI:
+                d = bak.get(kod)
+                if d is None or abs(d) < asgari:
+                    continue
+                aktif_duz = kod in self.AKTIF_DUZENLEYICI
+                ters = (aktif_duz and d > 0) or (not aktif_duz and d < 0)
+                if not ters:
+                    continue
+                beklenen = "alacak" if aktif_duz else "borç"
+                self.bulgu("K15", sirket, donem, f"{kod} düzenleyici hesap",
+                           abs(self.eur(d, donem, sirket, "kapanis")),
+                           f"{kod} numaralı düzenleyici hesap normalde "
+                           f"{beklenen} bakiye verir, bu mizanda ters yönde "
+                           f"{para(abs(d), 0)} bakiye veriyor. Kayıt yanlış "
+                           f"hesaba atılmış olabilir; varlık ya da kaynak "
+                           f"toplamı bu tutar kadar yanlıştır.",
+                           {"hesap": kod, "bakiye": round(d, 2),
+                            "beklenen_yon": beklenen})
+        self.calisan.append("K15")
+
+    # --- K16 · Aktif-pasif ve dönem kârı mutabakatı ------------------
+    def k16(self, mizan: pd.DataFrame):
+        if not self.aktif("K16"):
+            return
+        tol = self.esik("K16", "tolerans", 1.0)
+        for sirket, donem, bak in self._tdhp_kapsami(mizan, "K16"):
+            aktif = self._top(bak, "1", "2")
+            pasif = -self._top(bak, "3", "4", "5")
+            sonuc = -self._top(bak, "6", "7")      # dönem net kârı
+            fark = aktif - (pasif + sonuc)
+            if abs(fark) <= tol:
+                continue
+            self.bulgu("K16", sirket, donem, "Aktif = Pasif + Dönem kârı",
+                       abs(self.eur(fark, donem, sirket, "kapanis")),
+                       f"Aktif toplamı {para(aktif, 0)}, pasif toplamı "
+                       f"{para(pasif, 0)}, dönem sonucu {para(sonuc, 0)}. "
+                       f"Denklik {para(fark, 2)} tutmuyor; bilanço ile gelir "
+                       f"tablosu birbirini doğrulamıyor, hangisinin yanlış "
+                       f"olduğu bilinmeden hiçbir rakam kullanılamaz.",
+                       {"aktif": round(aktif, 2), "pasif": round(pasif, 2),
+                        "donem_sonucu": round(sonuc, 2), "fark": round(fark, 2)})
+        self.calisan.append("K16")
+
+    # --- K17 · 7/A maliyet ve yansıtma denkliği ----------------------
+    def k17(self, mizan: pd.DataFrame):
+        if not self.aktif("K17"):
+            return
+        tol = self.esik("K17", "tolerans", 1.0)
+        for sirket, donem, bak in self._tdhp_kapsami(mizan, "K17"):
+            grup = {k: v for k, v in bak.items() if k.startswith("7")}
+            if not grup:
+                continue                     # 7/B kullanıyor olabilir
+            net = sum(grup.values())
+            if abs(net) <= tol:
+                continue
+            acik = sorted(((k, v) for k, v in grup.items() if abs(v) > tol),
+                          key=lambda x: -abs(x[1]))[:5]
+            self.bulgu("K17", sirket, donem, "7/A maliyet hesapları",
+                       abs(self.eur(net, donem, sirket, "ortalama")),
+                       f"Gider yeri hesapları yansıtma hesaplarıyla "
+                       f"kapatılmamış: net bakiye {para(net, 2)}. Maliyet "
+                       f"aktarımı yarım kalmış demektir; gider ya iki kez "
+                       f"sayılmıştır ya da hiç gelir tablosuna geçmemiştir. "
+                       f"Açık hesaplar: "
+                       + ", ".join(f"{k} {para(v, 0)}" for k, v in acik),
+                       {"net": round(net, 2), "acik_hesaplar": dict(acik)})
+        self.calisan.append("K17")
+
+    # --- K18 · KDV hesapları kapanışı --------------------------------
+    def k18(self, mizan: pd.DataFrame):
+        if not self.aktif("K18"):
+            return
+        asgari = self.esik("K18", "asgari_tutar", 1000)
+        for sirket, donem, bak in self._tdhp_kapsami(mizan, "K18"):
+            indirilecek = bak.get("191", 0.0)      # borç bakiyeli
+            hesaplanan = -bak.get("391", 0.0)      # alacak bakiyeli
+            devreden = bak.get("190", 0.0)
+            if max(abs(indirilecek), abs(hesaplanan)) < asgari:
+                continue
+
+            # Son ayın KDV'si ertesi ayın 28'ine kadar beyan edilir; bu
+            # yüzden Aralık mizanında 191 ve 391'in BİRBİRİNE YAKIN
+            # bakiyelerle açık kalması olağandır. Hata, ikisinin
+            # birbirinden kopmuş olmasıdır: o zaman aradaki fark ne
+            # mahsup edilmiş ne devreden KDV'ye aktarılmıştır.
+            taban = max(abs(indirilecek), abs(hesaplanan), 1.0)
+            fark = indirilecek - hesaplanan
+            kopuk = abs(fark) / taban > 0.20
+            if kopuk:
+                onem, yorum = "yuksek", (
+                    "İki hesap birbirinden kopmuş: aradaki fark ne mahsup "
+                    "edilmiş ne de devreden KDV'ye aktarılmış. Mizan, KDV "
+                    "beyannamesiyle uyuşmuyor.")
+            else:
+                onem, yorum = "dusuk", (
+                    "İki bakiye birbirine yakın; son ayın KDV'si ertesi ay "
+                    "beyan edildiği için bu olağan olabilir. Beyanname ile "
+                    "karşılaştırılıp teyit edilmesi yeterlidir.")
+            self.bulgu("K18", sirket, donem, "191 / 391 KDV mahsubu",
+                       abs(self.eur(fark, donem, sirket, "kapanis")),
+                       f"191 İndirilecek KDV {para(indirilecek, 0)}, "
+                       f"391 Hesaplanan KDV {para(hesaplanan, 0)}, fark "
+                       f"{para(fark, 0)}. 190 Devreden KDV "
+                       f"{para(devreden, 0)}. {yorum}",
+                       {"indirilecek_191": round(indirilecek, 2),
+                        "hesaplanan_391": round(hesaplanan, 2),
+                        "fark": round(fark, 2),
+                        "devreden_190": round(devreden, 2)},
+                       onem=onem)
+        self.calisan.append("K18")
+
+    # --- K19 · TTK 376 sermaye kaybı ---------------------------------
+    def k19(self, mizan: pd.DataFrame):
+        if not self.aktif("K19"):
+            return
+        yarim = self.esik("K19", "yarim_esik", 0.50)
+        ucte_iki = self.esik("K19", "ucte_iki_esik", 0.3333)
+        for sirket, donem, bak in self._tdhp_kapsami(mizan, "K19"):
+            # 500 Sermaye alacak bakiyelidir; 501 Ödenmemiş Sermaye (-)
+            # borç bakiyeli olup sermayeyi azaltır.
+            odenmis = -self._hesap(bak, "500") - self._hesap(bak, "501")
+            if odenmis <= 0:
+                continue
+            donem_sonucu = -self._top(bak, "6", "7")
+            ozkaynak = -self._top(bak, "5") + donem_sonucu
+            oran = ozkaynak / odenmis
+            if oran >= yarim:
+                continue
+            if oran < ucte_iki:
+                madde, ne = ("TTK m.376/2",
+                             "sermayenin üçte ikisi karşılıksız kalmıştır; "
+                             "genel kurul ya sermayeyi tamamlamalı ya da "
+                             "kalan sermayeyle yetinerek azaltmalıdır")
+            else:
+                madde, ne = ("TTK m.376/1",
+                             "sermaye ve kanuni yedeklerin yarısı "
+                             "karşılıksız kalmıştır; yönetim organı genel "
+                             "kurulu toplayıp iyileştirici önlemleri "
+                             "sunmak zorundadır")
+            self.bulgu("K19", sirket, donem, f"{madde} sermaye kaybı",
+                       abs(self.eur(odenmis - ozkaynak, donem, sirket,
+                                    "kapanis")),
+                       f"Özkaynak {para(ozkaynak, 0)}, ödenmiş sermaye "
+                       f"{para(odenmis, 0)} (oran %{oran*100:.1f}). {madde} "
+                       f"kapsamında {ne}. Bu yasal bir yükümlülüktür ve "
+                       f"süreye bağlıdır; kapanışta fark edilmezse yönetim "
+                       f"organının sorumluluğu doğar.",
+                       {"ozkaynak": round(ozkaynak, 2),
+                        "odenmis_sermaye": round(odenmis, 2),
+                        "oran": round(oran, 4), "madde": madde})
+        self.calisan.append("K19")
+
+    # --- K20 · Ortaklarla ilişkili işlem yoğunluğu -------------------
+    def k20(self, mizan: pd.DataFrame):
+        if not self.aktif("K20"):
+            return
+        esik = self.esik("K20", "pay_esigi", 0.10)
+        for sirket, donem, bak in self._tdhp_kapsami(mizan, "K20"):
+            aktif = self._top(bak, "1", "2")
+            if aktif <= 0:
+                continue
+            alacak = self._hesap(bak, "131", "231")
+            borc = -self._hesap(bak, "331", "431")
+            toplam = abs(alacak) + abs(borc)
+            pay = toplam / aktif
+            if pay < esik:
+                continue
+            parca = []
+            if abs(alacak) > 0:
+                parca.append(f"ortaklardan alacak {para(alacak, 0)}")
+            if abs(borc) > 0:
+                parca.append(f"ortaklara borç {para(borc, 0)}")
+            self.bulgu("K20", sirket, donem, "Ortaklarla ilişkili işlemler",
+                       abs(self.eur(toplam, donem, sirket, "kapanis")),
+                       f"{' ve '.join(parca)}, aktif toplamının "
+                       f"%{pay*100:.1f}'i. Örtülü sermaye (KVK m.12) ve "
+                       f"transfer fiyatlandırması (KVK m.13) yönünden "
+                       f"incelenmeli; ortaklardan alacak için adat faizi "
+                       f"hesaplanması gerekebilir.",
+                       {"ortaklardan_alacak": round(alacak, 2),
+                        "ortaklara_borc": round(borc, 2),
+                        "aktif_payi": round(pay, 4)})
+        self.calisan.append("K20")
+
+    # --- K21 · Kasa bakiyesi makullüğü -------------------------------
+    def k21(self, mizan: pd.DataFrame):
+        if not self.aktif("K21"):
+            return
+        oran_esik = self.esik("K21", "hasilat_orani", 0.05)
+        asgari = self.esik("K21", "asgari_tutar", 100000)
+        for sirket, donem, bak in self._tdhp_kapsami(mizan, "K21"):
+            kasa = self._hesap(bak, "100")
+            if kasa < asgari:
+                continue
+            hasilat = -(self._top(bak, "60") + self._top(bak, "61"))
+            oran = kasa / hasilat if hasilat else 0.0
+            if hasilat and oran < oran_esik:
+                continue
+            self.bulgu("K21", sirket, donem, "100 Kasa",
+                       abs(self.eur(kasa, donem, sirket, "kapanis")),
+                       f"Kasa bakiyesi {para(kasa, 0)}"
+                       + (f", yıllık hasılatın %{oran*100:.1f}'i" if hasilat
+                          else "")
+                       + ". Fiilen kasada bulunması mümkün olmayan tutarlar "
+                         "ortaklara örtülü olarak verilmiş sayılır ve adat "
+                         "faizi üzerinden vergilendirilir. Kasa sayım "
+                         "tutanağı ile doğrulanmalıdır.",
+                       {"kasa": round(kasa, 2), "hasilat": round(hasilat, 2),
+                        "oran": round(oran, 4)})
+        self.calisan.append("K21")
+
+    # --- K22 · Likidite ve kaldıraç eşikleri -------------------------
+    def k22(self, mizan: pd.DataFrame):
+        if not self.aktif("K22"):
+            return
+        cari_alt = self.esik("K22", "cari_oran_alt", 1.00)
+        asit_alt = self.esik("K22", "asit_test_alt", 0.70)
+        borc_ust = self.esik("K22", "borc_ozkaynak_ust", 3.00)
+        for sirket, donem, bak in self._tdhp_kapsami(mizan, "K22"):
+            donen = self._top(bak, "1")
+            kvyk = -self._top(bak, "3")
+            stok = self._top(bak, "15")
+            yabanci = -self._top(bak, "3", "4")
+            donem_sonucu = -self._top(bak, "6", "7")
+            ozkaynak = -self._top(bak, "5") + donem_sonucu
+
+            olcumler = []
+            if kvyk > 0:
+                cari = donen / kvyk
+                if cari < cari_alt:
+                    olcumler.append(
+                        (f"cari oran {cari:.2f}", cari_alt,
+                         "kısa vadeli borçları karşılayacak dönen varlık yok"))
+                asit = (donen - stok) / kvyk
+                if asit < asit_alt:
+                    olcumler.append(
+                        (f"asit-test oranı {asit:.2f}", asit_alt,
+                         "stok satılmadan kısa vadeli borç ödenemiyor"))
+            if ozkaynak > 0:
+                kaldirac = yabanci / ozkaynak
+                if kaldirac > borc_ust:
+                    olcumler.append(
+                        (f"borç/özkaynak {kaldirac:.2f}", borc_ust,
+                         "yabancı kaynak özkaynağın kat kat üstünde"))
+            for metin, esik_deger, yorum in olcumler:
+                self.bulgu("K22", sirket, donem, metin.split()[0].capitalize(),
+                           abs(self.eur(kvyk - donen if "cari" in metin
+                                        else yabanci, donem, sirket,
+                                        "kapanis")),
+                           f"{metin} (eşik {esik_deger:.2f}): {yorum}. "
+                           f"Kapanışın imzalanmasını engellemez ama "
+                           f"finansman ihtiyacının kapanış anında "
+                           f"görülmesini sağlar.",
+                           {"donen": round(donen, 2), "kvyk": round(kvyk, 2),
+                            "ozkaynak": round(ozkaynak, 2)})
+        self.calisan.append("K22")
+
+    # --- K23 · Amortisman tutarlılığı --------------------------------
+    def k23(self, mizan: pd.DataFrame):
+        if not self.aktif("K23"):
+            return
+        ust = self.esik("K23", "ust_oran", 1.00)
+        asgari_mdv = self.esik("K23", "asgari_mdv", 50000)
+        for sirket, donem, bak in self._tdhp_kapsami(mizan, "K23"):
+            # 25x ve 26x brüt tutarlar, 257/268/299 birikmiş amortisman
+            brut = sum(v for k, v in bak.items()
+                       if k.startswith(("25", "26"))
+                       and k not in ("257", "268"))
+            birikmis = -self._hesap(bak, "257", "268", "299")
+            if brut < asgari_mdv:
+                continue
+            oran = birikmis / brut if brut else 0.0
+            if 0 < oran <= ust:
+                continue
+            if oran <= 0:
+                aciklama = (f"Duran varlık brüt tutarı {para(brut, 0)} olmasına "
+                            f"rağmen birikmiş amortisman yok. Amortisman "
+                            f"ayrılmamışsa hem kâr hem varlık olduğundan "
+                            f"yüksek görünür.")
+            else:
+                aciklama = (f"Birikmiş amortisman {para(birikmis, 0)}, duran "
+                            f"varlık brüt tutarı {para(brut, 0)} "
+                            f"(oran %{oran*100:.1f}). Amortisman brüt tutarı "
+                            f"aşamaz; sabit kıymet defteri ile mizan "
+                            f"birbirini tutmuyor.")
+            self.bulgu("K23", sirket, donem, "Birikmiş amortisman / MDV",
+                       abs(self.eur(birikmis, donem, sirket, "kapanis")),
+                       aciklama,
+                       {"brut_mdv": round(brut, 2),
+                        "birikmis_amortisman": round(birikmis, 2),
+                        "oran": round(oran, 4)})
+        self.calisan.append("K23")
+
+    # --- K24 · Alacak ve stok devir süresi ---------------------------
+    def k24(self, mizan: pd.DataFrame):
+        if not self.aktif("K24"):
+            return
+        alacak_ust = self.esik("K24", "alacak_gun_ust", 120)
+        stok_ust = self.esik("K24", "stok_gun_ust", 120)
+        for sirket, donem, bak in self._tdhp_kapsami(mizan, "K24"):
+            hasilat = -(self._top(bak, "60") + self._top(bak, "61"))
+            smm = self._top(bak, "62")
+            alacak = self._hesap(bak, "120", "121")
+            stok = self._top(bak, "15")
+
+            if hasilat > 0 and alacak > 0:
+                gun = alacak / hasilat * 365
+                if gun > alacak_ust:
+                    self.bulgu("K24", sirket, donem, "Alacak devir süresi",
+                               abs(self.eur(alacak, donem, sirket, "kapanis")),
+                               f"Ticari alacaklar {para(alacak, 0)}, yıllık "
+                               f"hasılat {para(hasilat, 0)}: tahsilat süresi "
+                               f"{gun:.0f} gün (eşik {alacak_ust}). Uzayan "
+                               f"süre tahsil edilemeyen alacağa ve eksik "
+                               f"şüpheli alacak karşılığına işaret eder; "
+                               f"kârı olduğundan yüksek gösterir.",
+                               {"alacak": round(alacak, 2),
+                                "hasilat": round(hasilat, 2),
+                                "gun": round(gun, 1)})
+            if smm > 0 and stok > 0:
+                gun = stok / smm * 365
+                if gun > stok_ust:
+                    self.bulgu("K24", sirket, donem, "Stok devir süresi",
+                               abs(self.eur(stok, donem, sirket, "kapanis")),
+                               f"Stoklar {para(stok, 0)}, satılan malın "
+                               f"maliyeti {para(smm, 0)}: stok devir süresi "
+                               f"{gun:.0f} gün (eşik {stok_ust}). Uzayan süre "
+                               f"değer düşüklüğü ayrılmamış olabileceğini "
+                               f"gösterir.",
+                               {"stok": round(stok, 2), "smm": round(smm, 2),
+                                "gun": round(gun, 1)})
+        self.calisan.append("K24")
+
 
 # ======================================================================
 def main():
@@ -705,6 +1097,17 @@ def main():
     k.k12(yevmiye)
     k.k13(yevmiye)
     k.k14(cevrilmis, butce)
+    # Mizan tabanlı testler: yevmiye olmadan da çalışır
+    k.k15(mizan)
+    k.k16(mizan)
+    k.k17(mizan)
+    k.k18(mizan)
+    k.k19(mizan)
+    k.k20(mizan)
+    k.k21(mizan)
+    k.k22(mizan)
+    k.k23(mizan)
+    k.k24(mizan)
 
     bulgular = pd.DataFrame(k.bulgular, columns=BULGU_KOLONLARI)
     if not bulgular.empty:

@@ -164,7 +164,7 @@ def main():
     A('<h2>1. Proje özeti</h2>')
     A('''<div class="ozet"><b>Tek cümlede:</b> Dört ülkeden farklı biçimlerde gelen
     ERP çıktılarını tek şemaya indiren, grup hesap planına eşleyen, IAS 21'e göre
-    çeviren, 14 iç kontrol testinden geçiren ve bütçe sapmasını fiyat / karışım /
+    çeviren, iç kontrol testlerinden geçiren ve bütçe sapmasını fiyat / karışım /
     hacim / kur bileşenlerine ayıran bir kapanış motoru.</div>''')
 
     A('''<p>Bir grup şirketinde ay sonu kapanışı şöyle geçer: dört ayrı ülkeden
@@ -186,7 +186,7 @@ def main():
       <div class="kucuk">EUR · {son} YTD · net marj %{net/hasilat*100:.1f}</div></div>
     <div class="kart"><div class="etiket">Kontrol bulgusu</div>
       <div class="deger">{len(bulgular)}</div>
-      <div class="kucuk">{kritik} kritik · 14 test</div></div>
+      <div class="kucuk">{kritik} kritik · {len(y.kontroller)} test</div></div>
     <div class="kart"><div class="etiket">Tuzak avı skoru</div>
       <div class="deger">14 / 14</div>
       <div class="kucuk">kasıtlı hataların tamamı yakalandı</div></div>
@@ -252,7 +252,7 @@ def main():
      ├─[1] topla.py     tek şemaya normalize et
      ├─[2] esle.py      yerel hesap kodu → grup hesap planı
      ├─[3] cevir.py     IAS 21 çevrim + eliminasyon + azınlık payı
-     ├─[4] kontrol.py   14 iç kontrol testi
+     ├─[4] kontrol.py   İç kontrol testleri
      ├─[5] sapma.py     fiyat / karışım / hacim / kur ayrıştırması
      └─[6] pano.py + excel.py
              cikti/pano.html · cikti/konsolidasyon_paketi.xlsx</pre>''')
@@ -270,7 +270,7 @@ def main():
          "IAS 21: bilanço kapanış, gelir tablosu ortalama kurla. YTD mizandan aylık "
          "hareket türetilir. Grup içi kalemler elimine edilir, azınlık payı hesaplanır."),
         ("[4] kontrol.py", adim_sure.get("kontrol", 0),
-         "14 iç kontrol testi. Eşikler yapılandırmadan okunur. Her bulgu kanıt taşır: "
+         "İç kontrol testleri. Eşikler yapılandırmadan okunur. Her bulgu kanıt taşır: "
          "hangi fiş, hangi tutar, hangi kullanıcı."),
         ("[5] sapma.py", adim_sure.get("sapma", 0),
          "Bütçe-fiili köprüsü. Ayrıştırma özdeşliği her çalıştırmada sınanır. "
@@ -477,7 +477,7 @@ def main():
     <tr><td><code>kolon_eslesme.yaml</code></td><td>ERP kolon adları
       (Borç / Soll / Debit) → iç şema</td></tr>
     <tr><td><code>kurlar.csv</code></td><td>Kapanış, ortalama ve bütçe kurları</td></tr>
-    <tr><td><code>kontroller.yaml</code></td><td>14 testin eşikleri, onay
+    <tr><td><code>kontroller.yaml</code></td><td>Testlerin eşikleri, onay
       limitleri, kapsam kuralları</td></tr>
     <tr><td><code>zeka.yaml</code></td><td>Model seçimi, önbellek, hangi yapay
       zekâ görevlerinin açık olduğu</td></tr>

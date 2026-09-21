@@ -203,3 +203,170 @@ testler:
     esikler:
       oran_esigi: 0.10        # %10
       mutlak_esik: 100000     # EUR, ikisi de aşılmalı
+
+  # ==================================================================
+  # MİZAN TABANLI TESTLER (K15-K24)
+  #
+  # Yevmiye defteri olmadan da yapılabilen kontroller. Bir kapanışta
+  # elde çoğu zaman yalnızca mizan olur; bu testler o durumda denetimin
+  # tamamen durmasını engeller.
+  #
+  # Hepsi Tek Düzen Hesap Planı'na (VUK_TDHP) özgüdür ve yalnızca hesap
+  # planı VUK_TDHP olan şirketlerde çalışır. Başka bir plandaki şirket
+  # için sessizce geçilmez, ATLANDI olarak raporlanır.
+  # ==================================================================
+
+  - kod: "K15"
+    ad: "Düzenleyici hesap yönü"
+    aciklama: >
+      TDHP'de (-) ile biten düzenleyici hesapların (103 Verilen Çekler,
+      119 Menkul Kıymet Değer Düşüklüğü, 129 Şüpheli Alacak Karşılığı,
+      158 Stok Değer Düşüklüğü, 257/268 Birikmiş Amortisman, 371, 501
+      Ödenmemiş Sermaye) bağlı oldukları hesabın tersi yönde bakiye
+      vermesi gerekir.
+    neden_onemli: >
+      Ters yönde bakiye, kaydın yanlış hesaba atıldığını gösterir ve
+      varlık toplamını doğrudan şişirir. Mizan yine denk görünür.
+    gerekli_veri: mizan
+    aktif: true
+    onem: yuksek
+    esikler:
+      asgari_tutar: 1000
+
+  - kod: "K16"
+    ad: "Aktif-pasif ve dönem kârı mutabakatı"
+    aciklama: >
+      Aktif toplamı, pasif toplamı ile dönem net kârının toplamına eşit
+      olmalıdır. Mizanda 690/692 kapatılmamışsa fark tam olarak gelir
+      tablosu sonucuna eşit çıkar.
+    neden_onemli: >
+      Fark varsa bilanço ile gelir tablosu birbirini tutmuyordur; hangi
+      tarafın yanlış olduğu bilinmeden hiçbir rakam kullanılamaz.
+    gerekli_veri: mizan
+    aktif: true
+    onem: kritik
+    esikler:
+      tolerans: 1.0
+
+  - kod: "K17"
+    ad: "7/A maliyet ve yansıtma denkliği"
+    aciklama: >
+      7/A seçeneğinde gider yeri hesapları (710-798) yansıtma hesaplarıyla
+      kapatılır; grubun net bakiyesi dönem sonunda sıfır olmalıdır.
+    neden_onemli: >
+      Sıfır değilse maliyet aktarımı yarım kalmıştır: gider ya iki kez
+      sayılmış ya da hiç gelir tablosuna geçmemiştir.
+    gerekli_veri: mizan
+    aktif: true
+    onem: yuksek
+    esikler:
+      tolerans: 1.0
+
+  - kod: "K18"
+    ad: "KDV hesapları kapanışı"
+    aciklama: >
+      Dönem sonunda 191 İndirilecek KDV ve 391 Hesaplanan KDV mahsuplaşıp
+      kapanmış, kalan tutar 190 Devreden KDV'ye aktarılmış olmalıdır.
+    neden_onemli: >
+      191 ya da 391'de bakiye kalması, mizanın KDV beyannamesiyle
+      uyuşmadığını gösterir. Vergi incelemesinin ilk baktığı yerlerden.
+    gerekli_veri: mizan
+    aktif: true
+    onem: yuksek
+    esikler:
+      asgari_tutar: 1000
+
+  - kod: "K19"
+    ad: "TTK 376 sermaye kaybı"
+    aciklama: >
+      Özkaynak toplamı (sermaye + yedekler + geçmiş yıl sonuçları + dönem
+      kârı) ödenmiş sermayenin yarısının altına düşmüşse TTK m.376/1
+      uyarınca genel kurul toplanmalı; üçte ikisi kaybedilmişse 376/2
+      uyarınca sermaye tamamlama veya azaltma zorunludur.
+    neden_onemli: >
+      Yasal bir yükümlülüktür ve süreye bağlıdır. Kapanışta fark
+      edilmezse yönetim organının sorumluluğu doğar.
+    gerekli_veri: mizan
+    aktif: true
+    onem: kritik
+    esikler:
+      yarim_esik: 0.50
+      ucte_iki_esik: 0.3333
+
+  - kod: "K20"
+    ad: "Ortaklarla ilişkili işlem yoğunluğu"
+    aciklama: >
+      131/231 Ortaklardan Alacaklar ve 331/431 Ortaklara Borçlar
+      hesaplarının bilanço toplamı içindeki payı.
+    neden_onemli: >
+      Yüksek pay, örtülü sermaye (KVK m.12) ve transfer fiyatlandırması
+      (KVK m.13) riskine işaret eder; ayrıca adat faizi hesaplanması
+      gerekebilir.
+    gerekli_veri: mizan
+    aktif: true
+    onem: yuksek
+    esikler:
+      pay_esigi: 0.10
+
+  - kod: "K21"
+    ad: "Kasa bakiyesi makullüğü"
+    aciklama: >
+      100 Kasa hesabının yıllık hasılata oranı ve mutlak büyüklüğü.
+    neden_onemli: >
+      Fiilen kasada bulunması mümkün olmayan tutarlar, ortaklara örtülü
+      olarak verilmiş sayılır ve adat faizi üzerinden vergilendirilir.
+      Türkiye'de en sık rastlanan inceleme bulgularından biridir.
+    gerekli_veri: mizan
+    aktif: true
+    onem: orta
+    esikler:
+      hasilat_orani: 0.05
+      asgari_tutar: 100000
+
+  - kod: "K22"
+    ad: "Likidite ve kaldıraç eşikleri"
+    aciklama: >
+      Cari oran (dönen varlık / kısa vadeli yükümlülük), asit-test oranı
+      ve borç/özkaynak oranı eşik dışına çıkmışsa uyarı.
+    neden_onemli: >
+      Kapanışın imzalanmasını engellemez ama finansman ihtiyacının
+      kapanış anında görülmesini sağlar. FP&A'nın erken uyarı görevi.
+    gerekli_veri: mizan
+    aktif: true
+    onem: orta
+    esikler:
+      cari_oran_alt: 1.00
+      asit_test_alt: 0.70
+      borc_ozkaynak_ust: 3.00
+
+  - kod: "K23"
+    ad: "Amortisman tutarlılığı"
+    aciklama: >
+      Birikmiş amortismanın (257, 268, 299) maddi ve maddi olmayan duran
+      varlık brüt tutarına oranı. Oran %100'ü aşamaz; sıfır olması da
+      amortisman ayrılmadığını gösterir.
+    neden_onemli: >
+      Amortisman eksikse kâr ve varlık birlikte şişer; %100'ü aşıyorsa
+      sabit kıymet defteri ile mizan birbirini tutmuyordur.
+    gerekli_veri: mizan
+    aktif: true
+    onem: orta
+    esikler:
+      ust_oran: 1.00
+      asgari_mdv: 50000
+
+  - kod: "K24"
+    ad: "Alacak ve stok devir süresi"
+    aciklama: >
+      Alacak devir günü (120+121 / hasılat x 365) ve stok devir günü
+      (15x / satılan malın maliyeti x 365).
+    neden_onemli: >
+      Uzayan alacak süresi tahsil edilemeyen alacağa ve eksik şüpheli
+      alacak karşılığına; uzayan stok süresi değer düşüklüğü
+      ayrılmamasına işaret eder. İkisi de kârı olduğundan yüksek gösterir.
+    gerekli_veri: mizan
+    aktif: true
+    onem: orta
+    esikler:
+      alacak_gun_ust: 120
+      stok_gun_ust: 120

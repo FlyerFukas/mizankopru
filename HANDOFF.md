@@ -488,3 +488,74 @@ veriden üretilmişti. Kullanıcının kendi verisi hiç işlenmemişti.
 **Negatif test.** `veri/girdi/` içine tanınmayan bir dosya konup çalıştırıldı:
 `topla.py` çıkış kodu 2, `boru.py` çıkış kodu 1, önceki çıktılar
 `cikti/bayat/20260921_102526/` altına taşındı. Hata sınıfı artık yakalanıyor.
+
+---
+
+## §20. Denetim kapsamının genişletilmesi ve FP&A katmanı
+
+**Sorun.** Kullanıcı tek bir mizan yüklediğinde 14 testin 10'u yevmiye,
+bütçe ya da grup içi mutabakat istediği için atlanıyordu: denetim kapsamı
+%29. Sistem dürüsttü (atlananları tek tek yazıyordu) ama eldeki veriden
+çıkarılabilecek kontrolleri de yapmıyordu.
+
+**K15-K24: mizan tabanlı on yeni test.** Hepsi yalnızca mizandan çalışır ve
+Türkiye mali denetim pratiğinde fiilen kullanılan kontrollerdir. Yalnızca
+hesap planı `VUK_TDHP` olan şirketlerde koşar; başka plandaki şirket sessizce
+geçilmez, kapsam dışı olarak raporlanır.
+
+| Kod | Test | Ne yakalar |
+|---|---|---|
+| K15 | Düzenleyici hesap yönü | 103, 119, 129, 257, 268, 371, 501 gibi (-) hesapların ters bakiye vermesi; varlık toplamını doğrudan şişirir |
+| K16 | Aktif-pasif ve dönem kârı mutabakatı | Bilanço ile gelir tablosunun birbirini doğrulamaması |
+| K17 | 7/A maliyet ve yansıtma denkliği | Gider yeri hesaplarının yansıtmayla kapatılmaması, gider çift sayımı |
+| K18 | KDV hesapları kapanışı | 191/391 mahsubunun yapılmaması, mizanın beyannameyle uyuşmaması |
+| K19 | TTK 376 sermaye kaybı | Özkaynağın sermayenin yarısının/üçte ikisinin altına düşmesi, yasal yükümlülük |
+| K20 | Ortaklarla ilişkili işlem yoğunluğu | Örtülü sermaye (KVK m.12), transfer fiyatlandırması (KVK m.13), adat faizi |
+| K21 | Kasa bakiyesi makullüğü | Fiilen kasada olamayacak tutar, ortağa örtülü aktarım |
+| K22 | Likidite ve kaldıraç eşikleri | Cari oran, asit-test, borç/özkaynak eşik ihlali |
+| K23 | Amortisman tutarlılığı | Amortisman ayrılmaması ya da brüt tutarı aşması |
+| K24 | Alacak ve stok devir süresi | Tahsil edilemeyen alacak, değer düşüklüğü ayrılmamış stok |
+
+Kapsam **4/14'ten 14/24'e** çıktı.
+
+**`bulgu()` artık önem ezebiliyor.** K18 ilk hâlinde yanlış pozitif üretti:
+aralık ayının KDV'si ertesi ay beyan edildiği için 191/391'de bakiye kalması
+olağandır. Test iki hesabın birbirinden *kopmuş* olup olmadığına bakacak
+şekilde düzeltildi; yakın bakiyeler artık "düşük" önemle, açıklamasıyla
+birlikte raporlanıyor. Aynı testin kanıtın gücüne göre farklı ağırlık
+taşıyabilmesi için `Kontrolcu.bulgu()` opsiyonel `onem` parametresi aldı.
+
+**`src/oran.py` (yeni, boru hattının 5a adımı).** FP&A tarafı: 18 finansal
+oran (likidite, kaldıraç, kârlılık, faaliyet döngüsü) ve dikey analiz. Her
+oranın **payı ve paydası ayrı kolonlarda** yazılır; bir oranı sorgulayan kişi
+hangi hesaplardan geldiğini görmeden ona güvenemez. Hesaplanamayan oran "-"
+yazılır, sıfır yazılmaz: ikisi aynı şey değildir. Yatay analiz en az iki
+dönem ister; tek dönemde üretilmez ve `cikti/atlanan_analizler.json`'a
+sebebiyle yazılır.
+
+**İkinci bir hayalet veri hatası bulundu ve kapatıldı.** `cevir.py`,
+`y.donemler()` ile *yapılandırmadaki* dönem listesini kullanıyordu. Tek bir
+2018-12 mizanı yüklendiğinde konsolide tabloda **12 tane uydurma 2025 dönemi**
+oluşuyordu: `reindex` + `ffill` her yüklenmemiş dönemi bir öncekinin
+kopyasıyla dolduruyordu. Pano ve Excel `son_donem()` kullandığı için
+görünmüyordu; `oran.py`'nin yatay analizi "2025-12 → 2018-12" yazınca ortaya
+çıktı. Dönemler artık **yüklenen veriden** türetiliyor. Yapılandırmadaki dönem
+listesi bir takvimdir, bir veri beyanı değil.
+
+Çapraz doğrulamaya üç sınama eklendi (9 → 12): konsolide tablodaki dönem
+sayısı, yüklenmemiş olduğu hâlde üretilen dönem sayısı, yüklenmemiş olduğu
+hâlde üretilen şirket sayısı.
+
+**Diğer düzeltmeler.**
+- Sabit "14 test" metinleri koddan ve belgelerden kaldırıldı; test sayısı
+  yapılandırmadan okunuyor. Test eklendiğinde belge sessizce yanlışa dönmüyor.
+- `araclar/ozet_uret.py` (yeni): iki sayfalık özet belge. İçindeki her rakam
+  son çalıştırmanın çıktı dosyalarından okunur, elle yazılmaz.
+- Pano ve Excel paketine oran ve dikey analiz bölümleri eklendi (Excel artık
+  10 sayfa).
+
+**Doğrulama (NILSAN 2018-12).** Boru hattı 9 adım, 18 sn. Çapraz doğrulama
+**12/12 geçti**. 24 testin 14'ü çalıştı, 5 bulgu: ortaklarla ilişkili
+işlemler aktifin %21,2'si (yüksek), stok devir 352 gün, asit-test 0,39,
+KDV mahsubu farkı 707 TL (düşük), nakit hesabında ters hareket. Panel
+gerçek testte canlı log akışıyla çalıştırıldı, 9 adım da tamamlandı.

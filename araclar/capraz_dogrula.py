@@ -162,6 +162,25 @@ def main() -> int:
     sina("Faaliyet giderleri (ham 63x)", ham_grup("63"),
          kal("Faaliyet giderleri"), y.sunum_para_birimi)
 
+    # ---- 4b. KAPSAM: uydurma dönem ya da şirket üretilmemeli ----
+    # Yapılandırmadaki dönem listesi bir TAKVİMDİR, bir veri beyanı
+    # değil. Onu veri sanan bir boru hattı, yüklenmemiş her dönem için
+    # satır üretip bir önceki dönemin bakiyesini kopyalar. Tek bir
+    # 2018-12 mizanı yüklendiğinde konsolide tabloda 12 tane uydurma
+    # 2025 dönemi oluşmuştu; bu sınama onu yakalar.
+    ham_donem = sorted(mizan["donem"].dropna().unique())
+    kons_donem = sorted(konsolide["donem"].dropna().unique())
+    sina("Konsolide tablodaki dönem sayısı",
+         len(ham_donem), len(kons_donem), "adet")
+    fazla_donem = [d for d in kons_donem if d not in ham_donem]
+    sina("Yüklenmemiş olduğu hâlde üretilen dönem", 0, len(fazla_donem),
+         "adet")
+    ham_sirket = sorted(mizan["sirket_kod"].dropna().unique())
+    kons_sirket = sorted(konsolide["sirket_kod"].dropna().unique())         if "sirket_kod" in konsolide.columns else ham_sirket
+    fazla_sirket = [s for s in kons_sirket if s not in ham_sirket]
+    sina("Yüklenmemiş olduğu hâlde üretilen şirket", 0, len(fazla_sirket),
+         "adet")
+
     # ---- 5. ASKI: hiçbir tutar sessizce düşmemeli ----
     cevrilmis = pd.read_csv(ARA_DIZIN / "cevrilmis.csv",
                             dtype={"donem": str, "grup_kod": str})
@@ -178,6 +197,12 @@ def main() -> int:
     tablo_yaz("Çapraz doğrulama: ham dosya ↔ boru hattı çıktısı", satirlar,
               ["Sınama", "Ham dosya", "Boru hattı", "Sonuç"])
 
+    if fazla_donem:
+        g.hata("Yüklenmemiş dönemler için satır üretilmiş: "
+               + ", ".join(fazla_donem))
+    if fazla_sirket:
+        g.hata("Yüklenmemiş şirketler için satır üretilmiş: "
+               + ", ".join(fazla_sirket))
     if kayip:
         g.uyari(f"Bakiyesi değişen {len(kayip)} hesap:")
         for k, v in kayip[:15]:

@@ -82,9 +82,13 @@ ADIMLAR = [
      "IAS 21 kur çevrimi, grup içi eliminasyon ve azınlık payı. Gelir tablosu "
      "her ayın kendi ortalama kuruyla çevrilir."),
     ("kontrol", "src/kontrol.py", "[4] Kontrol",
-     "14 iç kontrol testi. Bilanço denkliğinden Benford'a, limit parçalamadan "
+     "İç kontrol testleri. Bilanço denkliğinden Benford'a, limit parçalamadan "
      "görevler ayrılığına."),
-    ("sapma", "src/sapma.py", "[5] Sapma",
+    ("oran", "src/oran.py", "[5a] Oranlar",
+     "Likidite, kaldıraç, kârlılık ve faaliyet döngüsü oranları ile dikey "
+     "analiz. Her oranın payı ve paydası ayrı kolonda yazılır; sayıyı "
+     "sorgulayan kişi hangi hesaplardan geldiğini görebilir."),
+    ("sapma", "src/sapma.py", "[5b] Sapma",
      "Bütçe-fiili köprüsü: fiyat / karışım / hacim / kur ayrıştırması. "
      "Özdeşlik her çalıştırmada sınanır."),
     ("pano", "src/pano.py", "[6a] Pano",
@@ -107,6 +111,9 @@ ADIM_SOZLUK = {a[0]: a for a in ADIMLAR}
 
 CIKTI_DOSYALARI = [
     ("pano.html", "Kapanış panosu", "HTML"),
+    ("oranlar.csv", "Finansal oranlar", "CSV"),
+    ("dikey_analiz.csv", "Dikey analiz", "CSV"),
+    ("oran_notu.md", "Finansal analiz notu", "Markdown"),
     ("konsolidasyon_paketi.xlsx", "Konsolidasyon paketi", "Excel · 9 sayfa"),
     ("MizanKopru-Proje-Raporu.pdf", "Teknik rapor", "PDF · 12 sayfa"),
     ("MizanKopru-Nasil-Calisir.pdf", "Tanıtım belgesi", "PDF · 11 sayfa"),

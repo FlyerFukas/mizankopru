@@ -559,3 +559,99 @@ hâlde üretilen şirket sayısı.
 işlemler aktifin %21,2'si (yüksek), stok devir 352 gün, asit-test 0,39,
 KDV mahsubu farkı 707 TL (düşük), nakit hesabında ters hareket. Panel
 gerçek testte canlı log akışıyla çalıştırıldı, 9 adım da tamamlandı.
+
+---
+
+## §21. Gözetimli öğrenme entegrasyonu, birinci sistem
+
+**Kaynaklar bağlandı.** `gozetimli-ogrenme` (Furkan'ın kendi referans
+kütüphanesi: metrikler, çapraz doğrulama stratejileri, sızıntı ölçümü)
+düzenlenebilir kurulumla projeye bağlandı. Değerlendirme tarafını o, model
+gövdesini scikit-learn sağlıyor. `ML-Kutuphane/regresyon_kiyas.py` regresyon
+sistemlerinde kullanılmak üzere bekliyor (Sistem 3).
+
+```
+py -m pip install scikit-learn
+py -m pip install -e C:\Users\furka\Music\gozetimli-ogrenme
+```
+
+**`ENTEGRASYON-ML.md` yazıldı.** Dört sistem, sırası ve gerekçesi belirlendi:
+hesap eşleme sınıflandırıcısı (veri bugün var, yapıldı), bulgu triyajı
+(etiket toplama altyapısı kuruldu, model veri birikince), analitik prosedür
+regresyonu (çok dönemli mizan gerekir), nakit akışı tahmini (üçüncünün
+üstüne kurulur).
+
+**Değişmeyen kural ve kanıtı.** Model hiçbir tutarı değiştirmez: öneri
+üretir, sıralar, beklenti üretir. `araclar/ogrenme_notr_mu.py` boru hattını
+öğrenme katmanı açık ve kapalı iki kez çalıştırıp tutar taşıyan sekiz
+dosyanın özetini karşılaştırıyor ve **hepsi birebir aynı** çıkıyor. Bu,
+`--zeka-kapali` sınamasının öğrenme katmanı için yapılan eşdeğeri.
+
+### Sistem 1: hesap eşleme sınıflandırıcısı
+
+`src/ogrenme.py` (ortak iskelet: taban çizgi, rapor, model kaydı) ve
+`src/esleme_modeli.py` yazıldı. Girdi hesap adı artı kodun ilk iki hanesi,
+çıktı grup kodu, 41 sınıf, eğitim verisi `hesap_eslesme.csv` (304 satır).
+
+| Ölçüm | Makro F1 | İç içe CV | Doğruluk | İlk 3 öneri |
+|---|---|---|---|---|
+| Ad + kod öneki (üretime giren) | 0.589 | 0.582 | 0.681 | 0.808 |
+| Yalnızca ad (kod sinyali yokken alt sınır) | 0.324 | 0.319 | 0.418 | 0.641 |
+| Taban çizgi (en sık sınıf) | 0.012 | | | |
+| **Hiç görülmemiş hesap planı** | **0.095** | | | |
+
+**Gerçek test.** Eşleme tablosundan altı hesap geçici olarak kaldırıldı, boru
+hattı çalıştırıldı, beş hesap askıya düştü. Modelin birinci önerisi **5/5
+doğru**: 600 hasılata, 153 stoklara, 255 maddi duran varlıklara, 102 nakde,
+335 personel borçlarına. Tabloda hiç bulunmayan on alt hesap adıyla ayrıca
+sınandı, dokuzunda birinci öneri doğru.
+
+**Üç metodolojik karar.**
+
+1. *Hiperparametre seçimi iç içe çapraz doğrulamayla ölçülüyor.* Ayarı tüm
+   veride CV ile seçip aynı skoru raporlamak seçim sızıntısıdır. Ölçülen
+   fark +0.0069, yani küçük; ama ölçülmeden bilinemezdi.
+2. *Hesap planı bazında grup bölmesi.* Rastgele bölme, aynı plandan benzer
+   hesapları hem eğitime hem teste koyar. `GrupKKat` ile plan bazında
+   bölündüğünde makro F1 0.095'e düşüyor: model, eğitildiği plan ailesinin
+   dışında kullanılamaz. Bu bir kusur değil, sınırın ölçülmüş hâli.
+3. *İlk gerekçe düzeltildi.* Başta "askıdaki hesabın kodu yoktur" diye
+   düşünüp kod önekini dışlamıştım. Yanlıştı: askıdaki hesabın kodu vardır
+   (120.01 gibi), yalnızca tabloda tam karşılığı yoktur. Kod öneki makro
+   F1'i 0.324'ten 0.589'e çıkarıyor.
+
+**Kütüphanede iki sınırlılık bulundu.** `gozetimli-ogrenme` Furkan'ın kendi
+deposu; dokunulmadı, yalnızca not edildi.
+
+- `capraz_tahmin(olasilik=True)` şunu döndürüyor: `predict_proba(...)[:, 1]`.
+  Bu ikili sınıflandırma içindir, çok sınıflı problemde anlamsız. İlk-k
+  doğruluk hesabı bu yüzden `esleme_modeli.ilk_k_oof()` içinde ayrıca
+  yazıldı. İlk ölçümde bu yüzden ilk-3 doğruluğu 0.037 gibi imkansız bir
+  değer çıkmıştı (doğruluk 0.435 iken).
+- `GrupKKat.bol()` grup etiketlerinde `.item()` çağırıyor. Pandas'tan gelen
+  object dtype dizide elemanlar düz Python `str` olduğu için `AttributeError`
+  veriyor. Gerçek veride gruplar çoğu zaman metindir (şirket kodu, hasta
+  kimliği, mağaza adı), yani sık karşılaşılacak bir durum. Geçici çözüm
+  `pd.factorize` ile grupları tam sayıya çevirmek.
+
+### Sistem 2: bulgu triyajı, veri toplama ayağı
+
+`araclar/bulgu_etiketle.py` yazıldı. Bulgular kararlı bir kimlikle (test
+kodu, şirket, dönem, nesne özeti) işaretleniyor; etiketler
+`cikti/bulgu_etiketleri.csv` içinde birikiyor. Model en az 150 etikete kadar
+**eğitilmiyor**: altında eğitilen bir sınıflandırıcı, etiketleyicinin o günkü
+kararlarını ezberler.
+
+Kritik kısıt: etiket bulguyu silmez, yalnızca gelecekteki sıralamayı
+etkiler. Bir denetim aracında modelin "bunu görmene gerek yok" demeye
+yetkisi yoktur.
+
+### Boru hattı artık 10 adım
+
+`[6c] Askıdaki hesaplar için model önerisi` eklendi; model ya da askıda hesap
+yoksa adım kendini atlıyor. Panele "Eşleme modelini eğit" ve "Model önerisi"
+düğmeleri eklendi. `boru.py` ve `panel.py` artık argümanlı betik
+çalıştırabiliyor (`src/esleme_modeli.py --oner`).
+
+**Bekleyen:** Sistem 3 ve 4 için çok dönemli mizan; unsupervised tarafı için
+Furkan'ın göndereceği kaynak; model eğitimi için göndereceği veri seti.

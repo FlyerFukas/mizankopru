@@ -47,6 +47,11 @@ ADIMLAR = [
     # bağımsız yeniden okur ve çıktılardaki rakamlarla karşılaştırır.
     # Çökmeden yanlış sonuç üreten bir boru hattı, çöken bir boru
     # hattından daha tehlikelidir; bu adım onu yakalamak için var.
+    # Model önerisi: askıda hesap varsa, eğitilmiş model varsa. İkisi de
+    # yoksa adım kendini atlar. Model hiçbir tutarı değiştirmez, yalnızca
+    # insan onayına sunulacak bir öneri listesi yazar.
+    ("oneri",   "src/esleme_modeli.py --oner",
+     "[6c] Askıdaki hesaplar için model önerisi"),
     ("capraz",  "araclar/capraz_dogrula.py",
      "[7] Çapraz doğrulama: ham dosya ↔ çıktı"),
 ]
@@ -55,8 +60,11 @@ ADIMLAR = [
 def calistir(betik: str, g: Gunluk, ortam: dict | None = None) -> tuple[bool, float, str]:
     basla = time.time()
     try:
+        # Betik adı argüman taşıyabilir: "src/esleme_modeli.py --oner"
+        parcalar = betik.split()
+        komut = [sys.executable, str(KOK / parcalar[0])] + parcalar[1:]
         sonuc = subprocess.run(
-            [sys.executable, str(KOK / betik)],
+            komut,
             capture_output=True, text=True, encoding="utf-8",
             errors="replace", cwd=str(KOK), env=ortam, timeout=900)
     except subprocess.TimeoutExpired:

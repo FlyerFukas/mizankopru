@@ -19,6 +19,12 @@ gunluk/*
 !cikti/.gitkeep
 !gunluk/.gitkeep
 
+# Eğitilmiş modeller: joblib/pickle biçimindedir ve pickle açmak kod
+# çalıştırmaktır. Depoya girmezler; her makine kendi modelini üretir.
+modeller/*.joblib
+modeller/*.pkl
+modeller/*.pickle
+
 # Python
 __pycache__/
 *.py[cod]

@@ -3,7 +3,7 @@
 **Çok şirketli, çok para birimli ay sonu konsolidasyon ve iç kontrol motoru.**
 
 Dağınık ERP çıktılarını tek şemaya indirir, grup hesap planına eşler, IAS 21'e göre
-çevirir, iç kontrol testlerinden geçirir ve bütçe sapmasını **fiyat / karışım /
+çevirir, 24 iç kontrol testinden geçirir ve bütçe sapmasını **fiyat / karışım /
 hacim / kur** bileşenlerine ayırır. Çıktı: tek dosyalık HTML kapanış panosu ve
 formatlı Excel konsolidasyon paketi.
 
@@ -83,6 +83,8 @@ veri/girdi/   41 dağınık dosya: farklı biçim, kolon adı, tarih ve sayı fo
      ├─[3] cevir.py    IAS 21 çevrim + eliminasyon + NCI
      ├─[4] kontrol.py  24 iç kontrol testi               130 bulgu
      ├─[5a] oran.py   18 finansal oran + dikey analiz
+     ├─[6c] esleme_modeli.py --oner   askıdaki hesaplara model önerisi
+     └─[7] capraz_dogrula.py   ham dosya ↔ çıktı, 12 sınama
      ├─[5] sapma.py    fiyat/karışım/hacim/kur ayrıştırması
      └─[6] pano.py + excel.py
              cikti/pano.html · cikti/konsolidasyon_paketi.xlsx
@@ -149,6 +151,33 @@ cp .env.ornek .env     # içine ANTHROPIC_API_KEY=... yaz
 
 Anahtar yoksa motor **tam çalışır**, sadece yorum metinleri üretilmez.
 Ürettiği rakamların hiçbiri değişmez.
+
+---
+
+## Makine öğrenmesi katmanı
+
+Hesap eşleme önerisi bir sınıflandırıcıyla üretilir: hesap adından ve kodun
+ilk iki hanesinden grup kodu tahmin edilir. Eğitim verisi projenin kendi
+eşleme tablosudur ve her onaylanan eşlemeyle büyür.
+
+**Model hiçbir tutarı değiştirmez.** Öneri üretir, sıralar, beklenti üretir.
+`araclar/ogrenme_notr_mu.py` bunu her seferinde sınar: boru hattı öğrenme
+katmanı açık ve kapalı iki kez çalıştırılır, tutar taşıyan sekiz dosyanın
+özeti karşılaştırılır. Hepsi birebir aynı olmalıdır.
+
+Ölçülen başarı ve **sınırı**, hangi sistemin neden seçildiği ve sıradakiler:
+[ENTEGRASYON-ML.md](ENTEGRASYON-ML.md).
+
+```bash
+py -m pip install scikit-learn
+py -m pip install -e ../gozetimli-ogrenme   # değerlendirme kütüphanesi
+py src/esleme_modeli.py                     # eğit ve ölç
+py src/esleme_modeli.py --oner              # askıdaki hesaplara öneri
+py araclar/ogrenme_notr_mu.py               # katman nötr mü?
+```
+
+Bu katman isteğe bağlıdır: kütüphaneler kurulu değilse boru hattı tam
+çalışır, yalnızca öneri üretilmez.
 
 ---
 

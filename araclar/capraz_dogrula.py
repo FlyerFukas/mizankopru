@@ -26,7 +26,8 @@ NEDEN GEREKLİ
 ÇALIŞTIRMA
   py araclar/capraz_dogrula.py
 ÇIKIŞ KODU
-  0 = tüm sınamalar geçti · 1 = en az bir sınama başarısız
+  0 = tüm sınamalar geçti, ya da demo veri seti (sınama atlandı, gerekçesi
+      günlükte) · 1 = en az bir sınama başarısız ya da biçim kaydı eksik
 """
 from __future__ import annotations
 
@@ -88,6 +89,27 @@ def main() -> int:
     if not mizanlar:
         g.hata("Köken kaydında tanınmış mizan dosyası yok.")
         g.bitir({"durum": "mizan_yok"})
+        return 1
+
+    # Bu sınama kullanıcının yüklediği mizan içindir: bağımsız okuyucu,
+    # profil_olustur.py'nin yazdığı mizan_bicimi kaydıyla çalışır. Demo veri
+    # seti çok biçimlidir (aylık xlsx, 12 sekmeli xlsx, csv) ve kendi
+    # doğrulamasını taşır: veri üreteci enjekte ettiği tuzakları cevap
+    # anahtarına yazar. Atlama sessiz değildir, günlükte gerekçesiyle durur.
+    if koken.get("veri_seti") == "demo":
+        g.uyari("Demo veri seti: çapraz doğrulama kullanıcı mizanı için "
+                "yazıldı, bu çalıştırmada ATLANDI. Demo çıktısı "
+                "veri/ornek/TUZAK_CEVAP_ANAHTARI.json ile sınanır.")
+        g.bitir({"durum": "atlandi", "neden": "demo_veri_seti"})
+        return 0
+
+    bicimsiz = sorted({d["sirket"] for d in mizanlar
+                       if not y.sirketler[d["sirket"]].mizan_bicimi})
+    if bicimsiz:
+        g.hata("Bağımsız okuma için mizan biçimi kaydı olmayan şirket: "
+               + ", ".join(bicimsiz) + ". Kaydı üretmek için: "
+               'py araclar/profil_olustur.py "veri/girdi/DOSYA.xls"')
+        g.bitir({"durum": "bicim_yok", "sirketler": bicimsiz})
         return 1
 
     g.bilgi("Çıktılar şu dosyalardan üretildiğini iddia ediyor:")

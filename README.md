@@ -9,26 +9,25 @@ formatlı Excel konsolidasyon paketi.
 
 > *A month-end consolidation and internal-control engine for multi-entity,
 > multi-currency groups. Normalizes messy ERP exports, maps local charts of
-> accounts to a group IFRS chart, applies IAS 21 translation, runs 14 internal
+> accounts to a group IFRS chart, applies IAS 21 translation, runs 24 internal
 > control tests, and decomposes budget variance into price / mix / volume / FX.
 > Documentation is in Turkish.*
 
-> ### ⚖️ Lisans: önce bunu okuyun
->
-> Kaynak kodu açıktır, **ticari kullanım serbest değildir.**
->
-> | Kullanım | Durum |
-> |---|---|
-> | Kişisel, öğrenme, hobi, araştırma | **ücretsiz** |
-> | Üniversite, kamu, hayır kurumu | **ücretsiz** |
-> | Bir işletmede ya da işletme için | **ayrı, ücretli lisans gerekir** |
-> | Müşteriye hizmet üretirken, ürüne gömerek, yeniden satarak | **ayrı, ücretli lisans gerekir** |
->
-> [PolyForm Noncommercial 1.0.0](LICENSE) + ticari lisans. Koşullar, kapsam ve
-> iletişim: **[COMMERCIAL.md](COMMERCIAL.md)**
->
-> *Source-available, not open source. Commercial use requires a paid license.
-> See [COMMERCIAL.md](COMMERCIAL.md).*
+![Sentetik demo verisiyle üretilen kapanış panosu](docs/pano.png)
+
+**Sonuç (sentetik demo verisi):** veri üreteci 14 kasıtlı hata enjekte eder
+(kopya fiş, dönem kaydırma, limit parçalama, tek taraflı kayıt, eksik ay...) ve
+cevap anahtarını boru hattının okumadığı bir dosyaya yazar. Motor 14'ünü de
+yakalar: 12'si doğru şirket ve dönemde bulgu olarak çıkar, 2 biçim tuzağı
+(sayı ve tarih biçimi) 41 dosyanın hatasız okunmasıyla geçilir.
+
+```bash
+py src/boru.py --veri-uret --zeka-kapali   # ~45 sn: demo veriyi üretir, cikti/pano.html ve Excel paketini yazar
+```
+
+> Source-available: free for noncommercial use (PolyForm Noncommercial 1.0.0);
+> commercial use requires a licence, see [COMMERCIAL.md](COMMERCIAL.md).
+> Kaynağı açıktır, ticari kullanımı serbest değildir: ayrıntı [Lisans](#lisans) bölümünde.
 
 ---
 
@@ -81,7 +80,7 @@ veri/girdi/   41 dağınık dosya: farklı biçim, kolon adı, tarih ve sayı fo
      ├─[1] topla.py    tek şemaya normalize et           44.000 satır
      ├─[2] esle.py     yerel hesap → grup hesap planı    eşleşmeyen = askıya
      ├─[3] cevir.py    IAS 21 çevrim + eliminasyon + NCI
-     ├─[4] kontrol.py  24 iç kontrol testi               130 bulgu
+     ├─[4] kontrol.py  24 iç kontrol testi               bulgu listesi
      ├─[5a] oran.py   18 finansal oran + dikey analiz
      ├─[6c] esleme_modeli.py --oner   askıdaki hesaplara model önerisi
      └─[7] capraz_dogrula.py   ham dosya ↔ çıktı, 12 sınama
@@ -278,7 +277,7 @@ Demo veri üreteci, üretim bittikten sonra **14 kasıtlı hata** enjekte eder v
 hepsini `veri/ornek/TUZAK_CEVAP_ANAHTARI.json` dosyasına yazar. Boru hattı bu
 dosyayı okumaz. Son durum:
 
-**14/14 tuzak yakalandı** 130 bulgu (kritik 20, yüksek 49, orta 60, düşük 1).
+**14/14 tuzak yakalandı.** Bulgular önem derecesine göre panoda ve Excel paketinde listelenir.
 
 Bu, motorun kendi kendini sınaması için kurulmuş bir çerçevedir: yeni bir test
 eklendiğinde ya da bir eşik değiştiğinde skorun düşüp düşmediği ölçülebilir.
